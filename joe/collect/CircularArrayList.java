@@ -1,10 +1,3 @@
-/*
- * @(#)ArrayDeque.java	1.6 06/04/21
- *
- * Copyright 2006 Sun Microsystems, Inc. All rights reserved.
- * SUN PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
- */
-
 package joe.collect;
 
 import java.io.IOException;
