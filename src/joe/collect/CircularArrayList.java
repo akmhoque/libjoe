@@ -727,7 +727,6 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 		int newIndex = index - displacement & mask;
 
 		boolean connectedNewSuffix = newIndex <= newTail;
-		boolean connectedOldSuffix = index <= tail;
 
 		if (index <= tail) { // if old suffix is a connected interval
 			if (connectedNewSuffix) {
@@ -972,7 +971,6 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 			lastRet = -1;
 		}
 
-		@Override
 		public boolean hasNext() {
 			checkCoMod();
 
@@ -982,7 +980,6 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 
 			return cursor != -1 && cursor != tail;
 		}
-		@Override
 		public E next() {
 			checkCoMod();
 			int mask = getMask();
@@ -996,7 +993,6 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 				return elements[lastRet];
 			}
 		}
-		@Override
 		public int nextIndex() {
 			if (cursor == tail) {
 				return size();
@@ -1004,12 +1000,10 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 			return getListIndexFromArrayIndex(cursor, getMask());
 		}
 
-		@Override
 		public boolean hasPrevious() {
 			checkCoMod();
 			return cursor != head && cursor != -1;
 		}
-		@Override
 		public E previous() {
 			checkCoMod();
 			// check next value to be computed, not current position
@@ -1019,7 +1013,6 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 			lastRet = cursor = (cursor - 1) & getMask();
 			return elements[lastRet];
 		}
-		@Override
 		public int previousIndex() {
 			if (cursor == head) {
 				return -1;
@@ -1029,7 +1022,6 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 			return getListIndexFromArrayIndex((cursor - 1) & mask, mask);
 		}
 
-		@Override
 		public void add(E e) {
 			checkCoMod();
 			// don't cache getMask across possible resizing
@@ -1040,7 +1032,6 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 			cursor = (cursor + 1) & getMask();
 			lastRet = -2; // prevent immediate remove, in line with spec
 		}
-		@Override
 		public void remove() {
 			checkCoMod();
 			if (lastRet < 0) {
@@ -1053,7 +1044,6 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 
 			lastRet = -2; // prevent immediate remove, in line with spec
 		}
-		@Override
 		public void set(E e) {
 			checkCoMod();
 			if (lastRet < 0) {
@@ -1273,15 +1263,12 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 	public Iterator<E> descendingIterator() {
 		return new Iterator<E>() {
 			private final ListIterator<E> delegate = listIterator((size() - 1) & getMask());
-			@Override
 			public E next() {
 				return delegate.previous();
 			}
-			@Override
 			public boolean hasNext() {
 				return delegate.hasPrevious();
 			}
-			@Override
 			public void remove() {
 				delegate.remove();
 			}

@@ -946,7 +946,6 @@ public class CircularArrayListTest extends TestCase {
 			public boolean matchesSafely(List<?> item) {
 				return item.size() == size;
 			}
-			@Override
 			public void describeTo(Description arg0) {
 				arg0.appendText("Size ").appendValue(size);
 			}
