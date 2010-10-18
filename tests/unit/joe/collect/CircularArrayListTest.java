@@ -951,11 +951,12 @@ public class CircularArrayListTest extends TestCase {
 			}
 		};
 	}
+	@SuppressWarnings("rawtypes")
 	static List getElementsAsList(CircularArrayList<?> adl) {
 		return asList((Object[]) Whitebox.getInternalState(adl, "elements"));
 	}
-	@SuppressWarnings("unchecked")
 	static void assertCALMatches(CircularArrayList<?> adl, List<?> expected) {
+		@SuppressWarnings("rawtypes")
 		List elements = getElementsAsList(adl);
 		assertThat(elements, is(expected));
 	}

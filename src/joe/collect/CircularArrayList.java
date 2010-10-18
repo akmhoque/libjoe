@@ -548,9 +548,9 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 			}
 		} else { // head crosses edge
 			// [ . a b . . . ] => [ b . . . a]
-			int wrappedLength = elements.length - newHead & mask; // length of a after move
+			int wrappedLength = elements.length - newHead; // length of a after move
 			System.arraycopy(elements, oldHead, elements, newHead, wrappedLength);
-			System.arraycopy(elements, oldHead + wrappedLength, elements, 0, displacement - wrappedLength);
+			System.arraycopy(elements, oldHead + wrappedLength, elements, 0, length - wrappedLength);
 		}
 		assert head == oldHead;
 		head = newHead;
