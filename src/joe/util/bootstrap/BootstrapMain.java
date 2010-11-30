@@ -6,10 +6,12 @@ import static com.google.common.collect.Lists.*;
 import static com.google.common.collect.Maps.*;
 import static java.lang.reflect.Modifier.*;
 import static joe.util.PropertyUtils.*;
+import static joe.util.bootstrap.BootstrappedEntryPoint.*;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -19,12 +21,23 @@ import joe.util.PropertyUtils;
 import joe.util.SystemUtils;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.base.Joiner.MapJoiner;
 import com.google.common.base.Splitter;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Maps;
 
+/**
+ * TODO usage
+ * <p>
+ * 
+ * 
+ * @author Joe Kearney
+ */
 public final class BootstrapMain {
 	/*
 	 * Priority:
@@ -34,10 +47,12 @@ public final class BootstrapMain {
 	 * * <environment>.properties
 	 */
 
-	static final String PROPERTIES_FILE_ROOT_LOCATIONS_KEY = "bootstrap.properties.root.dir";
-	static final String USER_PROPERTIES_FILE_LOCATIONS_OVERRIDE_KEY = "bootstrap.properties.user.file";
-	static final String IDE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.ide.file";
-	static final String ENVIRONMENT_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.env.file";
+	public static final String BOOTSTRAP_NO_LOGGING_KEY = "bootstrap.logging.disable";
+
+	public static final String PROPERTIES_FILE_ROOT_LOCATIONS_KEY = "bootstrap.properties.root.dir";
+	public static final String USER_PROPERTIES_FILE_LOCATIONS_OVERRIDE_KEY = "bootstrap.properties.user.file";
+	public static final String IDE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.ide.file";
+	public static final String ENVIRONMENT_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.env.file";
 
 	static final String PROPERTIES_FILE_ROOT_LOCATION_DEFAULT = "config";
 	static final String USER_PROPERTIES_FILES_DEFAULT = SystemUtils.getUserName() + ".properties, user.properties";
@@ -87,9 +102,70 @@ public final class BootstrapMain {
 		withMainArgs().launchApplication(mainClass);
 	}
 
-	public static final class BootstrapBuilder {
-		private BootstrapMain bootstrapMain = new BootstrapMain();
+	/**
+	 * Starts the application, loading the main class by name from the first of the supplied arguments.
+	 * 
+	 * @param args the name of the main class to be executed followed by the main arguments
+	 * @throws ClassNotFoundException if the class does not exist
+	 */
+	public static void main(String ... args) throws ClassNotFoundException {
+		checkArgument(args.length > 0, "Usage: " + BootstrapMain.class.getName()
+				+ " <app_main_class> [<app_main_args> ...]");
+		String mainClassName = args[0];
+		String[] applicationArgs = Arrays.copyOfRange(args, 1, args.length, String[].class);
+		main(mainClassName, applicationArgs);
+	}
+	public static void main(String mainClassName, String ... args) throws ClassNotFoundException {
+		withMainArgs(args).launchApplication(Class.forName(mainClassName));
+	}
+	public static void main(Class<?> mainClass, String ... args) {
+		withMainArgs(args).launchApplication(mainClass);
+	}
+	/**
+	 * Launches the application, using as the entry point the class calling this method. Classes calling this method
+	 * must implement the {@link BootstrappedEntryPoint} market interface, and implement the {@code bootstrapMain} entry
+	 * point method.
+	 * 
+	 * @param args main arguments
+	 */
+	public static void launchCurrentClass(String ... args) {
+		// find name of caller class
+		final StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+		if (stackTrace == null || stackTrace.length < 3) {
+			throw new IllegalStateException("Could not obtain valid stack trace to reflectively find main class");
+		}
+		final String mainClassName = stackTrace[2].getClassName();
 
+		// check caller class implements BootstrappedEntryPoint, otherwise we StackOverflow through main()
+		final Class<?> mainClass;
+		try {
+			mainClass = Class.forName(mainClassName);
+		} catch (ClassNotFoundException e) {
+			AssertionError ae = new AssertionError(
+					"Couldn't find type token for a type name that came from a stack trace");
+			ae.initCause(e);
+			throw ae;
+		}
+		checkState(BootstrappedEntryPoint.class.isAssignableFrom(mainClass),
+				"Classes calling #launchCurrentClass() must implement %s", BootstrappedEntryPoint.class);
+
+		main(mainClass, args);
+	}
+
+	public static final class BootstrapBuilder {
+		private final BootstrapMain bootstrapMain = new BootstrapMain();
+
+		/**
+		 * Prepares and launches the application by invoking the {@code main} method on the provided class. If the
+		 * application is to be run in a separate classloader, the provided type token is used only to extract the class
+		 * name.
+		 * 
+		 * @param mainClassName entry point of the application to launch
+		 * @throws ClassNotFoundException
+		 */
+		public void launchApplication(String mainClassName) throws ClassNotFoundException {
+			launchApplication(Class.forName(mainClassName));
+		}
 		/**
 		 * Prepares and launches the application by invoking the {@code main} method on the provided class. If the
 		 * application is to be run in a separate classloader, the provided type token is used only to extract the class
@@ -118,7 +194,24 @@ public final class BootstrapMain {
 		generateProperties();
 		setSystemProperties();
 
+		if (isLoggingEnabled()) {
+			MapJoiner joiner = Joiner.on("\n    ").withKeyValueSeparator(" => ");
+			log("Running application with ");
+			log("  main class        [" + mainClass.getName() + "]");
+			log("  main args         [" + Joiner.on(", ").join(mainArgs) + "]");
+			log("  system properties\n    " + joiner.join(ImmutableSortedMap.copyOf(System.getProperties())));
+		}
+
 		launch();
+	}
+
+	void log(String string) {
+		if (isLoggingEnabled()) {
+			System.out.println(string);
+		}
+	}
+	private boolean isLoggingEnabled() {
+		return !("true".equalsIgnoreCase(applicationProperties.get(BOOTSTRAP_NO_LOGGING_KEY)) || Boolean.getBoolean(BOOTSTRAP_NO_LOGGING_KEY));
 	}
 
 	private void generatePropertiesReferenceList() {
@@ -131,11 +224,16 @@ public final class BootstrapMain {
 		for (Supplier<Map<String, String>> propertiesSupplier : rawPropertiesReferenceList) {
 			Map<String, String> componentProperties = propertiesSupplier.get();
 			applicationPropertiesComponents.add(componentProperties);
+
+			componentProperties = Maps.transformValues(componentProperties,
+					propertyResolverFromMap(applicationProperties));
+			componentProperties = Maps.transformValues(componentProperties,
+					propertyResolverFromMap(applicationProperties));
 			putAllIfAbsent(applicationProperties, componentProperties);
 		}
 	}
+
 	private void setSystemProperties() {
-		System.getProperties().clear();
 		System.getProperties().putAll(applicationProperties);
 	}
 
@@ -154,9 +252,9 @@ public final class BootstrapMain {
 	}
 
 	/*
-	 * property suppliers
+	 * default property supplier
 	 */
-	private final class DefaultPropertySupplier implements PropertySupplier {
+	final class DefaultPropertySupplier implements PropertySupplier {
 		DefaultPropertySupplier() {}
 
 		@Override
@@ -279,23 +377,10 @@ public final class BootstrapMain {
 	private void launch() {
 		checkNotNull(mainClass, "Main class entry point for the application must be set");
 
-		Method mainMethod;
-		try {
-			mainMethod = mainClass.getMethod("main", String[].class);
-			int mainMethodModifiers = mainMethod.getModifiers();
-			checkArgument(isStatic(mainMethodModifiers), "main method must be static");
-			checkArgument(isPublic(mainMethodModifiers), "main method must be public"); // TODO is this true?
-			checkArgument(Void.TYPE.isAssignableFrom(mainMethod.getReturnType()),
-					"main method must have void return type");
-		} catch (SecurityException e) {
-			throw new RuntimeException("BootstrapMain must have permissions to reflectively find the main method", e);
-		} catch (NoSuchMethodException e) {
-			throw new RuntimeException(
-					"Class to be bootstrapped does not have a public static void main(String[]) method", e);
-		}
+		final Method mainMethod = getMainMethod();
 
 		try {
-			mainMethod.invoke(null, (Object) mainArgs);
+			mainMethod.invoke(null, (Object) mainArgs); // new String[0] by default
 		} catch (IllegalArgumentException e) {
 			throw new AssertionError(e);
 		} catch (IllegalAccessException e) {
@@ -304,5 +389,24 @@ public final class BootstrapMain {
 			throw new BootstrapException("Bootstrapped application main thread threw an exception", e.getCause());
 		}
 	}
+	private Method getMainMethod() {
+		String methodName = BootstrappedEntryPoint.class.isAssignableFrom(mainClass) ? BOOTSTRAP_MAIN_METHOD_NAME
+				: "main";
 
+		Method mainMethod;
+		try {
+			mainMethod = mainClass.getMethod(methodName, String[].class);
+			int mainMethodModifiers = mainMethod.getModifiers();
+			checkArgument(isStatic(mainMethodModifiers), "main method must be static");
+			checkArgument(isPublic(mainMethodModifiers), "main method must be public"); // TODO is this true?
+			checkArgument(Void.TYPE.isAssignableFrom(mainMethod.getReturnType()),
+					"main method must have void return type");
+		} catch (SecurityException e) {
+			throw new RuntimeException("BootstrapMain must have permissions to reflectively find the main method", e);
+		} catch (NoSuchMethodException e) {
+			throw new RuntimeException("Class to be bootstrapped does not have a public static void " + methodName
+					+ "(String[]) method", e);
+		}
+		return mainMethod;
+	}
 }
