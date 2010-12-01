@@ -23,6 +23,10 @@ import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 
 public class BootstrapPropertyPriorityOrderingTest {
+	static {
+		System.setProperty(BootstrapMain.BOOTSTRAP_NO_LOGGING_KEY, "true");
+	}
+	
 	static final String SYSTEM_PROPERTY = "system";
 	static final String USER_PROPERTY = "jkearne";
 	static final String IDE_PROPERTY = "ide";

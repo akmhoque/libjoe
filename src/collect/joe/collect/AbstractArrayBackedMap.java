@@ -5,23 +5,22 @@ import java.util.AbstractMap;
 import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.Map.Entry;
-
-import com.google.common.collect.ObjectArrays;
 
 public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
-	private K[] keys;
-	private V[] values;
-	private transient int modCount;
+	protected K[] keys;
+	protected V[] values;
+	transient int modCount;
 
-	protected AbstractArrayBackedMap() {
+	public AbstractArrayBackedMap() {
 		clear();
+	}
+	public AbstractArrayBackedMap(Map<? extends K, ? extends V> map) {
+		putAll(map);
 	}
 
 	@Override
@@ -70,7 +69,7 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 					V value = get(entry.getKey());
 					return value != null ? value.equals(((Entry<?, ?>) o).getValue()) : false;
 				}
-				return false ;
+				return false;
 			}
 
 			@Override
@@ -80,6 +79,7 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 
 		};
 	}
+	@Override
 	public final V put(K key, V value) {
 		if (key == null) {
 			throw new NullPointerException("null key not permitted");
@@ -89,7 +89,7 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 		}
 
 		int index = getIndexByKey(key);
-		if (index == -1) {
+		if (index < 0) {
 			index = getIndexForNewEntry(key, value);
 			putAtIndex(index, key, value);
 			return null;
@@ -104,7 +104,7 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 	@Override
 	public final V remove(Object key) {
 		int index = getIndexByKey(key);
-		if (index == -1) {
+		if (index < 0) {
 			return null;
 		} else {
 			V oldValue = values[index];
@@ -121,43 +121,29 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 		values = (V[]) new Object[0];
 	}
 
-	/** Gets the array index of the specified key, or -1 if it is not present in
-	 * the map.
+	protected final K[] getKeysArray() {
+		return keys;
+	}
+	protected final V[] getValuesArray() {
+		return values;
+	}
+
+	/**
+	 * Gets the array index of the specified key, or a negative value if it is not present in the map.
 	 * 
 	 * @param key key for which to search
-	 * @return index of the key, or -1 if it is not present in the map */
-	protected int getIndexByKey(Object key) {
-		if (key == null) {
-			return -1;
-		}
-
-		for (int i = 0; i < keys.length; i++) {
-			if (keys[i].equals(key)) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	/** Gets the array index of the specified value, or -1 if it is not present
-	 * in the map.
+	 * @return index of the key, or a negative value if it is not present in the map
+	 */
+	protected abstract int getIndexByKey(Object key);
+	/**
+	 * Gets the array index of the specified value, or a negative value if it is not present in the map.
 	 * 
 	 * @param value value for which to search
-	 * @return index of the key, or -1 if it is not present in the map */
-	protected int getIndexByValue(Object value) {
-		if (value == null) {
-			return -1;
-		}
-
-		for (int i = 0; i < values.length; i++) {
-			if (values[i].equals(value)) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	/** Gets the index for insertion of a new key-value pair, where the key is
+	 * @return index of the key, or a negative value if it is not present in the map
+	 */
+	protected abstract int getIndexByValue(Object value);
+	/**
+	 * Gets the index for insertion of a new key-value pair, where the key is
 	 * not currently in the map. The index may depend on the key and/or the
 	 * value. The returned value must be in the range {@code [0, size()]}. If it
 	 * is equal to size of the map prior to this insertion, then the new entry
@@ -165,15 +151,16 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 	 * 
 	 * @param key the new key
 	 * @param value the new value
-	 * @return index at which to insert the new key-value pair */
-	protected int getIndexForNewEntry(K key, V value) {
-		return keys.length;
-	}
+	 * @return index at which to insert the new key-value pair
+	 */
+	protected abstract int getIndexForNewEntry(K key, V value);
 
-	/** Checks that the parameter is equal to the expected mod count, and throws
-	 * {@link ConcurrentModificationException} if not.
+	/**
+	 * Checks that the parameter is equal to the expected mod count, and throws {@link ConcurrentModificationException}
+	 * if not.
 	 * 
-	 * @param expectedModCount expected mod count */
+	 * @param expectedModCount expected mod count
+	 */
 	protected final void checkForComodification(int expectedModCount) {
 		if (expectedModCount != modCount) {
 			throw new ConcurrentModificationException();
@@ -181,10 +168,10 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 	}
 
 	private final void putAtIndex(int index, K key, V value) {
-		int priorSize = size();
-		int newSize = priorSize + 1;
+		int oldSize = size();
+		int newSize = oldSize + 1;
 
-		assert index >= 0 && index <= priorSize;
+		assert index >= 0 && index <= oldSize;
 
 		@SuppressWarnings("unchecked")
 		K[] newKeys = (K[]) new Object[newSize];
@@ -193,10 +180,9 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 
 		System.arraycopy(keys, 0, newKeys, 0, index);
 		System.arraycopy(values, 0, newValues, 0, index);
-		if (index != priorSize) { // else inserting at end
-			System.arraycopy(keys, index, newKeys, index + 1, newSize - index);
-			System.arraycopy(values, index, newValues, index + 1, newSize
-					- index);
+		if (index < oldSize) { // else inserting at end
+			System.arraycopy(keys, index, newKeys, index + 1, oldSize - index);
+			System.arraycopy(values, index, newValues, index + 1, oldSize - index);
 		}
 
 		newKeys[index] = key;
@@ -207,10 +193,12 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 		this.values = newValues;
 	}
 
-	/** Removes the key and value at the specified index. This assumes that such
+	/**
+	 * Removes the key and value at the specified index. This assumes that such
 	 * a pair exists, and performs no range checking.
 	 * 
-	 * @param index index at which to remove the mapping */
+	 * @param index index at which to remove the mapping
+	 */
 	final void removeIndex(int index) {
 		int priorSize = size();
 		int newSize = priorSize - 1;
@@ -229,7 +217,22 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 		this.values = newValues;
 	}
 
+	protected static final int findByScan(Object value, Object[] array) {
+		if (value == null) {
+			return -1;
+		}
+
+		for (int i = 0; i < array.length; i++) {
+			if (array[i].equals(value)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	private final class KeySet extends AbstractSet<K> {
+		KeySet() {}
+
 		@Override
 		public Iterator<K> iterator() {
 			return new KeyIterator();
@@ -250,6 +253,7 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 		public Object[] toArray() {
 			return keys.clone();
 		}
+		@Override
 		public <T> T[] toArray(T[] a) {
 			K[] keys = AbstractArrayBackedMap.this.keys;
 			int incomingLength = a.length;
@@ -268,6 +272,8 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 		}
 	}
 	private final class ValuesCollection extends AbstractCollection<V> {
+		ValuesCollection() {}
+
 		@Override
 		public Iterator<V> iterator() {
 			return new ValuesIterator();
@@ -295,6 +301,7 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 		public Object[] toArray() {
 			return values.clone();
 		}
+		@Override
 		public <T> T[] toArray(T[] a) {
 			V[] values = AbstractArrayBackedMap.this.values;
 			int incomingLength = a.length;
@@ -312,9 +319,12 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 			return ret;
 		}
 	}
+	// TODO weakly-consistent version that does not throw CME?
 	private class IndexIterator {
 		private int expectedModCount = modCount;
 		private int index = -1;
+
+		IndexIterator() {}
 
 		public final boolean hasNext() {
 			return modCount == expectedModCount && size() > index + 1;
@@ -349,30 +359,26 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 		}
 	}
 
-	// TODO weakly-consistent version that does not throw CME?
-	private final class EntryIterator extends IndexIterator implements
-			Iterator<Entry<K, V>> {
+	private final class EntryIterator extends IndexIterator implements Iterator<Entry<K, V>> {
 		private int expectedModCount = modCount;
 		private int index = -1;
+
+		EntryIterator() {}
 
 		@Override
 		public Entry<K, V> next() {
 			int nextIndex = nextIndex();
-
-			return new SimpleImmutableEntry<K, V>(keys[nextIndex],
-					values[nextIndex]);
+			return new SimpleImmutableEntry<K, V>(keys[nextIndex], values[nextIndex]);
 		}
 	}
-	private final class KeyIterator extends IndexIterator implements
-			Iterator<K> {
+	private final class KeyIterator extends IndexIterator implements Iterator<K> {
 		KeyIterator() {}
 		@Override
 		public K next() {
 			return keys[nextIndex()];
 		}
 	}
-	private final class ValuesIterator extends IndexIterator implements
-			Iterator<V> {
+	private final class ValuesIterator extends IndexIterator implements Iterator<V> {
 		ValuesIterator() {}
 		@Override
 		public V next() {

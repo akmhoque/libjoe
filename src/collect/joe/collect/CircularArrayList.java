@@ -204,6 +204,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 	 * @param e the element to add
 	 * @throws NullPointerException if the specified element is null
 	 */
+	@Override
 	public void addFirst(E e) {
 		if (e == null)
 			throw new NullPointerException();
@@ -220,6 +221,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 	 * @param e the element to add
 	 * @throws NullPointerException if the specified element is null
 	 */
+	@Override
 	public void addLast(E e) {
 		if (e == null)
 			throw new NullPointerException();
@@ -235,6 +237,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 	 * @return {@code true} (as specified by {@link Deque#offerFirst})
 	 * @throws NullPointerException if the specified element is null
 	 */
+	@Override
 	public boolean offerFirst(E e) {
 		addFirst(e);
 		return true;
@@ -247,6 +250,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 	 * @return {@code true} (as specified by {@link Deque#offerLast})
 	 * @throws NullPointerException if the specified element is null
 	 */
+	@Override
 	public boolean offerLast(E e) {
 		addLast(e);
 		return true;
@@ -255,6 +259,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 	/**
 	 * @throws NoSuchElementException {@inheritDoc}
 	 */
+	@Override
 	public E removeFirst() {
 		E x = pollFirst();
 		if (x == null)
@@ -265,6 +270,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 	/**
 	 * @throws NoSuchElementException {@inheritDoc}
 	 */
+	@Override
 	public E removeLast() {
 		E x = pollLast();
 		if (x == null)
@@ -272,6 +278,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 		return x;
 	}
 
+	@Override
 	public E pollFirst() {
 		int h = head;
 		E result = elements[h]; // Element is null if deque empty
@@ -282,6 +289,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 		return result;
 	}
 
+	@Override
 	public E pollLast() {
 		int t = (tail - 1) & (elements.length - 1);
 		E result = elements[t];
@@ -295,6 +303,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 	/**
 	 * @throws NoSuchElementException {@inheritDoc}
 	 */
+	@Override
 	public E getFirst() {
 		E x = elements[head];
 		if (x == null)
@@ -305,6 +314,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 	/**
 	 * @throws NoSuchElementException {@inheritDoc}
 	 */
+	@Override
 	public E getLast() {
 		E x = elements[(tail - 1) & (elements.length - 1)];
 		if (x == null)
@@ -312,10 +322,12 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 		return x;
 	}
 
+	@Override
 	public E peekFirst() {
 		return elements[head]; // elements[head] is null if deque empty
 	}
 
+	@Override
 	public E peekLast() {
 		return elements[(tail - 1) & (elements.length - 1)];
 	}
@@ -329,6 +341,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 	 * @param o element to be removed from this deque, if present
 	 * @return {@code true} if the deque contained the specified element
 	 */
+	@Override
 	public boolean removeFirstOccurrence(Object o) {
 		if (o == null)
 			return false;
@@ -354,6 +367,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 	 * @param o element to be removed from this deque, if present
 	 * @return {@code true} if the deque contained the specified element
 	 */
+	@Override
 	public boolean removeLastOccurrence(Object o) {
 		if (o == null)
 			return false;
@@ -971,6 +985,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 			lastRet = -1;
 		}
 
+		@Override
 		public boolean hasNext() {
 			checkCoMod();
 
@@ -980,6 +995,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 
 			return cursor != -1 && cursor != tail;
 		}
+		@Override
 		public E next() {
 			checkCoMod();
 			int mask = getMask();
@@ -993,6 +1009,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 				return elements[lastRet];
 			}
 		}
+		@Override
 		public int nextIndex() {
 			if (cursor == tail) {
 				return size();
@@ -1000,10 +1017,12 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 			return getListIndexFromArrayIndex(cursor, getMask());
 		}
 
+		@Override
 		public boolean hasPrevious() {
 			checkCoMod();
 			return cursor != head && cursor != -1;
 		}
+		@Override
 		public E previous() {
 			checkCoMod();
 			// check next value to be computed, not current position
@@ -1013,6 +1032,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 			lastRet = cursor = (cursor - 1) & getMask();
 			return elements[lastRet];
 		}
+		@Override
 		public int previousIndex() {
 			if (cursor == head) {
 				return -1;
@@ -1022,6 +1042,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 			return getListIndexFromArrayIndex((cursor - 1) & mask, mask);
 		}
 
+		@Override
 		public void add(E e) {
 			checkCoMod();
 			// don't cache getMask across possible resizing
@@ -1032,6 +1053,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 			cursor = (cursor + 1) & getMask();
 			lastRet = -2; // prevent immediate remove, in line with spec
 		}
+		@Override
 		public void remove() {
 			checkCoMod();
 			if (lastRet < 0) {
@@ -1044,6 +1066,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 
 			lastRet = -2; // prevent immediate remove, in line with spec
 		}
+		@Override
 		public void set(E e) {
 			checkCoMod();
 			if (lastRet < 0) {
@@ -1089,6 +1112,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 	 * @return {@code true} (as specified by {@link Queue#offer})
 	 * @throws NullPointerException if the specified element is null
 	 */
+	@Override
 	public boolean offer(E e) {
 		return offerLast(e);
 	}
@@ -1102,6 +1126,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 	 * @return the head of the queue represented by this deque
 	 * @throws NoSuchElementException {@inheritDoc}
 	 */
+	@Override
 	public E remove() {
 		return removeFirst();
 	}
@@ -1114,6 +1139,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 	 *
 	 * @return the head of the queue represented by this deque, or {@code null} if this deque is empty
 	 */
+	@Override
 	public E poll() {
 		return pollFirst();
 	}
@@ -1127,6 +1153,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 	 * @return the head of the queue represented by this deque
 	 * @throws NoSuchElementException {@inheritDoc}
 	 */
+	@Override
 	public E element() {
 		return getFirst();
 	}
@@ -1139,6 +1166,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 	 *
 	 * @return the head of the queue represented by this deque, or {@code null} if this deque is empty
 	 */
+	@Override
 	public E peek() {
 		return peekFirst();
 	}
@@ -1154,6 +1182,7 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 	 * @param e the element to push
 	 * @throws NullPointerException if the specified element is null
 	 */
+	@Override
 	public void push(E e) {
 		addFirst(e);
 	}
@@ -1167,11 +1196,14 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 	 * @return the element at the front of this deque (which is the top of the stack represented by this deque)
 	 * @throws NoSuchElementException {@inheritDoc}
 	 */
+	@Override
 	public E pop() {
 		return removeFirst();
 	}
 
 	private void checkInvariants() {
+		// int mask = elements.length - 1;
+		
 		assert elements[tail] == null;
 		assert head == tail ? elements[head] == null : (elements[head] != null && elements[(tail - 1)
 				& (elements.length - 1)] != null);
@@ -1260,15 +1292,19 @@ public class CircularArrayList<E> extends AbstractList<E> implements Deque<E>, L
 		return listIterator();
 	}
 
+	@Override
 	public Iterator<E> descendingIterator() {
 		return new Iterator<E>() {
 			private final ListIterator<E> delegate = listIterator((size() - 1) & getMask());
+			@Override
 			public E next() {
 				return delegate.previous();
 			}
+			@Override
 			public boolean hasNext() {
 				return delegate.hasPrevious();
 			}
+			@Override
 			public void remove() {
 				delegate.remove();
 			}

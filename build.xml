@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<project name="libjoe" basedir=".">
+	<property file="build.properties" />
+	<property name="classes.root.dir" value="${build.dir}/classes" />
+	<property name="jars.dir" value="${build.dir}/jars" />
+	<property name="dist.dir" value="dist" />
+
+	<taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" classpath="lib/jarjar-1.0.jar" />
+
+	<target name="clean-dist" depends="clean-build-all,dist-jars" />
+	<target name="clean-build-all" depends="clean-all,build-all" description="Cleans the build area and builds everything from scratch" />
+	<target name="build-all" depends="compile-all,jar-bootstrapper" description="Builds jars for all components" />
+	<target name="clean-all" description="Cleans the build area">
+		<delete dir="${build.dir}" />
+		<delete dir="${dist.dir}" />
+	</target>
+
+	<target name="compile-all" description="Compiles the source for all components">
+		<mkdir dir="${classes.root.dir}" />
+		<compile-and-jar component="${src.base.dir}" />
+		<compile-and-jar component="${src.collect.dir}" />
+		<compile-and-jar component="${src.bootstrapper.dir}" />
+	</target>
+
+	<macrodef name="compile-and-jar">
+		<attribute name="component" />
+		<sequential>
+			<mkdir dir="${classes.root.dir}/@{component}" />
+			<javac srcdir="${src.root.dir}/@{component}" destdir="${classes.root.dir}/@{component}" debug="on">
+				<compilerarg value="-Xlint:all" />
+				<classpath>
+					<fileset dir=".">
+						<include name="lib/**/*.jar" />
+						<include name="${jars.dir}/*.jar" />
+					</fileset>
+				</classpath>
+			</javac>
+			<jar destfile="${jars.dir}/libjoe-@{component}-${version}.jar" basedir="${classes.root.dir}/@{component}" />
+			<jar destfile="${jars.dir}/libjoe-@{component}-${version}.src.jar" basedir="${src.root.dir}/@{component}" />
+		</sequential>
+	</macrodef>
+
+	<target name="jar-bootstrapper" depends="compile-all" description="Builds the bootstrapper jars: one standalone incorporating its jarjar'd dependencies and one with only the libjoe code.">
+		<property name="bootstrapper.jar.name" value="${jars.dir}/libjoe-bootstrapper-${version}.jar" />
+		<jarjar destfile="${jars.dir}/libjoe-bootstrapper-standalone-${version}.jar" basedir="${classes.root.dir}">
+			<zipfileset dir=".">
+				<include name="${bootstrapper.jar.name}" />
+				<include name="lib/guava-r07.jar" />
+			</zipfileset>
+			<rule pattern="com.google.**" result="joe.dependencies.@0" />
+		</jarjar>
+	</target>
+
+	<target name="dist-jars">
+		<mkdir dir="${dist.dir}" />
+		<copy todir="${dist.dir}">
+			<fileset dir="${jars.dir}" />
+		</copy>
+	</target>
+</project>

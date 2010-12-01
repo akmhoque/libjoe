@@ -3,6 +3,10 @@ package joe.util.bootstrap;
 import org.junit.Test;
 
 public class BootstrapTargetExceptionPropagationTest {
+	static {
+		System.setProperty(BootstrapMain.BOOTSTRAP_NO_LOGGING_KEY, "true");
+	}
+	
 	static String EXCEPTION_MESSAGE = "expected";
 	private static class ThrowsRuntimeException {
 		@SuppressWarnings("unused")

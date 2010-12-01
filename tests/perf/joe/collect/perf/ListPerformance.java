@@ -25,8 +25,8 @@ public class ListPerformance {
 	}
 
 	static final int reps = 1000;
-	static final List<Test<List<Integer>>> tests = newArrayList();
-	static final List<Test<Deque<Integer>>> qTests = newArrayList();
+	static final List<AbstractTest<List<Integer>>> tests = newArrayList();
+	static final List<AbstractTest<Deque<Integer>>> qTests = newArrayList();
 	static {
 		tests.add(new ListAddTester("add"));
 		tests.add(new ListGetTester("get"));
@@ -45,7 +45,7 @@ public class ListPerformance {
 		qTests.add(new QueueRemoveLastTester("rmLast"));
 	}
 
-	private static final class QueueRemoveLastTester extends Test<Deque<Integer>> {
+	private static final class QueueRemoveLastTester extends AbstractTest<Deque<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -67,7 +67,7 @@ public class ListPerformance {
 		}
 	}
 
-	private static final class QueueRemoveFirstTester extends Test<Deque<Integer>> {
+	private static final class QueueRemoveFirstTester extends AbstractTest<Deque<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -89,7 +89,7 @@ public class ListPerformance {
 		}
 	}
 
-	private static final class QueueAddLastTester extends Test<Deque<Integer>> {
+	private static final class QueueAddLastTester extends AbstractTest<Deque<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -110,7 +110,7 @@ public class ListPerformance {
 		}
 	}
 
-	private static final class QueueAddFirstTester extends Test<Deque<Integer>> {
+	private static final class QueueAddFirstTester extends AbstractTest<Deque<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -131,7 +131,7 @@ public class ListPerformance {
 		}
 	}
 
-	private static final class ListRemoveFirstTester extends Test<List<Integer>> {
+	private static final class ListRemoveFirstTester extends AbstractTest<List<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -154,7 +154,7 @@ public class ListPerformance {
 		}
 	}
 
-	private static final class ListRemoveMidTester extends Test<List<Integer>> {
+	private static final class ListRemoveMidTester extends AbstractTest<List<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -178,7 +178,7 @@ public class ListPerformance {
 		}
 	}
 
-	private static final class ListRemoveRandomTester extends Test<List<Integer>> {
+	private static final class ListRemoveRandomTester extends AbstractTest<List<Integer>> {
 		private final Random RANDOM = new Random();
 
 		/**
@@ -203,7 +203,7 @@ public class ListPerformance {
 		}
 	}
 
-	private static final class ListInsertTester extends Test<List<Integer>> {
+	private static final class ListInsertTester extends AbstractTest<List<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -220,7 +220,7 @@ public class ListPerformance {
 		}
 	}
 
-	private static final class ListIterMidAddTester extends Test<List<Integer>> {
+	private static final class ListIterMidAddTester extends AbstractTest<List<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -239,7 +239,7 @@ public class ListPerformance {
 		}
 	}
 
-	private static final class ListIterThirdAddTester extends Test<List<Integer>> {
+	private static final class ListIterThirdAddTester extends AbstractTest<List<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -258,7 +258,7 @@ public class ListPerformance {
 		}
 	}
 
-	private static final class ListSetTester extends Test<List<Integer>> {
+	private static final class ListSetTester extends AbstractTest<List<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -276,7 +276,7 @@ public class ListPerformance {
 		}
 	}
 
-	private static final class ListGetTester extends Test<List<Integer>> {
+	private static final class ListGetTester extends AbstractTest<List<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -294,7 +294,7 @@ public class ListPerformance {
 		}
 	}
 
-	private static final class ListAddTester extends Test<List<Integer>> {
+	private static final class ListAddTester extends AbstractTest<List<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -315,8 +315,8 @@ public class ListPerformance {
 		}
 	}
 
-	static class ListTester extends Tester<List<Integer>> {
-		public ListTester(List<Integer> container, List<Test<List<Integer>>> tests) {
+	static class ListTester extends PerformanceTester<List<Integer>> {
+		public ListTester(List<Integer> container, List<AbstractTest<List<Integer>>> tests) {
 			super(container, tests);
 		}
 
@@ -329,7 +329,7 @@ public class ListPerformance {
 		}
 
 		// Convenience method:
-		public static void run(List<Integer> list, List<Test<List<Integer>>> tests) {
+		public static void run(List<Integer> list, List<AbstractTest<List<Integer>>> tests) {
 			new ListTester(list, tests).timedTest();
 		}
 	}
@@ -351,9 +351,9 @@ public class ListPerformance {
 	 * @param args
 	 */
 	private static void doMain(String[] args) {
-		Tester.fieldWidth = 12;
+		PerformanceTester.fieldWidth = 12;
 		// Tester.defaultParams = TestParam.array(10, 75000, 100, 50000, 1000, 20000, 10000, 2000);
-		Tester.defaultParams = TestParam.array(10, 750, 100, 500, 1000, 200, 10000, 20);
+		PerformanceTester.defaultParams = TestParam.array(10, 750, 100, 500, 1000, 200, 10000, 20);
 
 		ListTester.run(new CircularArrayList<Integer>(), tests);
 		ListTester.run(new ArrayList<Integer>(), tests);

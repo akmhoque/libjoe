@@ -1,8 +1,8 @@
 package joe.collect.perf;
 
-public abstract class Test<C> {
+public abstract class AbstractTest<C> {
 	String name;
-	public Test(String name) {
+	public AbstractTest(String name) {
 		this.name = name;
 	}
 	// Override this Template Method for different tests.
