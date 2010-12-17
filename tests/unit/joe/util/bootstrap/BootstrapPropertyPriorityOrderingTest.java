@@ -23,10 +23,6 @@ import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 
 public class BootstrapPropertyPriorityOrderingTest {
-	static {
-		System.setProperty(BootstrapMain.BOOTSTRAP_NO_LOGGING_KEY, "true");
-	}
-	
 	static final String SYSTEM_PROPERTY = "system";
 	static final String USER_PROPERTY = "jkearne";
 	static final String IDE_PROPERTY = "ide";
@@ -47,7 +43,6 @@ public class BootstrapPropertyPriorityOrderingTest {
 
 			for (List<String> combination : combinations) {
 				System.clearProperty(PROPERTY_UNDER_TEST_KEY);
-
 				try {
 					BootstrapBuilder builder = BootstrapMain.withCustomPropertySupplier(new ExplicitPropertySupplier(
 							combination));
@@ -59,6 +54,8 @@ public class BootstrapPropertyPriorityOrderingTest {
 					AssertionError assertionError = new AssertionError("Failed with combination " + combination);
 					assertionError.initCause(e);
 					throw assertionError;
+				} finally {
+					System.clearProperty(PROPERTY_UNDER_TEST_KEY);
 				}
 			}
 		}
@@ -91,7 +88,8 @@ public class BootstrapPropertyPriorityOrderingTest {
 
 		private Supplier<Map<String, String>> getEnvPropOrEmpty(String env) {
 			if (envs.contains(env)) {
-				return Suppliers.<Map<String, String>> ofInstance(ImmutableMap.of(PROPERTY_UNDER_TEST_KEY, env));
+				return Suppliers.<Map<String, String>> ofInstance(ImmutableMap.of(PROPERTY_UNDER_TEST_KEY, env,
+						BootstrapMain.BOOTSTRAP_ENABLE_KEY, "true"));
 			} else {
 				return EMPTY_MAP_SUPPLIER;
 			}

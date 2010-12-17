@@ -13,9 +13,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Queue;
 
 import joe.util.PropertyUtils;
 import joe.util.SystemUtils;
@@ -32,11 +34,35 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 
 /**
- * TODO usage
+ * A general application entry point that loads and merges properties from different files, based on username and other
+ * properties. It can be invoked transparently: invocation without being explicitly enabled will have no effect other
+ * than to delegate through to the bootstrapped application with no changes to the environment.
+ * <p>
+ * <h3>Summary of Understood Properties</h3>
+ * 
+ * <table border>
+ * <tr><th>Property</th><th>Behaviour</th><th>Default value</th>
+ * <tr valign=top>
+ * <tr align=left><td>{@code bootstrap.enable}<td>{@code true} to enable bootstrapping behaviour. No changes will be
+ * made to the application environment without this property set.</td> <td>{@code false} <tr align=left><td>
+ * {@code bootstrap.logging.enable}<td>Turns on verbose logging of properties found and set.</td><td>{@code false}</td>
+ * <tr align=left><td>{@code bootstrap.properties.root.dir}</td><td>Root directory in which to look for properties
+ * files.</td><td>config</td>
+ * <tr align=left><td>{@code bootstrap.properties.user.file}</td><td>Comma separated list of file names, relative to the
+ * root directory specified by {@code bootstrap.properties.root.dir}, in which to look for user properties
+ * files.</td><td>{@code <user_name>.properties,} {@code user.properties}</td>
+ * <tr align=left><td>{@code bootstrap.properties.ide.file}</td><td>File name, relative to the root directory specified
+ * by {@code bootstrap.properties.root.dir}, in which to look for an IDE properties file.</td><td>{@code ide.properties}
+ * </td>
+ * </table>
  * <p>
  * 
- * 
  * @author Joe Kearney
+ */
+/*
+ * TODO observe bootstrap.environment
+ * TODO document bootstrap. property keys
+ * TODO make all single-value suppliers allow multiple files to be specified
  */
 public final class BootstrapMain {
 	/*
@@ -47,7 +73,8 @@ public final class BootstrapMain {
 	 * * <environment>.properties
 	 */
 
-	public static final String BOOTSTRAP_NO_LOGGING_KEY = "bootstrap.logging.disable";
+	public static final String BOOTSTRAP_PROPERTY_LOGGING_KEY = "bootstrap.logging.enable";
+	public static final String BOOTSTRAP_ENABLE_KEY = "bootstrap.enable";
 
 	public static final String PROPERTIES_FILE_ROOT_LOCATIONS_KEY = "bootstrap.properties.root.dir";
 	public static final String USER_PROPERTIES_FILE_LOCATIONS_OVERRIDE_KEY = "bootstrap.properties.user.file";
@@ -58,8 +85,8 @@ public final class BootstrapMain {
 	static final String USER_PROPERTIES_FILES_DEFAULT = SystemUtils.getUserName() + ".properties, user.properties";
 	static final String IDE_PROPERTIES_FILE_DEFAULT = "ide.properties";
 
-	private Class<?> mainClass;
-	private String[] mainArgs = new String[0];
+	private Class<?> mainClass; // no default
+	private String[] mainArgs = new String[0]; // default to no args
 	private PropertySupplier propertySupplier = new DefaultPropertySupplier();
 
 	/** the system properties to be provided to the application */
@@ -194,24 +221,53 @@ public final class BootstrapMain {
 		generateProperties();
 		setSystemProperties();
 
-		if (isLoggingEnabled()) {
+		if (!isLoggingDisabled()) {
 			MapJoiner joiner = Joiner.on("\n    ").withKeyValueSeparator(" => ");
-			log("Running application with ");
-			log("  main class        [" + mainClass.getName() + "]");
-			log("  main args         [" + Joiner.on(", ").join(mainArgs) + "]");
-			log("  system properties\n    " + joiner.join(ImmutableSortedMap.copyOf(System.getProperties())));
+			log("Running application with\n" //
+					+ "  main class        [" + mainClass.getName() + "]\n" //
+					+ "  main args         [" + Joiner.on(", ").join(mainArgs) + "]\n" //
+					+ "  system properties\n    " + joiner.join(ImmutableSortedMap.copyOf(System.getProperties())));
 		}
+		flushLogQueue();
 
 		launch();
 	}
 
+	private final Queue<String> logQueue = newLinkedList();
+	private boolean queueLogMessages = true;
 	void log(String string) {
-		if (isLoggingEnabled()) {
-			System.out.println(string);
+		if (!isLoggingDisabled()) {
+			final String logMessage = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL [%2$s] - %3$s",
+					new Date(), Thread.currentThread().getName(), string);
+
+			if (queueLogMessages && isLoggingEnabled()) {
+				// we're in queue mode and must now flush everything
+				logQueue.add(logMessage);
+				flushLogQueue();
+			} else if (queueLogMessages) {
+				// we're in queue mode and can't flush anything
+				logQueue.add(logMessage);
+			} else {
+				// actually log
+				System.out.println(logMessage);
+			}
 		}
 	}
+	private void flushLogQueue() {
+		if (isLoggingEnabled()) {
+			queueLogMessages = false;
+			while (!logQueue.isEmpty()) {
+				System.out.println(logQueue.poll());
+			}
+		} else {
+			logQueue.clear();
+		}
+	}
+	private boolean isLoggingDisabled() {
+		return "false".equalsIgnoreCase(applicationProperties.get(BOOTSTRAP_PROPERTY_LOGGING_KEY));
+	}
 	private boolean isLoggingEnabled() {
-		return !("true".equalsIgnoreCase(applicationProperties.get(BOOTSTRAP_NO_LOGGING_KEY)) || Boolean.getBoolean(BOOTSTRAP_NO_LOGGING_KEY));
+		return "true".equalsIgnoreCase(applicationProperties.get(BOOTSTRAP_PROPERTY_LOGGING_KEY));
 	}
 
 	private void generatePropertiesReferenceList() {
@@ -221,7 +277,17 @@ public final class BootstrapMain {
 		rawPropertiesReferenceList.add(propertySupplier.getEnvironmentPropertiesSupplier());
 	}
 	private void generateProperties() {
+		MapJoiner joiner = Joiner.on("\n  ").withKeyValueSeparator(" => ");
 		for (Supplier<Map<String, String>> propertiesSupplier : rawPropertiesReferenceList) {
+			if (isBootstrappingDisabled()) {
+				log("Bootstrapping disabled by the " + BOOTSTRAP_ENABLE_KEY + " property supplied by ["
+						+ propertiesSupplier.toString() + "]. To override, specify " + BOOTSTRAP_ENABLE_KEY
+						+ "=true in this or a higher-priority property set.");
+				return;
+			}
+
+			log("Loading properties from [" + propertiesSupplier.toString() + "]");
+
 			Map<String, String> componentProperties = propertiesSupplier.get();
 			applicationPropertiesComponents.add(componentProperties);
 
@@ -230,11 +296,32 @@ public final class BootstrapMain {
 			componentProperties = Maps.transformValues(componentProperties,
 					propertyResolverFromMap(applicationProperties));
 			putAllIfAbsent(applicationProperties, componentProperties);
+			if (!componentProperties.isEmpty()) {
+				log("Loaded (non-overriding) properties from [" + propertiesSupplier.toString() + "]:\n  "
+						+ joiner.join(ImmutableSortedMap.copyOf(componentProperties)));
+			} else {
+				log("Loaded no properties from [" + propertiesSupplier.toString() + "]");
+			}
 		}
+
+		flushLogQueue();
+	}
+	private boolean isBootstrappingDisabled() {
+		String prop = getApplicationProperty(BOOTSTRAP_ENABLE_KEY);
+		return prop != null && !"true".equalsIgnoreCase(prop);
+	}
+	private boolean isBootstrappingEnabled() {
+		return "true".equalsIgnoreCase(getApplicationProperty(BOOTSTRAP_ENABLE_KEY));
 	}
 
 	private void setSystemProperties() {
-		System.getProperties().putAll(applicationProperties);
+		if (isBootstrappingEnabled()) {
+			log("Setting application system properties");
+			System.getProperties().putAll(applicationProperties);
+		} else {
+			log("Bootstrapping disabled, system properties will not be set for the application; "
+					+ "it will be launched with no changes to its environment.");
+		}
 	}
 
 	/**

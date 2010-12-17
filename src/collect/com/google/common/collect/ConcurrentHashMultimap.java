@@ -539,9 +539,12 @@ public final class ConcurrentHashMultimap<K, V> implements ConcurrentSetMultimap
 				} else {
 					// no prior mapping, just push the new values at the head of this entry chain
 					Set<V> valuesCollection = HashEntry.createValuesCollection(newVvalues);
-					tab[index] = new HashEntry<K, V>(key, hash, first, valuesCollection);
-					hashEntryCount = incrementedHashEntryCount;
-					elementCount = c + valuesCollection.size(); // write-volatile
+					if (!valuesCollection.isEmpty()) {
+						tab[index] = new HashEntry<K, V>(key, hash, first, valuesCollection);
+						hashEntryCount = incrementedHashEntryCount;
+						elementCount = c + valuesCollection.size(); // write-volatile
+					}
+					// else no change, don't need a volatile write
 					return null;
 				}
 			} finally {
@@ -1177,7 +1180,7 @@ public final class ConcurrentHashMultimap<K, V> implements ConcurrentSetMultimap
 		return new AbstractMultiset<K>() {
 			@Override
 			public Set<Multiset.Entry<K>> entrySet() {
-				final Iterable<Multiset.Entry<K>> multisetEntryIterable = Iterables.transform(keySet, sizeForKey);
+				final Iterable<Multiset.Entry<K>> multisetEntryIterable = Iterables.transform(keySet(), sizeForKey);
 				return new AbstractSet<Multiset.Entry<K>>() {
 					@Override
 					public Iterator<Multiset.Entry<K>> iterator() {

@@ -7,12 +7,11 @@
 
 	<taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" classpath="lib/jarjar-1.0.jar" />
 
-	<target name="clean-dist" depends="clean-build-all,dist-jars" />
+	<target name="clean-dist" depends="clean-build-all,dist-jars" description="Cleans the build area, builds everything and puts the jars in the distribution directory" />
 	<target name="clean-build-all" depends="clean-all,build-all" description="Cleans the build area and builds everything from scratch" />
 	<target name="build-all" depends="compile-all,jar-bootstrapper" description="Builds jars for all components" />
 	<target name="clean-all" description="Cleans the build area">
 		<delete dir="${build.dir}" />
-		<delete dir="${dist.dir}" />
 	</target>
 
 	<target name="compile-all" description="Compiles the source for all components">
@@ -47,13 +46,13 @@
 				<include name="${bootstrapper.jar.name}" />
 				<include name="lib/guava-r07.jar" />
 			</zipfileset>
-			<rule pattern="com.google.**" result="joe.dependencies.@0" />
+			<rule pattern="com.google.**" result="joe.util.bootstrapper.dependencies.@0" />
 		</jarjar>
 	</target>
 
 	<target name="dist-jars">
 		<mkdir dir="${dist.dir}" />
-		<copy todir="${dist.dir}">
+		<copy todir="${dist.dir}" overwrite="yes">
 			<fileset dir="${jars.dir}" />
 		</copy>
 	</target>
