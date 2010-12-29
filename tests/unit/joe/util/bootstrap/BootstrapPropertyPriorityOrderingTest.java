@@ -25,11 +25,12 @@ import com.google.common.collect.Sets;
 public class BootstrapPropertyPriorityOrderingTest {
 	static final String SYSTEM_PROPERTY = "system";
 	static final String USER_PROPERTY = "jkearne";
+	static final String MACHINE_PROPERTY = "machine";
 	static final String IDE_PROPERTY = "ide";
 	static final String PROD_PROPERTY = "prod";
 
 	private static final ImmutableSet<String> ENV_NAMES_IN_ORDER = ImmutableSet.of(PROD_PROPERTY, IDE_PROPERTY,
-			USER_PROPERTY, SYSTEM_PROPERTY);
+			MACHINE_PROPERTY, USER_PROPERTY, SYSTEM_PROPERTY);
 	private static final String PROPERTY_UNDER_TEST_KEY = "prop";
 	private static final Ordering<String> PROPERTY_SET_ORDERING = Ordering.explicit(ENV_NAMES_IN_ORDER.asList());
 
@@ -76,6 +77,10 @@ public class BootstrapPropertyPriorityOrderingTest {
 		@Override
 		public Collection<Supplier<Map<String, String>>> getUserPropertiesSuppliers() {
 			return ImmutableList.of(getEnvPropOrEmpty(USER_PROPERTY));
+		}
+		@Override
+		public Supplier<Map<String, String>> getMachinePropertiesSupplier() {
+			return getEnvPropOrEmpty(MACHINE_PROPERTY);
 		}
 		@Override
 		public Supplier<Map<String, String>> getIdePropertiesSupplier() {

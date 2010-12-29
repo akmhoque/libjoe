@@ -8,6 +8,8 @@ import static java.lang.reflect.Modifier.*;
 import static joe.util.PropertyUtils.*;
 import static joe.util.bootstrap.BootstrappedEntryPoint.*;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -78,11 +80,13 @@ public final class BootstrapMain {
 
 	public static final String PROPERTIES_FILE_ROOT_LOCATIONS_KEY = "bootstrap.properties.root.dir";
 	public static final String USER_PROPERTIES_FILE_LOCATIONS_OVERRIDE_KEY = "bootstrap.properties.user.file";
+	public static final String MACHINE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.machine.file";
 	public static final String IDE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.ide.file";
 	public static final String ENVIRONMENT_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.env.file";
 
 	static final String PROPERTIES_FILE_ROOT_LOCATION_DEFAULT = "config";
 	static final String USER_PROPERTIES_FILES_DEFAULT = SystemUtils.getUserName() + ".properties, user.properties";
+	static final String MACHINE_PROPERTIES_FILE_DEFAULT = SystemUtils.getHostName() + ".properties";
 	static final String IDE_PROPERTIES_FILE_DEFAULT = "ide.properties";
 
 	private Class<?> mainClass; // no default
@@ -273,6 +277,7 @@ public final class BootstrapMain {
 	private void generatePropertiesReferenceList() {
 		rawPropertiesReferenceList.add(propertySupplier.getSystemPropertiesSupplier());
 		rawPropertiesReferenceList.addAll(propertySupplier.getUserPropertiesSuppliers());
+		rawPropertiesReferenceList.add(propertySupplier.getMachinePropertiesSupplier());
 		rawPropertiesReferenceList.add(propertySupplier.getIdePropertiesSupplier());
 		rawPropertiesReferenceList.add(propertySupplier.getEnvironmentPropertiesSupplier());
 	}
@@ -378,6 +383,33 @@ public final class BootstrapMain {
 				@Override
 				public String toString() {
 					return "ide properties supplier";
+				}
+			};
+		}
+		@Override
+		public Supplier<Map<String, String>> getMachinePropertiesSupplier() {
+			return new Supplier<Map<String, String>>() {
+				@Override
+				public Map<String, String> get() {
+					try {
+						final String machinePropsFileName = getApplicationProperty(MACHINE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY,
+								MACHINE_PROPERTIES_FILE_DEFAULT);
+						File[] candidates = new File(rootPropertiesDirectory).listFiles(new FilenameFilter() {
+							@Override
+							public boolean accept(File dir, String name) {
+								return machinePropsFileName.equalsIgnoreCase(name);
+							}
+						});
+						// TODO use all, not first
+						return loadPropertiesFileIfExists(candidates == null || candidates.length == 0 ? null
+								: candidates[0]);
+					} catch (IOException e) {
+						throw new RuntimeException(e);
+					}
+				}
+				@Override
+				public String toString() {
+					return "machine properties supplier";
 				}
 			};
 		}
