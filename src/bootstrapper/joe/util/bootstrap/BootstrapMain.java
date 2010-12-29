@@ -8,18 +8,13 @@ import static java.lang.reflect.Modifier.*;
 import static joe.util.PropertyUtils.*;
 import static joe.util.bootstrap.BootstrappedEntryPoint.*;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Queue;
 
 import joe.util.PropertyUtils;
 import joe.util.SystemUtils;
@@ -95,6 +90,8 @@ public final class BootstrapMain {
 
 	/** the system properties to be provided to the application */
 	private final Map<String, String> applicationProperties = newTreeMap();
+	/** logging support */
+	private final BootstrapLogger logger = new BootstrapLogger(applicationProperties);
 	/**
 	 * List of suppliers of property maps, where each supplier may depend indirectly on the results of previous
 	 * suppliers by way of the the {@link #applicationProperties} map.
@@ -115,12 +112,26 @@ public final class BootstrapMain {
 	final void setPropertySupplier(PropertySupplier propertySupplier) {
 		this.propertySupplier = propertySupplier;
 	}
-
-	public static final BootstrapBuilder withCustomPropertySupplier(PropertySupplier propertySupplier) {
+	
+	/**
+	 * Specifies a custom property supplier for the application bootstrapper. Only use this if you want to override the
+	 * default behaviour which reads from files determined by the current system property values. See the
+	 * {@link BootstrapMain} class-level documentation for details of these.
+	 * 
+	 * @param propertySupplier the property supplier
+	 * @return the builder
+	 */
+	public static BootstrapBuilder withCustomPropertySupplier(PropertySupplier propertySupplier) {
 		return new BootstrapBuilder().withCustomPropertySupplier(propertySupplier);
 	}
 
-	public static final BootstrapBuilder withMainArgs(String ... args) {
+	/**
+	 * Specifies main arguments for the application.
+	 * 
+	 * @param args program arguments
+	 * @return the builder
+	 */
+	public static BootstrapBuilder withMainArgs(String ... args) {
 		return new BootstrapBuilder().withMainArgs(args);
 	}
 	/**
@@ -128,7 +139,7 @@ public final class BootstrapMain {
 	 * 
 	 * @param mainClass entry point to the application
 	 */
-	public static final void launchApplication(Class<?> mainClass) {
+	public static void launchApplication(Class<?> mainClass) {
 		checkNotNull(mainClass, "Entry point class type token may not be null");
 		withMainArgs().launchApplication(mainClass);
 	}
@@ -146,9 +157,25 @@ public final class BootstrapMain {
 		String[] applicationArgs = Arrays.copyOfRange(args, 1, args.length, String[].class);
 		main(mainClassName, applicationArgs);
 	}
+	/**
+	 * Starts the application, loading the main class by name from the first of the supplied parameters, using the
+	 * entire args list as the program args.
+	 * 
+	 * @param mainClassName name of the main class
+	 * @param args program arguments
+	 * @throws ClassNotFoundException if the class does not exist
+	 */
 	public static void main(String mainClassName, String ... args) throws ClassNotFoundException {
 		withMainArgs(args).launchApplication(Class.forName(mainClassName));
 	}
+	/**
+	 * Starts the application, loading the main class from the first of the supplied parameters, using the entire args
+	 * list as the program args.
+	 * 
+	 * @param mainClass main class type token
+	 * @param args program arguments
+	 * @throws ClassNotFoundException if the class does not exist
+	 */
 	public static void main(Class<?> mainClass, String ... args) {
 		withMainArgs(args).launchApplication(mainClass);
 	}
@@ -183,6 +210,11 @@ public final class BootstrapMain {
 		main(mainClass, args);
 	}
 
+	/**
+	 * Builder class allowing the fluent bootstrapping API. Start with the static methods on {@link BootstrapMain}.
+	 * 
+	 * @author Joe Kearney
+	 */
 	public static final class BootstrapBuilder {
 		private final BootstrapMain bootstrapMain = new BootstrapMain();
 
@@ -209,10 +241,25 @@ public final class BootstrapMain {
 			bootstrapMain.setMainClass(mainClass);
 			bootstrapMain.preparePropertiesAndLaunch();
 		}
+		
+		/**
+		 * Specifies main arguments for the application.
+		 * 
+		 * @param args program arguments
+		 * @return this builder
+		 */
 		public BootstrapBuilder withMainArgs(String ... args) {
 			bootstrapMain.setMainArgs(checkNotNull(args, "Main argument list may not be null"));
 			return this;
 		}
+		/**
+		 * Specifies a custom property supplier for the application bootstrapper. Only use this if you want to override
+		 * the default behaviour which reads from files determined by the current system property values. See the
+		 * {@link BootstrapMain} class-level documentation for details of these.
+		 * 
+		 * @param propertySupplier the property supplier
+		 * @return this builder
+		 */
 		public BootstrapBuilder withCustomPropertySupplier(PropertySupplier propertySupplier) {
 			bootstrapMain.setPropertySupplier(checkNotNull(propertySupplier, "PropertySupplier may not be null"));
 			return this;
@@ -225,73 +272,35 @@ public final class BootstrapMain {
 		generateProperties();
 		setSystemProperties();
 
-		if (!isLoggingDisabled()) {
+		if (!logger.isLoggingDisabled()) {
 			MapJoiner joiner = Joiner.on("\n    ").withKeyValueSeparator(" => ");
-			log("Running application with\n" //
+			logger.log("Running application with\n" //
 					+ "  main class        [" + mainClass.getName() + "]\n" //
 					+ "  main args         [" + Joiner.on(", ").join(mainArgs) + "]\n" //
 					+ "  system properties\n    " + joiner.join(ImmutableSortedMap.copyOf(System.getProperties())));
 		}
-		flushLogQueue();
+		logger.flushLogQueue();
 
 		launch();
 	}
-
-	private final Queue<String> logQueue = newLinkedList();
-	private boolean queueLogMessages = true;
-	void log(String string) {
-		if (!isLoggingDisabled()) {
-			final String logMessage = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL [%2$s] - %3$s",
-					new Date(), Thread.currentThread().getName(), string);
-
-			if (queueLogMessages && isLoggingEnabled()) {
-				// we're in queue mode and must now flush everything
-				logQueue.add(logMessage);
-				flushLogQueue();
-			} else if (queueLogMessages) {
-				// we're in queue mode and can't flush anything
-				logQueue.add(logMessage);
-			} else {
-				// actually log
-				System.out.println(logMessage);
-			}
-		}
-	}
-	private void flushLogQueue() {
-		if (isLoggingEnabled()) {
-			queueLogMessages = false;
-			while (!logQueue.isEmpty()) {
-				System.out.println(logQueue.poll());
-			}
-		} else {
-			logQueue.clear();
-		}
-	}
-	private boolean isLoggingDisabled() {
-		return "false".equalsIgnoreCase(applicationProperties.get(BOOTSTRAP_PROPERTY_LOGGING_KEY));
-	}
-	private boolean isLoggingEnabled() {
-		return "true".equalsIgnoreCase(applicationProperties.get(BOOTSTRAP_PROPERTY_LOGGING_KEY));
-	}
-
 	private void generatePropertiesReferenceList() {
 		rawPropertiesReferenceList.add(propertySupplier.getSystemPropertiesSupplier());
-		rawPropertiesReferenceList.addAll(propertySupplier.getUserPropertiesSuppliers());
-		rawPropertiesReferenceList.add(propertySupplier.getMachinePropertiesSupplier());
-		rawPropertiesReferenceList.add(propertySupplier.getIdePropertiesSupplier());
-		rawPropertiesReferenceList.add(propertySupplier.getEnvironmentPropertiesSupplier());
+		Iterables.addAll(rawPropertiesReferenceList, propertySupplier.getUserPropertiesSuppliers());
+		Iterables.addAll(rawPropertiesReferenceList, propertySupplier.getMachinePropertiesSupplier());
+		Iterables.addAll(rawPropertiesReferenceList, propertySupplier.getIdePropertiesSupplier());
+		Iterables.addAll(rawPropertiesReferenceList, propertySupplier.getEnvironmentPropertiesSupplier());
 	}
 	private void generateProperties() {
 		MapJoiner joiner = Joiner.on("\n  ").withKeyValueSeparator(" => ");
 		for (Supplier<Map<String, String>> propertiesSupplier : rawPropertiesReferenceList) {
 			if (isBootstrappingDisabled()) {
-				log("Bootstrapping disabled by the " + BOOTSTRAP_ENABLE_KEY + " property supplied by ["
+				logger.log("Bootstrapping disabled by the " + BOOTSTRAP_ENABLE_KEY + " property supplied by ["
 						+ propertiesSupplier.toString() + "]. To override, specify " + BOOTSTRAP_ENABLE_KEY
 						+ "=true in this or a higher-priority property set.");
 				return;
 			}
 
-			log("Loading properties from [" + propertiesSupplier.toString() + "]");
+			logger.log("Loading properties from [" + propertiesSupplier.toString() + "]");
 
 			Map<String, String> componentProperties = propertiesSupplier.get();
 			applicationPropertiesComponents.add(componentProperties);
@@ -302,14 +311,14 @@ public final class BootstrapMain {
 					propertyResolverFromMap(applicationProperties));
 			putAllIfAbsent(applicationProperties, componentProperties);
 			if (!componentProperties.isEmpty()) {
-				log("Loaded (non-overriding) properties from [" + propertiesSupplier.toString() + "]:\n  "
+				logger.log("Loaded (non-overriding) properties from [" + propertiesSupplier.toString() + "]:\n  "
 						+ joiner.join(ImmutableSortedMap.copyOf(componentProperties)));
 			} else {
-				log("Loaded no properties from [" + propertiesSupplier.toString() + "]");
+				logger.log("Loaded no properties from [" + propertiesSupplier.toString() + "]");
 			}
 		}
 
-		flushLogQueue();
+		logger.flushLogQueue();
 	}
 	private boolean isBootstrappingDisabled() {
 		String prop = getApplicationProperty(BOOTSTRAP_ENABLE_KEY);
@@ -321,10 +330,10 @@ public final class BootstrapMain {
 
 	private void setSystemProperties() {
 		if (isBootstrappingEnabled()) {
-			log("Setting application system properties");
+			logger.log("Setting application system properties");
 			System.getProperties().putAll(applicationProperties);
 		} else {
-			log("Bootstrapping disabled, system properties will not be set for the application; "
+			logger.log("Bootstrapping disabled, system properties will not be set for the application; "
 					+ "it will be launched with no changes to its environment.");
 		}
 	}
@@ -349,78 +358,37 @@ public final class BootstrapMain {
 	final class DefaultPropertySupplier implements PropertySupplier {
 		DefaultPropertySupplier() {}
 
+		
 		@Override
-		public Supplier<Map<String, String>> getEnvironmentPropertiesSupplier() {
-			return new Supplier<Map<String, String>>() {
-				@Override
-				public Map<String, String> get() {
-					try {
-						String envPropsFile = getApplicationProperty(ENVIRONMENT_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY);
-						return loadPropertiesFileIfExists(createPropertyFileRelativePath(envPropsFile));
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-				@Override
-				public String toString() {
-					return "environment properties supplier";
-				}
-			};
+		public Iterable<Supplier<Map<String, String>>> getUserPropertiesSuppliers() {
+			return fileBasedPropertyCollection("user properties supplier: %s",
+					USER_PROPERTIES_FILE_LOCATIONS_OVERRIDE_KEY, USER_PROPERTIES_FILES_DEFAULT);
 		}
 		@Override
-		public Supplier<Map<String, String>> getIdePropertiesSupplier() {
-			return new Supplier<Map<String, String>>() {
-				@Override
-				public Map<String, String> get() {
-					try {
-						String idePropsFileName = getApplicationProperty(IDE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY,
-								IDE_PROPERTIES_FILE_DEFAULT);
-						return loadPropertiesFileIfExists(createPropertyFileRelativePath(idePropsFileName));
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-				@Override
-				public String toString() {
-					return "ide properties supplier";
-				}
-			};
+		public Iterable<Supplier<Map<String, String>>> getMachinePropertiesSupplier() {
+			return fileBasedPropertyCollection("machine properties supplier: %s",
+					MACHINE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY, MACHINE_PROPERTIES_FILE_DEFAULT);
 		}
 		@Override
-		public Supplier<Map<String, String>> getMachinePropertiesSupplier() {
-			return new Supplier<Map<String, String>>() {
-				@Override
-				public Map<String, String> get() {
-					try {
-						final String machinePropsFileName = getApplicationProperty(MACHINE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY,
-								MACHINE_PROPERTIES_FILE_DEFAULT);
-						File[] candidates = new File(rootPropertiesDirectory).listFiles(new FilenameFilter() {
-							@Override
-							public boolean accept(File dir, String name) {
-								return machinePropsFileName.equalsIgnoreCase(name);
-							}
-						});
-						// TODO use all, not first
-						return loadPropertiesFileIfExists(candidates == null || candidates.length == 0 ? null
-								: candidates[0]);
-					} catch (IOException e) {
-						throw new RuntimeException(e);
-					}
-				}
-				@Override
-				public String toString() {
-					return "machine properties supplier";
-				}
-			};
+		public Iterable<Supplier<Map<String, String>>> getIdePropertiesSupplier() {
+			return fileBasedPropertyCollection("IDE properties supplier: %s",
+					IDE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY, IDE_PROPERTIES_FILE_DEFAULT);
 		}
 		@Override
-		public Collection<Supplier<Map<String, String>>> getUserPropertiesSuppliers() {
-			String userPropertyLocationsString = getApplicationProperty(USER_PROPERTIES_FILE_LOCATIONS_OVERRIDE_KEY,
-					USER_PROPERTIES_FILES_DEFAULT);
+		public Iterable<Supplier<Map<String, String>>> getEnvironmentPropertiesSupplier() {
+			return fileBasedPropertyCollection("environment properties supplier: %s",
+					ENVIRONMENT_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY, null); // no default
+		}
 
+		private Iterable<Supplier<Map<String, String>>> fileBasedPropertyCollection(final String supplierName,
+				String locationPropertyKey, String locationPropertyDefault) {
+			final String locationsString = getApplicationProperty(locationPropertyKey, locationPropertyDefault);
+			if (locationsString == null) {
+				return ImmutableList.of();
+			}
+			
 			final Iterable<String> userPropertyLocations = Splitter.on(',').trimResults().omitEmptyStrings().split(
-					userPropertyLocationsString);
-
+					locationsString);
 			return ImmutableList.copyOf(Iterables.transform(userPropertyLocations,
 					new Function<String, Supplier<Map<String, String>>>() {
 						@Override
@@ -436,7 +404,7 @@ public final class BootstrapMain {
 								}
 								@Override
 								public String toString() {
-									return "user properties supplier: " + fileName;
+									return String.format(supplierName, fileName);
 								}
 							};
 						}
@@ -514,12 +482,23 @@ public final class BootstrapMain {
 
 		Method mainMethod;
 		try {
+			/*
+			 * JLS 3 12.1.4 defines a main method as one of the following:
+			 * public static void main(String[])
+			 * public static void main(String ...)
+			 */
+
 			mainMethod = mainClass.getMethod(methodName, String[].class);
 			int mainMethodModifiers = mainMethod.getModifiers();
+			checkArgument(isPublic(mainMethodModifiers), "main method must be public");
 			checkArgument(isStatic(mainMethodModifiers), "main method must be static");
-			checkArgument(isPublic(mainMethodModifiers), "main method must be public"); // TODO is this true?
 			checkArgument(Void.TYPE.isAssignableFrom(mainMethod.getReturnType()),
 					"main method must have void return type");
+			checkArgument(mainMethod.getParameterTypes().length == 1, "main method must take one String array argument");
+			checkArgument(mainMethod.getParameterTypes()[0].isArray(),
+					"main method must take one String array argument");
+			checkArgument(mainMethod.getParameterTypes()[0].getComponentType() == String.class,
+		"main method must take one String array argument");
 		} catch (SecurityException e) {
 			throw new RuntimeException("BootstrapMain must have permissions to reflectively find the main method", e);
 		} catch (NoSuchMethodException e) {

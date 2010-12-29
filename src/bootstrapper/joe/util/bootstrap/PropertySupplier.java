@@ -1,6 +1,5 @@
 package joe.util.bootstrap;
 
-import java.util.Collection;
 import java.util.Map;
 
 import com.google.common.base.Supplier;
@@ -21,8 +20,8 @@ import com.google.common.base.Supplier;
  */
 public interface PropertySupplier {
 	Supplier<Map<String, String>> getSystemPropertiesSupplier();
-	Collection<Supplier<Map<String, String>>> getUserPropertiesSuppliers();
-	Supplier<Map<String, String>> getMachinePropertiesSupplier();
-	Supplier<Map<String, String>> getIdePropertiesSupplier();
-	Supplier<Map<String, String>> getEnvironmentPropertiesSupplier();
+	Iterable<Supplier<Map<String, String>>> getUserPropertiesSuppliers();
+	Iterable<Supplier<Map<String, String>>> getMachinePropertiesSupplier();
+	Iterable<Supplier<Map<String, String>>> getIdePropertiesSupplier();
+	Iterable<Supplier<Map<String, String>>> getEnvironmentPropertiesSupplier();
 }

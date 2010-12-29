@@ -19,6 +19,7 @@ import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 
@@ -72,31 +73,31 @@ public class BootstrapPropertyPriorityOrderingTest {
 
 		@Override
 		public Supplier<Map<String, String>> getSystemPropertiesSupplier() {
-			return getEnvPropOrEmpty(SYSTEM_PROPERTY);
+			return Iterables.getOnlyElement(getEnvPropOrEmpty(SYSTEM_PROPERTY));
 		}
 		@Override
-		public Collection<Supplier<Map<String, String>>> getUserPropertiesSuppliers() {
-			return ImmutableList.of(getEnvPropOrEmpty(USER_PROPERTY));
+		public Iterable<Supplier<Map<String, String>>> getUserPropertiesSuppliers() {
+			return getEnvPropOrEmpty(USER_PROPERTY);
 		}
 		@Override
-		public Supplier<Map<String, String>> getMachinePropertiesSupplier() {
+		public Iterable<Supplier<Map<String, String>>> getMachinePropertiesSupplier() {
 			return getEnvPropOrEmpty(MACHINE_PROPERTY);
 		}
 		@Override
-		public Supplier<Map<String, String>> getIdePropertiesSupplier() {
+		public Iterable<Supplier<Map<String, String>>> getIdePropertiesSupplier() {
 			return getEnvPropOrEmpty(IDE_PROPERTY);
 		}
 		@Override
-		public Supplier<Map<String, String>> getEnvironmentPropertiesSupplier() {
+		public Iterable<Supplier<Map<String, String>>> getEnvironmentPropertiesSupplier() {
 			return getEnvPropOrEmpty(PROD_PROPERTY);
 		}
 
-		private Supplier<Map<String, String>> getEnvPropOrEmpty(String env) {
+		private Iterable<Supplier<Map<String, String>>> getEnvPropOrEmpty(String env) {
 			if (envs.contains(env)) {
-				return Suppliers.<Map<String, String>> ofInstance(ImmutableMap.of(PROPERTY_UNDER_TEST_KEY, env,
-						BootstrapMain.BOOTSTRAP_ENABLE_KEY, "true"));
+				return ImmutableList.of(Suppliers.<Map<String, String>> ofInstance(ImmutableMap.of(
+						PROPERTY_UNDER_TEST_KEY, env, BootstrapMain.BOOTSTRAP_ENABLE_KEY, "true")));
 			} else {
-				return EMPTY_MAP_SUPPLIER;
+				return ImmutableList.of(EMPTY_MAP_SUPPLIER);
 			}
 		}
 	}
