@@ -20,7 +20,7 @@ public class ArrayBackedMapTest extends TestCase {
 
 	public Test allTests() {
 		TestSuite suite = new TestSuite("Array-backed maps");
-//		suite.addTest(testsForArrayBackedMap());
+		suite.addTest(testsForArrayBackedMap());
 		suite.addTest(testsForSortedArrayBackedMap());
 		return suite;
 	}

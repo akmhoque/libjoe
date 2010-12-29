@@ -1,7 +1,7 @@
 package joe.collect;
 
 import java.util.AbstractCollection;
-import java.util.AbstractMap;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.AbstractSet;
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,9 +11,29 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
-public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
-	protected K[] keys;
-	protected V[] values;
+import com.google.common.base.Joiner;
+
+/**
+ * Abstract implementation of a map backed by a pair of arrays, one for keys and one for values. Implementors need only
+ * decide how to implement methods to pick an entry index or indicate where a new entry should be inserted. This map
+ * implementation has an almost-minimal memory overhead of two array references and a modification counter.
+ * 
+ * @author Joe Kearney
+ * @param <K> type of the keys stored in the map
+ * @param <V> type of the values stored in the map
+ */
+public abstract class AbstractArrayBackedMap<K, V> implements Map<K, V> {
+	/*
+	 * INVARIANTS:
+	 * keys != null
+	 * values != null
+	 * keys.length == values.length
+	 * For each i, keys[i] is associated with values[i]
+	 */
+
+	K[] keys;
+	V[] values;
+
 	transient int modCount;
 
 	public AbstractArrayBackedMap() {
@@ -49,10 +69,39 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 		assert keys.length == values.length;
 		return keys.length;
 	}
+	@Override
+	public boolean isEmpty() {
+		assert keys.length == values.length;
+		return keys.length == 0;
+	}
+
+	@Override
+	public boolean equals(Object object) {
+		if (this == object) {
+			return true;
+		}
+		if (object instanceof Map) {
+			Map<?, ?> o = (Map<?, ?>) object;
+			return this.entrySet().equals(o.entrySet());
+		}
+		return false;
+	}
+	@Override
+	public int hashCode() {
+		return entrySet().hashCode();
+	}
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder("{");
+		Joiner.on(", ").withKeyValueSeparator("=").appendTo(sb , this);
+		sb.append('}');
+		return sb.toString();
+	}
 
 	@Override
 	public final Set<Entry<K, V>> entrySet() {
 		return new AbstractSet<Map.Entry<K, V>>() {
+
 			@Override
 			public Iterator<Entry<K, V>> iterator() {
 				return new EntryIterator();
@@ -62,6 +111,7 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 			public void clear() {
 				super.clear();
 			}
+
 			@Override
 			public boolean contains(Object o) {
 				if (o instanceof Entry) {
@@ -79,6 +129,7 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 
 		};
 	}
+
 	@Override
 	public final V put(K key, V value) {
 		if (key == null) {
@@ -98,6 +149,12 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 			keys[index] = key;
 			values[index] = value;
 			return oldValue;
+		}
+	}
+	@Override
+	public void putAll(Map<? extends K, ? extends V> m) {
+		for (Entry<? extends K, ? extends V> entry : m.entrySet()) {
+			put(entry.getKey(), entry.getValue());
 		}
 	}
 
@@ -237,22 +294,27 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 		public Iterator<K> iterator() {
 			return new KeyIterator();
 		}
+
 		@Override
 		public int size() {
 			return AbstractArrayBackedMap.this.size();
 		}
+
 		@Override
 		public boolean remove(Object o) {
 			return AbstractArrayBackedMap.this.remove(o) != null;
 		}
+
 		@Override
 		public boolean contains(Object o) {
 			return AbstractArrayBackedMap.this.containsKey(o);
 		}
+
 		@Override
 		public Object[] toArray() {
 			return keys.clone();
 		}
+
 		@Override
 		public <T> T[] toArray(T[] a) {
 			K[] keys = AbstractArrayBackedMap.this.keys;
@@ -283,6 +345,7 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 		public int size() {
 			return AbstractArrayBackedMap.this.size();
 		}
+
 		@Override
 		public boolean remove(Object o) {
 			int index = getIndexByValue(o);
@@ -293,14 +356,17 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 				return false;
 			}
 		}
+
 		@Override
 		public boolean contains(Object o) {
 			return AbstractArrayBackedMap.this.containsValue(o);
 		}
+
 		@Override
 		public Object[] toArray() {
 			return values.clone();
 		}
+
 		@Override
 		public <T> T[] toArray(T[] a) {
 			V[] values = AbstractArrayBackedMap.this.values;
@@ -314,7 +380,7 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 				return a;
 			}
 			@SuppressWarnings("unchecked")
-			// type token is <? extends T>, so this is a fair warning
+			// we want this to blow up if the client passed in a dodgy T[]
 			T[] ret = (T[]) Arrays.copyOf(values, values.length, a.getClass());
 			return ret;
 		}
@@ -360,9 +426,6 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 	}
 
 	private final class EntryIterator extends IndexIterator implements Iterator<Entry<K, V>> {
-		private int expectedModCount = modCount;
-		private int index = -1;
-
 		EntryIterator() {}
 
 		@Override
@@ -373,6 +436,7 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 	}
 	private final class KeyIterator extends IndexIterator implements Iterator<K> {
 		KeyIterator() {}
+
 		@Override
 		public K next() {
 			return keys[nextIndex()];
@@ -380,6 +444,7 @@ public abstract class AbstractArrayBackedMap<K, V> extends AbstractMap<K, V> {
 	}
 	private final class ValuesIterator extends IndexIterator implements Iterator<V> {
 		ValuesIterator() {}
+
 		@Override
 		public V next() {
 			return values[nextIndex()];
