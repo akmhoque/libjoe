@@ -1,15 +1,17 @@
 package joe.util.bootstrap;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
+import joe.util.PropertyUtils;
 import joe.util.bootstrap.BootstrapMain.BootstrapBuilder;
 
 import org.junit.Test;
@@ -34,11 +36,11 @@ public class BootstrapPropertyPriorityOrderingTest {
 			MACHINE_PROPERTY, USER_PROPERTY, SYSTEM_PROPERTY);
 	private static final String PROPERTY_UNDER_TEST_KEY = "prop";
 	private static final Ordering<String> PROPERTY_SET_ORDERING = Ordering.explicit(ENV_NAMES_IN_ORDER.asList());
+	private static final Set<Set<String>> ENV_NAMES_POWER_SET = Sets.powerSet(ENV_NAMES_IN_ORDER);
 
 	@Test
-	public void test() throws Exception {
-		Set<Set<String>> powerSet = Sets.powerSet(ENV_NAMES_IN_ORDER);
-		for (Set<String> set : powerSet) {
+	public void testThroughMainMethod() throws Exception {
+		for (Set<String> set : ENV_NAMES_POWER_SET) {
 			Iterable<List<String>> combinations = new Permutator<String>(ImmutableList.copyOf(set));
 
 			String expectedValue = set.isEmpty() ? null : PROPERTY_SET_ORDERING.max(set);
@@ -58,6 +60,40 @@ public class BootstrapPropertyPriorityOrderingTest {
 					throw assertionError;
 				} finally {
 					System.clearProperty(PROPERTY_UNDER_TEST_KEY);
+				}
+			}
+		}
+	}
+	/**
+	 * @throws Exception
+	 */
+	@Test
+	public void testPropertyPreparationOnly() throws Exception {
+		for (Set<String> set : ENV_NAMES_POWER_SET) {
+			Iterable<List<String>> combinations = new Permutator<String>(ImmutableList.copyOf(set));
+			
+			String expectedValue = set.isEmpty() ? null : PROPERTY_SET_ORDERING.max(set);
+			
+			for (List<String> combination : combinations) {
+				System.clearProperty(PROPERTY_UNDER_TEST_KEY);
+				final ImmutableMap<String, String> propsToReinstate = ImmutableMap.copyOf(PropertyUtils.getSystemPropertyStrings());
+				try {
+					
+					BootstrapBuilder builder = BootstrapMain.withCustomPropertySupplier(new ExplicitPropertySupplier(
+							combination));
+					if (expectedValue != null) {
+						builder.withMainArgs(expectedValue);
+					}
+					builder.prepareProperties();
+					MyClass.main(expectedValue);
+				} catch (Throwable e) {
+					AssertionError assertionError = new AssertionError("Failed with combination " + combination);
+					assertionError.initCause(e);
+					throw assertionError;
+				} finally {
+					Properties p = new Properties();
+					p.putAll(propsToReinstate);
+					System.setProperties(p);
 				}
 			}
 		}
@@ -103,7 +139,7 @@ public class BootstrapPropertyPriorityOrderingTest {
 	}
 
 	static final class MyClass {
-		public static void main(String[] args) {
+		public static void main(String ... args) {
 			String actualValue = System.getProperty(PROPERTY_UNDER_TEST_KEY);
 			String expectedValue = args.length == 0 ? null : args[0];
 			assertThat(actualValue, is(expectedValue));

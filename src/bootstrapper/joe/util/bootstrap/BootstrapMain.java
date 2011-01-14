@@ -1,12 +1,14 @@
 package joe.util.bootstrap;
 
 import static com.google.common.base.Preconditions.*;
-import static com.google.common.base.Throwables.*;
-import static com.google.common.collect.Lists.*;
-import static com.google.common.collect.Maps.*;
-import static java.lang.reflect.Modifier.*;
-import static joe.util.PropertyUtils.*;
-import static joe.util.bootstrap.BootstrappedEntryPoint.*;
+import static com.google.common.base.Throwables.propagate;
+import static com.google.common.collect.Lists.newLinkedList;
+import static com.google.common.collect.Maps.newTreeMap;
+import static java.lang.reflect.Modifier.isPublic;
+import static java.lang.reflect.Modifier.isStatic;
+import static joe.util.PropertyUtils.loadPropertiesFileIfExists;
+import static joe.util.PropertyUtils.propertyResolverFromMap;
+import static joe.util.bootstrap.BootstrappedEntryPoint.BOOTSTRAP_MAIN_METHOD_NAME;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -239,7 +241,18 @@ public final class BootstrapMain {
 		public void launchApplication(Class<?> mainClass) {
 			checkNotNull(mainClass, "Entry point class type token may not be null");
 			bootstrapMain.setMainClass(mainClass);
-			bootstrapMain.preparePropertiesAndLaunch();
+			bootstrapMain.preparePropertiesInternal();
+			bootstrapMain.launch();
+		}
+		/**
+		 * Finds property sources for this application and builds the application's runtime property set.
+		 * <p>
+		 * This does all of the work of the bootstrapper except for actually launching the application, for which you
+		 * should consider using {@link BootstrapMain#launchApplication(Class)} or the builder API through
+		 * {@link BootstrapMain#withMainArgs(String...)}.
+		 */
+		public void prepareProperties() {
+			bootstrapMain.preparePropertiesInternal();
 		}
 		
 		/**
@@ -266,7 +279,23 @@ public final class BootstrapMain {
 		}
 	}
 
-	final void preparePropertiesAndLaunch() {
+	/**
+	 * Finds property sources for this application and builds the application's runtime property set.
+	 * <p>
+	 * This does all of the work of the bootstrapper except for actually launching the application, for which you should
+	 * consider using {@link BootstrapMain#launchApplication(Class)} or the builder API through
+	 * {@link BootstrapMain#withMainArgs(String...)}.
+	 */
+	public static void prepareProperties() {
+		new BootstrapMain().preparePropertiesInternal();
+	}
+	/**
+	 * Finds property sources for this application and builds the application's runtime property set.
+	 * 
+	 * This does all of the work of the bootstrapper except for actually launching the application, for which you should
+	 * consider using {@link #launchApplication(Class)} or the builder API through {@link #withMainArgs(String...)}.
+	 */
+	final void preparePropertiesInternal() {
 		findRootConfigDirectory();
 		generatePropertiesReferenceList();
 		generateProperties();
@@ -275,13 +304,11 @@ public final class BootstrapMain {
 		if (!logger.isLoggingDisabled()) {
 			MapJoiner joiner = Joiner.on("\n    ").withKeyValueSeparator(" => ");
 			logger.log("Running application with\n" //
-					+ "  main class        [" + mainClass.getName() + "]\n" //
+					+ "  main class        [" + (mainClass == null ? "not specified" : mainClass.getName()) + "]\n" //
 					+ "  main args         [" + Joiner.on(", ").join(mainArgs) + "]\n" //
 					+ "  system properties\n    " + joiner.join(ImmutableSortedMap.copyOf(System.getProperties())));
 		}
 		logger.flushLogQueue();
-
-		launch();
 	}
 	private void generatePropertiesReferenceList() {
 		rawPropertiesReferenceList.add(propertySupplier.getSystemPropertiesSupplier());
