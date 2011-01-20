@@ -53,6 +53,10 @@ import com.google.common.collect.Maps;
  * <tr align=left><td>{@code bootstrap.properties.ide.file}</td><td>File name, relative to the root directory specified
  * by {@code bootstrap.properties.root.dir}, in which to look for an IDE properties file.</td><td>{@code ide.properties}
  * </td>
+ * <tr align=left><td>{@code bootstrap.properties.machine.file}</td><td>File name, relative to the root directory
+ * specified by {@code bootstrap.properties.root.dir}, in which to look for a machine-specific properties file.</td>
+ * <td>{@code <hostname>.properties}
+ * </td>
  * </table>
  * <p>
  * 

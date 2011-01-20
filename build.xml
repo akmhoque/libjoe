@@ -1,12 +1,12 @@
 <?xml version="1.0"?>
-<project name="libjoe" basedir=".">
+<project name="libjoe" basedir="." default="clean-dist">
 	<property file="build.properties" />
 	<property name="classes.root.dir" value="${build.dir}/classes" />
 	<property name="jars.dir" value="${build.dir}/jars" />
 	<property name="dist.dir" value="dist" />
 
 	<taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" classpath="lib/jarjar-1.0.jar" />
-
+		
 	<target name="clean-dist" depends="clean-build-all,dist-jars" description="Cleans the build area, builds everything and puts the jars in the distribution directory" />
 	<target name="clean-build-all" depends="clean-all,build-all" description="Cleans the build area and builds everything from scratch" />
 	<target name="build-all" depends="compile-all,jar-bootstrapper" description="Builds jars for all components" />
@@ -24,6 +24,7 @@
 	<macrodef name="compile-and-jar">
 		<attribute name="component" />
 		<sequential>
+			<property name="@{component}.jar.name" value="${jars.dir}/libjoe-@{component}-${version}.jar" />
 			<mkdir dir="${classes.root.dir}/@{component}" />
 			<javac srcdir="${src.root.dir}/@{component}" destdir="${classes.root.dir}/@{component}" debug="on">
 				<compilerarg value="-Xlint:all" />
@@ -40,13 +41,11 @@
 	</macrodef>
 
 	<target name="jar-bootstrapper" depends="compile-all" description="Builds the bootstrapper jars: one standalone incorporating its jarjar'd dependencies and one with only the libjoe code.">
-		<property name="bootstrapper.jar.name" value="${jars.dir}/libjoe-bootstrapper-${version}.jar" />
-		<jarjar destfile="${jars.dir}/libjoe-bootstrapper-standalone-${version}.jar" basedir="${classes.root.dir}">
-			<zipfileset dir=".">
-				<include name="${bootstrapper.jar.name}" />
-				<include name="lib/guava-r07.jar" />
-			</zipfileset>
-			<rule pattern="com.google.**" result="joe.util.bootstrapper.dependencies.@0" />
+		<jarjar destfile="${jars.dir}/libjoe-bootstrapper-standalone-${version}.jar" basedir="${classes.root.dir}/${src.bootstrapper.dir}">
+			<zipfileset src="${bootstrapper.jar.name}" />
+			<zipfileset src="${base.jar.name}" />
+			<zipfileset src="lib/guava-r07.jar" />
+			<rule pattern="com.google.**" result="joe.util.bootstrap.dependencies.@0" />
 		</jarjar>
 	</target>
 
