@@ -1,8 +1,10 @@
 package joe.util;
 
-import static com.google.common.base.Predicates.*;
-import static com.google.common.base.Throwables.*;
+import static com.google.common.base.Predicates.instanceOf;
+import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Maps.*;
+import static com.google.common.collect.Maps.filterKeys;
+import static com.google.common.collect.Maps.filterValues;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,6 +44,24 @@ public class PropertyUtils {
 		}
 	};
 
+	/**
+	 * Resolves properties found in values that are defined as keys in the map. The input map is unchanged.
+	 * 
+	 * @param unresolvedProperties a map of properties
+	 * @return an immutable copy of the input where values have nested properties resolved
+	 */
+	public static Map<String, String> resolvePropertiesInternally(final Map<String, String> unresolvedProperties) {
+		Map<String, String> initialProperties;
+		Map<String, String> resolvedCopy = unresolvedProperties;
+		
+		do {
+			initialProperties = resolvedCopy;
+			resolvedCopy = ImmutableMap.copyOf(transformValues(initialProperties,
+					propertyResolverFromMap(initialProperties)));
+		} while (!resolvedCopy.equals(initialProperties));
+	
+		return resolvedCopy;
+	}
 	/**
 	 * Gets a live view over the entries in the current system properties map
 	 * that map a {@link String} key to a {@code String} value. This will
@@ -106,13 +126,11 @@ public class PropertyUtils {
 	 * @param file file to parse
 	 * @return {@link ImmutableMap} of properties found in the file if the file
 	 *         exists, or an empty map otherwise
-	 * @throws FileNotFoundException if the file did not exist
 	 * @throws IOException if there was a problem reading the file
 	 * @throws IllegalArgumentException if the file was malformed and could not
 	 *             be parsed
 	 */
-	public static Map<String, String> loadPropertiesFileIfExists(String fileName) throws FileNotFoundException,
-			IOException {
+	public static Map<String, String> loadPropertiesFileIfExists(String fileName) throws IOException {
 		return loadPropertiesFileIfExists(fileName == null ? null : new File(fileName));
 	}
 	/**
@@ -122,13 +140,16 @@ public class PropertyUtils {
 	 * @param file file to parse
 	 * @return {@link ImmutableMap} of properties found in the file if the file
 	 *         exists, or an empty map otherwise
-	 * @throws FileNotFoundException if the file did not exist
 	 * @throws IOException if there was a problem reading the file
 	 * @throws IllegalArgumentException if the file was malformed and could not
 	 *             be parsed
 	 */
-	public static Map<String, String> loadPropertiesFileIfExists(File file) throws FileNotFoundException, IOException {
-		return file != null && file.exists() ? loadPropertiesFile(file) : emptyPropertiesMap();
+	public static Map<String, String> loadPropertiesFileIfExists(File file) throws IOException {
+		try {
+			return file != null && file.exists() ? loadPropertiesFile(file) : emptyPropertiesMap();
+		} catch (FileNotFoundException e) {
+			throw new IOException("File was thought to exist, but couldn't be found when attempting to read", e);
+		}
 	}
 	/**
 	 * Loads an input stream containing {@code key=value} pairs into a map,

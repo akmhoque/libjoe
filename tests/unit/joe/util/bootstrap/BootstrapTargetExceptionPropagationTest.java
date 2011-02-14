@@ -4,7 +4,7 @@ import org.junit.Test;
 
 public class BootstrapTargetExceptionPropagationTest {
 	static {
-		System.setProperty(BootstrapMain.BOOTSTRAP_PROPERTY_LOGGING_KEY, "true");
+		System.setProperty(BootstrapMain.BOOTSTRAP_ENABLE_LOGGING_KEY, "true");
 	}
 	
 	static String EXCEPTION_MESSAGE = "expected";
