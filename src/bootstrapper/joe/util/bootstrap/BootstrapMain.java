@@ -40,6 +40,20 @@ import com.google.common.collect.Maps;
  * {@code bootstrap.properties.ide.file} <li>Environment properties, taken from files defined by
  * {@code bootstrap.properties.env.file} </ol>
  * <p>
+ * <h3>Usage</h3>
+ * There are two usage patterns.
+ * <h4>Calling into {@code BootstrapMain} to configure properties</h4>
+ * Call {@link BootstrapMain#prepareProperties()} from your main method. This will configure all properties in the
+ * environment, if bootstrapping is enabled by such a property. Note that since properties will not be configured before
+ * this method is invoked, they will not be visible from static initialisers of the main class.
+ * <h4>{@code BootstrapMain} as a main class</h4>
+ * Specify the application entry point class using the {@code bootstrap.main.class} property and the main method name
+ * using the {@code bootstrap.main.method} property. These must be defined somewhere within the property hierarchy.
+ * <p>
+ * The application main thread will run within the scope of bootstrapper stack frames, and the main class will be this
+ * class. Note that tools such as {@code jps} will report on this main class name, which may make it more difficult to
+ * disambiguate running bootstrapped processes.
+ * <p>
  * <h3>Summary of Understood Properties</h3>
  * 
  * <table border>
@@ -68,9 +82,6 @@ import com.google.common.collect.Maps;
  * 
  * @author Joe Kearney
  * @see PropertySupplier
- */
-/*
- * TODO observe bootstrap.environment
  */
 public final class BootstrapMain {
 	/*
