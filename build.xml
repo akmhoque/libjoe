@@ -48,8 +48,14 @@
 			<rule pattern="com.google.**" result="joe.util.bootstrap.dependencies.@0" />
 		</jarjar>
 	</target>
+	
+	<target name="zip-jars">
+		<zip destfile="${jars.dir}/libjoe-${version}.zip">
+			<fileset dir="${jars.dir}"></fileset>
+		</zip>
+	</target>
 
-	<target name="dist-jars">
+	<target name="dist-jars" depends="zip-jars">
 		<mkdir dir="${dist.dir}" />
 		<copy todir="${dist.dir}" overwrite="yes">
 			<fileset dir="${jars.dir}" />
