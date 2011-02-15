@@ -3,8 +3,10 @@ package joe.util.bootstrap;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Maps.newTreeMap;
+import static com.google.common.collect.Maps.transformValues;
 import static java.lang.reflect.Modifier.isPublic;
 import static java.lang.reflect.Modifier.isStatic;
+import static joe.util.StringUtils.UNESCAPE;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -318,7 +320,9 @@ public final class BootstrapMain {
 			logger.log("Running application with\n" //
 					+ "  main class        [" + (mainClass == null ? "not specified" : mainClass.getName()) + "]\n" //
 					+ "  main args         [" + Joiner.on(", ").join(mainArgs) + "]\n" //
-					+ "  system properties\n    " + joiner.join(ImmutableSortedMap.copyOf(System.getProperties())));
+					+ "  system properties\n    "
+					+ joiner.join(ImmutableSortedMap.copyOf(transformValues(PropertyUtils.getSystemPropertyStrings(),
+							StringUtils.UNESCAPE))));
 		}
 		logger.flushLogQueue();
 	}
@@ -342,7 +346,8 @@ public final class BootstrapMain {
 		}
 
 		Map<String, String> resolvedProperties = PropertyUtils.resolvePropertiesInternally(applicationProperties);
-		MapDifference<String, String> mapDifference = Maps.difference(applicationProperties, resolvedProperties);
+		MapDifference<String, String> mapDifference = Maps.difference(transformValues(applicationProperties, UNESCAPE),
+				transformValues(resolvedProperties, UNESCAPE));
 		if (mapDifference.areEqual()) {
 			logger.log("No properties found to resolve between property groups");
 		} else {
@@ -368,8 +373,11 @@ public final class BootstrapMain {
 
 		putAllIfAbsent(applicationProperties, componentProperties);
 		if (!componentProperties.isEmpty()) {
-			logger.log("Loaded (non-overriding) properties from [" + propertySupplier.toString() + "]:\n  "
-					+ StringUtils.unescapeJava(MAP_JOINER.join(ImmutableSortedMap.copyOf(componentProperties))));
+			logger.log("Loaded (non-overriding) properties from ["
+					+ propertySupplier.toString()
+					+ "]:\n  "
+					+ MAP_JOINER.join(ImmutableSortedMap.copyOf(transformValues(componentProperties,
+							StringUtils.UNESCAPE))));
 		} else {
 			logger.log("Loaded no properties from [" + propertySupplier.toString() + "]");
 		}
