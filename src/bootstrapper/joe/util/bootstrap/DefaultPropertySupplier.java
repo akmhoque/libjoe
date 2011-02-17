@@ -44,6 +44,11 @@ class DefaultPropertySupplier implements PropertySupplier {
 		return fileBasedPropertyCollection("environment properties supplier: %s",
 				BootstrapMain.ENVIRONMENT_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY, defaultEnvFile);
 	}
+	@Override
+	public Iterable<Supplier<Map<String, String>>> getCommonPropertiesSupplier() {
+		return fileBasedPropertyCollection("common properties supplier: %s",
+				COMMON_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY, COMMON_PROPERTIES_FILE_DEFAULT);
+	}
 
 	private Iterable<Supplier<Map<String, String>>> fileBasedPropertyCollection(final String supplierName,
 			String locationPropertyKey, String locationPropertyDefault) {

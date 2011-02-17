@@ -3,8 +3,7 @@ package joe.util;
 import static com.google.common.base.Predicates.instanceOf;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Maps.*;
-import static com.google.common.collect.Maps.filterKeys;
-import static com.google.common.collect.Maps.filterValues;
+import static joe.util.StringUtils.UNESCAPE;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,7 +16,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.base.Joiner.MapJoiner;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 
 public class PropertyUtils {
 	private PropertyUtils() {}
@@ -215,5 +217,14 @@ public class PropertyUtils {
 				return changed;
 			}
 		};
+	}
+	
+	private static final MapJoiner PRINT_FRIENDLY_MAP_JOINER = Joiner.on("\n  ").withKeyValueSeparator(" => ").useForNull(
+			"(null)");
+	public static final String toLogFriendlyString(Map<String, String> properties) {
+		return PRINT_FRIENDLY_MAP_JOINER.join(Maps.transformValues(properties, UNESCAPE));
+	}
+	public static final StringBuilder toLogFriendlyString(StringBuilder sb, Map<String, String> properties) {
+		return PRINT_FRIENDLY_MAP_JOINER.appendTo(sb, Maps.transformValues(properties, UNESCAPE));
 	}
 }

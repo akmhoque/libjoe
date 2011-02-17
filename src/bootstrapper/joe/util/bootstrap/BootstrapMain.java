@@ -62,23 +62,26 @@ import com.google.common.collect.Maps;
  * <tr><th>Property</th><th>Behaviour</th><th>Default value</th>
  * <tr valign=top>
  * <tr align=left><td>{@code bootstrap.enable}<td>{@code true} to enable bootstrapping behaviour. No changes will be
- * made to the application environment without this property set.</td> <td>{@code false}</td> <tr align=left><td>
- * {@code bootstrap.logging.enable}<td>Turns on verbose logging of properties found and set.</td><td>{@code false}</td>
- * <tr align=left><td> {@code bootstrap.environment}<td>Specifies the name of the environment.</td><td>(none)</td>
+ * made to the application environment without this property set.</td> <td>{@code false}</td></tr> <tr align=left><td>
+ * {@code bootstrap.logging.enable}<td>Turns on verbose logging of properties found and set.</td><td>{@code false}</td></tr>
+ * <tr align=left><td> {@code bootstrap.environment}<td>Specifies the name of the environment.</td><td>(none)</td></tr>
  * <tr align=left><td>{@code bootstrap.properties.root.dir}</td><td>Root directory in which to look for properties
- * files. This may only be specified in system properties.</td><td>{@code config}</td>
+ * files. This may only be specified in system properties.</td><td>{@code config}</td></tr>
  * <tr align=left><td>{@code bootstrap.properties.user.file}</td><td>Comma separated list of file names, relative to the
  * root directory specified by {@code bootstrap.properties.root.dir}, in which to look for user properties
- * files.</td><td>{@code <user_name>.properties,} {@code user.properties}</td>
+ * files.</td><td>{@code <user_name>.properties,} {@code user.properties}</td></tr>
  * <tr align=left><td>{@code bootstrap.properties.machine.file}</td><td>File name, relative to the root directory
  * specified by {@code bootstrap.properties.root.dir}, in which to look for a machine-specific properties file.</td>
- * <td>{@code <hostname>.properties}, determined by {@code InetAddress.getLocalHost().getHostName()}</td>
+ * <td>{@code <hostname>.properties}, determined by {@code InetAddress.getLocalHost().getHostName()}</td></tr>
  * <tr align=left><td>{@code bootstrap.properties.ide.file}</td><td>File name, relative to the root directory specified
  * by {@code bootstrap.properties.root.dir}, in which to look for an IDE properties file.</td><td>{@code ide.properties}
- * </td>
+ * </td></tr>
  * <tr align=left><td>{@code bootstrap.properties.env.file}</td><td>File name, relative to the root directory
  * specified by {@code bootstrap.properties.root.dir}, in which to look for a environment-specific properties file.</td>
- * <td><tt> ${bootstrap.environment}.properties</tt></td>
+ * <td><tt> ${bootstrap.environment}.properties</tt></td></tr></tr>
+ * <tr align=left><td>{@code bootstrap.properties.common.file}</td><td>File name, relative to the root directory
+ * specified by {@code bootstrap.properties.root.dir}, in which to look for a common properties file.</td>
+ * <td><tt> common.properties</tt></td></tr></tr>
  * </table>
  * <p>
  * 
@@ -93,6 +96,7 @@ public final class BootstrapMain {
 	 * * machine.properties
 	 * * ide.properties
 	 * * <environment>.properties
+	 * * common.properties
 	 */
 
 	public static final String BOOTSTRAP_ENABLE_KEY = "bootstrap.enable";
@@ -106,11 +110,13 @@ public final class BootstrapMain {
 	public static final String MACHINE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.machine.file";
 	public static final String IDE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.ide.file";
 	public static final String ENVIRONMENT_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.env.file";
+	public static final String COMMON_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.common.file";
 
 	static final String PROPERTIES_FILE_ROOT_LOCATION_DEFAULT = "config";
 	static final String USER_PROPERTIES_FILES_DEFAULT = SystemUtils.getUserName() + ".properties, user.properties";
 	static final String MACHINE_PROPERTIES_FILE_DEFAULT = SystemUtils.getHostName() + ".properties";
 	static final String IDE_PROPERTIES_FILE_DEFAULT = "ide.properties";
+	static final String COMMON_PROPERTIES_FILE_DEFAULT = "common.properties";
 
 	private Class<?> mainClass; // no default
 	private String[] mainArgs = new String[0]; // default to no args
@@ -342,6 +348,9 @@ public final class BootstrapMain {
 			return;
 		}
 		if (!processPropertySupplierGroup(propertySupplier.getEnvironmentPropertiesSupplier())) {
+			return;
+		}
+		if (!processPropertySupplierGroup(propertySupplier.getCommonPropertiesSupplier())) {
 			return;
 		}
 

@@ -36,4 +36,8 @@ abstract class AbstractPropertySupplier implements PropertySupplier {
 	public Iterable<Supplier<Map<String, String>>> getEnvironmentPropertiesSupplier() {
 		return ImmutableList.of();
 	}
+	@Override
+	public Iterable<Supplier<Map<String, String>>> getCommonPropertiesSupplier() {
+		return ImmutableList.of();
+	}
 }

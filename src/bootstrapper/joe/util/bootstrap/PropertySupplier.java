@@ -24,4 +24,5 @@ public interface PropertySupplier {
 	Iterable<Supplier<Map<String, String>>> getMachinePropertiesSupplier();
 	Iterable<Supplier<Map<String, String>>> getIdePropertiesSupplier();
 	Iterable<Supplier<Map<String, String>>> getEnvironmentPropertiesSupplier();
+	Iterable<Supplier<Map<String, String>>> getCommonPropertiesSupplier();
 }
