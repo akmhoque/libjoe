@@ -1,7 +1,7 @@
 package joe.util;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
 
@@ -28,5 +28,22 @@ public class PropertyUtilsTest {
 	public void testPropertyResolveTwo() throws Exception {
 		Function<String, String> propertyResolverFromMap = PropertyUtils.propertyResolverFromMap(ImmutableMap.of("key1", "v1", "key2", "v2"));
 		assertThat(propertyResolverFromMap.apply("abc${key1}de${key2}f"), is("abcv1dev2f"));
+	}
+	@Test
+	public void testPropertyResolveUnknown() throws Exception {
+		Function<String, String> propertyResolverFromMap = PropertyUtils.propertyResolverFromMap(ImmutableMap.<String, String> of());
+		assertThat(propertyResolverFromMap.apply("abc${key}"), is("abc${key}"));
+	}
+	@Test
+	public void testPropertyResolveKnownThenUnknown() throws Exception {
+		Function<String, String> propertyResolverFromMap = PropertyUtils.propertyResolverFromMap(ImmutableMap.<String, String> of(
+				"knownKey", "blah"));
+		assertThat(propertyResolverFromMap.apply("abc${knownKey}def${unknownKey}ghi"), is("abcblahdef${unknownKey}ghi"));
+	}
+	@Test
+	public void testPropertyResolveUnknownThenUnknown() throws Exception {
+		Function<String, String> propertyResolverFromMap = PropertyUtils.propertyResolverFromMap(ImmutableMap.<String, String> of(
+				"knownKey", "blah"));
+		assertThat(propertyResolverFromMap.apply("abc${unknownKey}def${knownKey}ghi"), is("abc${unknownKey}defblahghi"));
 	}
 }

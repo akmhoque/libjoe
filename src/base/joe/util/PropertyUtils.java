@@ -3,6 +3,7 @@ package joe.util;
 import static com.google.common.base.Predicates.instanceOf;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Maps.*;
+import static java.util.regex.Pattern.quote;
 import static joe.util.StringUtils.UNESCAPE;
 
 import java.io.File;
@@ -176,7 +177,10 @@ public class PropertyUtils {
 		return ImmutableMap.of();
 	}
 
-	static final Pattern PROPERTY_KEY_PATTERN = Pattern.compile("\\$\\{([^\\}]*)\\}");
+	static final String PROPERTY_KEY_START_MARKER = "${";
+	static final String PROPERTY_KEY_END_MARKER = "}";
+	static final Pattern PROPERTY_KEY_PATTERN = Pattern.compile(quote(PROPERTY_KEY_START_MARKER) + "([^"
+			+ quote(PROPERTY_KEY_END_MARKER) + "]*)" + quote(PROPERTY_KEY_END_MARKER));
 	public static Function<String, String> propertyResolverFromMap(final Map<String, String> properties) {
 		return new Function<String, String>() {
 			@Override
@@ -199,6 +203,11 @@ public class PropertyUtils {
 					if (value != null) {
 						sb.append(value);
 						return true;
+					} else {
+						sb.append(PROPERTY_KEY_START_MARKER);
+						sb.append(input);
+						sb.append(PROPERTY_KEY_END_MARKER);
+						return false;
 					}
 				}
 
