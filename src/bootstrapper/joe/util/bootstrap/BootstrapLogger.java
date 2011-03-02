@@ -5,6 +5,7 @@ import static com.google.common.collect.Lists.newLinkedList;
 import java.util.Date;
 import java.util.Map;
 import java.util.Queue;
+import java.util.logging.Logger;
 
 final class BootstrapLogger {
 	private final Queue<String> logQueue = newLinkedList();
@@ -34,8 +35,30 @@ final class BootstrapLogger {
 				logQueue.add(logMessage);
 			} else {
 				// actually log
-				System.out.println(logMessage);
+				doLog(logMessage);
 			}
+		}
+	}
+
+	/**
+	 * Actually log a message. This will use either a {@link java.util.logging.Logger}, or {@link System#out}.
+	 * 
+	 * @param logMessage message to be logged
+	 * @see BootstrapMain#BOOTSTRAP_ENABLE_JAVA_UTIL_LOGGING_KEY
+	 */
+	private void doLog(String logMessage) {
+		if (isJulLoggingEnabled()) {
+			getJulLogger().info(logMessage);
+		} else {
+			System.out.println(logMessage);
+		}
+	}
+	private Logger julLogger;
+	private Logger getJulLogger() {
+		if (julLogger == null) {
+			return (julLogger = Logger.getLogger(BootstrapLogger.class.getName()));
+		} else {
+			return julLogger;
 		}
 	}
 
@@ -72,5 +95,14 @@ final class BootstrapLogger {
 	 */
 	boolean isLoggingEnabled() {
 		return "true".equalsIgnoreCase(applicationProperties.get(BootstrapMain.BOOTSTRAP_ENABLE_LOGGING_KEY));
+	}
+	/**
+	 * Should logging be done through {@code java.util.logging}, rather than {@code System.out}?
+	 * 
+	 * @return {@code true} iff the property {@link BootstrapMain#BOOTSTRAP_ENABLE_JAVA_UTIL_LOGGING_KEY} has been set
+	 *         to {@code true}
+	 */
+	boolean isJulLoggingEnabled() {
+		return "true".equalsIgnoreCase(applicationProperties.get(BootstrapMain.BOOTSTRAP_ENABLE_JAVA_UTIL_LOGGING_KEY));
 	}
 }

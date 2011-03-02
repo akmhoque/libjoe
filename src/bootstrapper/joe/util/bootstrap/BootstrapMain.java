@@ -64,7 +64,10 @@ import com.google.common.collect.Maps;
  * <tr valign=top>
  * <tr align=left><td>{@code bootstrap.enable}<td>{@code true} to enable bootstrapping behaviour. No changes will be
  * made to the application environment without this property set.</td> <td>{@code false}</td></tr> <tr align=left><td>
- * {@code bootstrap.logging.enable}<td>Turns on verbose logging of properties found and set.</td><td>{@code false}</td></tr>
+ * {@code bootstrap.logging.enable}<td>Turns on verbose logging of properties found and set.</td><td>{@code false}
+ * </td></tr>
+ * <tr align=left><td> {@code bootstrap.logging.jul}<td>Logs through {@code java.util.logging} instead of
+ * {@code System.out}.</td><td>{@code false} (uses {@code System.out})</td></tr>
  * <tr align=left><td> {@code bootstrap.environment}<td>Specifies the name of the environment.</td><td>(none)</td></tr>
  * <tr align=left><td>{@code bootstrap.properties.root.dir}</td><td>Root directory in which to look for properties
  * files. This may only be specified in system properties.</td><td>{@code config}</td></tr>
@@ -102,6 +105,7 @@ public final class BootstrapMain {
 
 	public static final String BOOTSTRAP_ENABLE_KEY = "bootstrap.enable";
 	public static final String BOOTSTRAP_ENABLE_LOGGING_KEY = "bootstrap.logging.enable";
+	public static final String BOOTSTRAP_ENABLE_JAVA_UTIL_LOGGING_KEY = "bootstrap.logging.jul";
 	public static final String BOOTSTRAP_ENVIRONMENT_KEY = "bootstrap.environment";
 	public static final String BOOTSTRAP_MAIN_METHOD_KEY = "bootstrap.main.method";
 	public static final String BOOTSTRAP_MAIN_CLASS_KEY = "bootstrap.main.class";
@@ -325,8 +329,12 @@ public final class BootstrapMain {
 		if (!logger.isLoggingDisabled()) {
 			MapJoiner joiner = Joiner.on("\n    ").withKeyValueSeparator(" => ");
 			logger.log("Running application with\n" //
-					+ "  main class        [" + (mainClass == null ? "not specified" : mainClass.getName()) + "]\n" //
-					+ "  main args         [" + Joiner.on(", ").join(mainArgs) + "]\n" //
+					+ "  main class        ["
+					+ (mainClass == null ? "not specified" : mainClass.getName())
+					+ "]\n" //
+					+ "  main args         ["
+					+ Joiner.on(", ").join(mainArgs)
+					+ "]\n" //
 					+ "  system properties\n    "
 					+ joiner.join(ImmutableSortedMap.copyOf(transformValues(PropertyUtils.getSystemPropertyStrings(),
 							StringUtils.UNESCAPE))));
@@ -364,7 +372,7 @@ public final class BootstrapMain {
 			logger.log("Resolved property values between property groups as follows: "
 					+ mapDifference.entriesDiffering());
 		}
-		
+
 		applicationProperties = resolvedProperties;
 
 		logger.flushLogQueue();
