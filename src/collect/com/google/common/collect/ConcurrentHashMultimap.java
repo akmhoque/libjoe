@@ -1,7 +1,7 @@
 package com.google.common.collect;
 
-import static com.google.common.base.Objects.*;
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Objects.equal;
+import static com.google.common.base.Preconditions.checkState;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -1198,7 +1198,7 @@ public final class ConcurrentHashMultimap<K, V> implements ConcurrentSetMultimap
 	transient final Function<K, Multiset.Entry<K>> sizeForKey = new Function<K, Multiset.Entry<K>>() {
 		@Override
 		public Multiset.Entry<K> apply(final K input) {
-			return new Multiset.Entry<K>() {
+			return new Multisets.AbstractEntry<K>() {
 				@Override
 				public K getElement() {
 					return input;
@@ -1599,5 +1599,4 @@ public final class ConcurrentHashMultimap<K, V> implements ConcurrentSetMultimap
 			put(key, value);
 		}
 	}
-
 }
