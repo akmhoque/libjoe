@@ -5,11 +5,15 @@ import static com.google.common.collect.Lists.newLinkedList;
 import java.util.Date;
 import java.util.Map;
 import java.util.Queue;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
+/**
+ * Handles logging from {@link BootstrapMain}.
+ * @author Joe Kearney
+ */
 final class BootstrapLogger {
 	private final Queue<String> logQueue = newLinkedList();
-	private boolean queueLogMessages = true;
 	private final Map<String, String> applicationProperties;
 
 	BootstrapLogger(Map<String, String> applicationProperties) {
@@ -23,19 +27,13 @@ final class BootstrapLogger {
 	 */
 	void log(String message) {
 		if (!isLoggingDisabled()) {
-			final String logMessage = String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL [%2$s] - %3$s",
-					new Date(), Thread.currentThread().getName(), message);
-
-			if (queueLogMessages && isLoggingEnabled()) {
-				// we're in queue mode and must now flush everything
-				logQueue.add(logMessage);
-				flushLogQueue();
-			} else if (queueLogMessages) {
-				// we're in queue mode and can't flush anything
-				logQueue.add(logMessage);
-			} else {
+			if (isLoggingEnabled()) {
 				// actually log
-				doLog(logMessage);
+				flushLogQueue();
+				doLog(message);
+			} else {
+				// we're in queue mode and can't flush anything
+				logQueue.add(message);
 			}
 		}
 	}
@@ -46,16 +44,18 @@ final class BootstrapLogger {
 	 * @param logMessage message to be logged
 	 * @see BootstrapMain#BOOTSTRAP_ENABLE_JAVA_UTIL_LOGGING_KEY
 	 */
-	private void doLog(String logMessage) {
+	private void doLog(String message) {
 		if (isJulLoggingEnabled()) {
-			getJulLogger().info(logMessage);
+			getJulLogger().info(message);
 		} else {
-			System.out.println(logMessage);
+			System.out.println(formatLogMessageForSysout(message));
 		}
 	}
+
 	private Logger julLogger;
 	private Logger getJulLogger() {
 		if (julLogger == null) {
+			LogManager.getLogManager().reset();
 			return (julLogger = Logger.getLogger(BootstrapLogger.class.getName()));
 		} else {
 			return julLogger;
@@ -68,9 +68,8 @@ final class BootstrapLogger {
 	 */
 	void flushLogQueue() {
 		if (isLoggingEnabled()) {
-			queueLogMessages = false;
 			while (!logQueue.isEmpty()) {
-				System.out.println(logQueue.poll());
+				doLog(logQueue.poll());
 			}
 		} else {
 			logQueue.clear();
@@ -104,5 +103,16 @@ final class BootstrapLogger {
 	 */
 	boolean isJulLoggingEnabled() {
 		return "true".equalsIgnoreCase(applicationProperties.get(BootstrapMain.BOOTSTRAP_ENABLE_JAVA_UTIL_LOGGING_KEY));
+	}
+	
+	/**
+	 * Enriches the log message with the datetime and current thread name.
+	 * 
+	 * @param message raw log message
+	 * @return enriched message
+	 */
+	private static String formatLogMessageForSysout(String message) {
+		return String.format("%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL [%2$s] - %3$s",
+				new Date(), Thread.currentThread().getName(), message);
 	}
 }

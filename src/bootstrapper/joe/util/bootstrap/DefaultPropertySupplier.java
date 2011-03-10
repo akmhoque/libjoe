@@ -67,7 +67,6 @@ class DefaultPropertySupplier implements PropertySupplier {
 							@Override
 							public Map<String, String> get() {
 								try {
-
 									return loadPropertiesFileIfExists(bootstrapper.createPropertyFileRelativePath(fileName));
 								} catch (IOException e) {
 									throw propagate(e);

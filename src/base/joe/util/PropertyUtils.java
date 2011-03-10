@@ -20,6 +20,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Joiner.MapJoiner;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Maps;
 
 public class PropertyUtils {
@@ -120,7 +121,12 @@ public class PropertyUtils {
 	 */
 	public static Map<String, String> loadPropertiesFile(File file) throws FileNotFoundException, IOException,
 			IllegalArgumentException {
-		return loadPropertiesStream(new FileInputStream(file));
+		FileInputStream inputStream = new FileInputStream(file);
+		try {
+			return loadPropertiesStream(inputStream);
+		} finally {
+			inputStream.close();
+		}
 	}
 	/**
 	 * Loads a properties file into a map if, returning a immutable view, if the
@@ -169,8 +175,7 @@ public class PropertyUtils {
 			IllegalArgumentException {
 		Properties properties = new Properties();
 		properties.load(inputStream);
-		// don't sort results, keep them in declared order
-		return ImmutableMap.copyOf(getStringEntries(properties));
+		return ImmutableSortedMap.copyOf(getStringEntries(properties));
 	}
 	/** Returns an empty map, typed for ease of use. */
 	public static Map<String, String> emptyPropertiesMap() {

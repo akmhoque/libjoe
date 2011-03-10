@@ -6,6 +6,7 @@ import static com.google.common.collect.Maps.newTreeMap;
 import static com.google.common.collect.Maps.transformValues;
 import static java.lang.reflect.Modifier.isPublic;
 import static java.lang.reflect.Modifier.isStatic;
+import static joe.util.PropertyUtils.getSystemPropertyStrings;
 import static joe.util.StringUtils.UNESCAPE;
 
 import java.lang.reflect.InvocationTargetException;
@@ -325,24 +326,10 @@ public final class BootstrapMain {
 		findRootConfigDirectory();
 		generateProperties();
 		setSystemProperties();
-
-		if (!logger.isLoggingDisabled()) {
-			MapJoiner joiner = Joiner.on("\n    ").withKeyValueSeparator(" => ");
-			logger.log("Running application with\n" //
-					+ "  main class        ["
-					+ (mainClass == null ? "not specified" : mainClass.getName())
-					+ "]\n" //
-					+ "  main args         ["
-					+ Joiner.on(", ").join(mainArgs)
-					+ "]\n" //
-					+ "  system properties\n    "
-					+ joiner.join(ImmutableSortedMap.copyOf(transformValues(PropertyUtils.getSystemPropertyStrings(),
-							StringUtils.UNESCAPE))));
-		}
-		logger.flushLogQueue();
 	}
 
 	private static final MapJoiner MAP_JOINER = Joiner.on("\n  ").withKeyValueSeparator(" => ");
+	private static final MapJoiner MAP_JOINER_INDENTED = Joiner.on("\n    ").withKeyValueSeparator(" => ");
 	private void generateProperties() {
 		if (!processPropertySupplier(propertySupplier.getSystemPropertiesSupplier())) {
 			return;
@@ -369,13 +356,11 @@ public final class BootstrapMain {
 		if (mapDifference.areEqual()) {
 			logger.log("No properties found to resolve between property groups");
 		} else {
-			logger.log("Resolved property values between property groups as follows: "
-					+ mapDifference.entriesDiffering());
+			logger.log("Resolved property values between property groups as follows:\n  "
+					+ MAP_JOINER.join(mapDifference.entriesDiffering()));
 		}
 
 		applicationProperties = resolvedProperties;
-
-		logger.flushLogQueue();
 	}
 	private boolean processPropertySupplierGroup(Iterable<Supplier<Map<String, String>>> groupPropertiesSuppliers) {
 		Iterator<Supplier<Map<String, String>>> propSuppliersIterator = groupPropertiesSuppliers.iterator();
@@ -419,7 +404,31 @@ public final class BootstrapMain {
 	private void setSystemProperties() {
 		if (isBootstrappingEnabled()) {
 			logger.log("Setting application system properties");
+			MapDifference<String, String> difference = Maps.difference(getSystemPropertyStrings(),
+					applicationProperties);
 			System.getProperties().putAll(applicationProperties);
+
+			logger.log("Application system properties set");
+			
+			logger.log("Properties changed by the bootstrapper:"
+					+ (difference.entriesDiffering().isEmpty() ? " (none)"
+							: ("\n    "
+									+ MAP_JOINER.join(ImmutableSortedMap.copyOf(difference.entriesDiffering())) + "\n")));
+			logger.log("Properties added by the bootstrapper (not including system properties set by the launcher):"
+					+ (difference.entriesOnlyOnRight().isEmpty() ? " (none)"
+							: ("\n    "
+									+ MAP_JOINER.join(ImmutableSortedMap.copyOf(difference.entriesOnlyOnRight())) + "\n")));
+
+			logger.log("Running application with\n" //
+					+ "  main class        ["
+					+ (mainClass == null ? "not specified" : mainClass.getName())
+					+ "]\n"
+					+ "  main args         ["
+					+ Joiner.on(", ").join(mainArgs)
+					+ "]\n"
+					+ "  system properties\n    "
+					+ MAP_JOINER_INDENTED.join(ImmutableSortedMap.copyOf(transformValues(
+							PropertyUtils.getSystemPropertyStrings(), StringUtils.UNESCAPE))) + "\n");
 		} else {
 			logger.log("Bootstrapping disabled, system properties will not be set for the application; "
 					+ "it will be launched with no changes to its environment.");
