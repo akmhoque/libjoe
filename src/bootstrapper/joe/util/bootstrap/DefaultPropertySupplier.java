@@ -33,6 +33,11 @@ class DefaultPropertySupplier implements PropertySupplier {
 				MACHINE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY, MACHINE_PROPERTIES_FILE_DEFAULT);
 	}
 	@Override
+	public Iterable<Supplier<Map<String, String>>> getOsPropertiesSupplier() {
+		return fileBasedPropertyCollection("OS properties supplier: %s",
+				OS_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY, OS_PROPERTIES_FILE_DEFAULT);
+	}
+	@Override
 	public Iterable<Supplier<Map<String, String>>> getIdePropertiesSupplier() {
 		return fileBasedPropertyCollection("IDE properties supplier: %s", IDE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY,
 				IDE_PROPERTIES_FILE_DEFAULT);

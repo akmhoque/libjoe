@@ -20,9 +20,11 @@ import joe.util.PropertyUtils;
 import joe.util.StringUtils;
 import joe.util.SystemUtils;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Joiner.MapJoiner;
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
@@ -78,6 +80,10 @@ import com.google.common.collect.Maps;
  * <tr align=left><td>{@code bootstrap.properties.machine.file}</td><td>File name, relative to the root directory
  * specified by {@code bootstrap.properties.root.dir}, in which to look for a machine-specific properties file.</td>
  * <td>{@code <hostname>.properties}, determined by {@code InetAddress.getLocalHost().getHostName()}</td></tr>
+ * <tr align=left><td>{@code bootstrap.properties.os.file}</td><td>File name, relative to the root directory
+ * specified by {@code bootstrap.properties.root.dir}, in which to look for a OS-specific properties file.</td>
+ * <td>{@code windows.properties} or {@code unix.properties}, determined by parsing the system property {@code os.name}.
+ * See {@link SystemUtils#getOperatingSystem()}</td></tr>
  * <tr align=left><td>{@code bootstrap.properties.ide.file}</td><td>File name, relative to the root directory specified
  * by {@code bootstrap.properties.root.dir}, in which to look for an IDE properties file.</td><td>{@code ide.properties}
  * </td></tr>
@@ -114,6 +120,7 @@ public final class BootstrapMain {
 	public static final String PROPERTIES_FILE_ROOT_LOCATIONS_KEY = "bootstrap.properties.root.dir";
 	public static final String USER_PROPERTIES_FILE_LOCATIONS_OVERRIDE_KEY = "bootstrap.properties.user.file";
 	public static final String MACHINE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.machine.file";
+	public static final String OS_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.os.file";
 	public static final String IDE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.ide.file";
 	public static final String ENVIRONMENT_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.env.file";
 	public static final String COMMON_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.common.file";
@@ -121,6 +128,9 @@ public final class BootstrapMain {
 	static final String PROPERTIES_FILE_ROOT_LOCATION_DEFAULT = "config";
 	static final String USER_PROPERTIES_FILES_DEFAULT = SystemUtils.getUserName() + ".properties, user.properties";
 	static final String MACHINE_PROPERTIES_FILE_DEFAULT = SystemUtils.getHostName() + ".properties";
+	// windows.properties or unix.properties
+	static final String OS_PROPERTIES_FILE_DEFAULT = SystemUtils.getOperatingSystem().toString().toLowerCase()
+			+ ".properties";
 	static final String IDE_PROPERTIES_FILE_DEFAULT = "ide.properties";
 	static final String COMMON_PROPERTIES_FILE_DEFAULT = "common.properties";
 
@@ -323,6 +333,7 @@ public final class BootstrapMain {
 	 * consider using {@link #launchApplication(Class)} or the builder API through {@link #withMainArgs(String...)}.
 	 */
 	final void preparePropertiesInternal() {
+		addComputedProperties();
 		findRootConfigDirectory();
 		generateProperties();
 		setSystemProperties();
@@ -338,6 +349,9 @@ public final class BootstrapMain {
 			return;
 		}
 		if (!processPropertySupplierGroup(propertySupplier.getMachinePropertiesSupplier())) {
+			return;
+		}
+		if (!processPropertySupplierGroup(propertySupplier.getOsPropertiesSupplier())) {
 			return;
 		}
 		if (!processPropertySupplierGroup(propertySupplier.getIdePropertiesSupplier())) {
@@ -393,6 +407,7 @@ public final class BootstrapMain {
 		}
 		return true;
 	}
+	
 	private boolean isBootstrappingDisabled() {
 		String prop = getApplicationProperty(BOOTSTRAP_ENABLE_KEY);
 		return prop != null && !"true".equalsIgnoreCase(prop);
@@ -401,6 +416,14 @@ public final class BootstrapMain {
 		return "true".equalsIgnoreCase(getApplicationProperty(BOOTSTRAP_ENABLE_KEY));
 	}
 
+	/** Properties computed by the bootstrapper and registered prior to  */
+	@VisibleForTesting
+	static final Map<String, String> COMPUTED_PROPERTIES = ImmutableMap.of(SystemUtils.HOST_NAME_KEY, SystemUtils.getHostName());
+	// TODO and others?
+	private void addComputedProperties() {
+		Map<String, String> sysprops = PropertyUtils.getSystemPropertyStrings();
+		putAllIfAbsent(sysprops, COMPUTED_PROPERTIES);
+	}
 	private void setSystemProperties() {
 		if (isBootstrappingEnabled()) {
 			logger.log("Setting application system properties");
@@ -453,12 +476,14 @@ public final class BootstrapMain {
 	/*
 	 * map utilities
 	 */
-	private static <K, V> void putAllIfAbsent(Map<K, V> destination, Map<? extends K, ? extends V> source) {
+	private static <K, V> void putAllIfAbsent(Map<? super K, ? super V> destination, Map<? extends K, ? extends V> source) {
 		for (Entry<? extends K, ? extends V> entry : source.entrySet()) {
-			K key = entry.getKey();
-			if (!destination.containsKey(key)) {
-				destination.put(key, entry.getValue());
-			}
+			putIfAbsent(destination, entry.getKey(), entry.getValue());
+		}
+	}
+	private static <K, V> void putIfAbsent(Map<? super K, ? super V> destination, K key, V value) {
+		if (!destination.containsKey(key)) {
+			destination.put(key, value);
 		}
 	}
 	/**

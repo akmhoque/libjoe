@@ -29,6 +29,10 @@ abstract class AbstractPropertySupplier implements PropertySupplier {
 		return ImmutableList.of();
 	}
 	@Override
+	public Iterable<Supplier<Map<String, String>>> getOsPropertiesSupplier() {
+		return ImmutableList.of();
+	}
+	@Override
 	public Iterable<Supplier<Map<String, String>>> getIdePropertiesSupplier() {
 		return ImmutableList.of();
 	}

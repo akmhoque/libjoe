@@ -29,12 +29,13 @@ public class BootstrapPropertyPriorityOrderingTest {
 	static final String SYSTEM_PROPERTY = "system";
 	static final String USER_PROPERTY = "jkearne";
 	static final String MACHINE_PROPERTY = "machine";
+	static final String OS_PROPERTY = "os";
 	static final String IDE_PROPERTY = "ide";
 	static final String PROD_PROPERTY = "prod";
 	static final String COMMON_PROPERTY = "common";
 
 	private static final ImmutableSet<String> ENV_NAMES_IN_ORDER = ImmutableSet.of(COMMON_PROPERTY, PROD_PROPERTY,
-			IDE_PROPERTY, MACHINE_PROPERTY, USER_PROPERTY, SYSTEM_PROPERTY);
+			IDE_PROPERTY, OS_PROPERTY, MACHINE_PROPERTY, USER_PROPERTY, SYSTEM_PROPERTY);
 	private static final String PROPERTY_UNDER_TEST_KEY = "prop";
 	private static final Ordering<String> PROPERTY_SET_ORDERING = Ordering.explicit(ENV_NAMES_IN_ORDER.asList());
 	private static final Set<Set<String>> ENV_NAMES_POWER_SET = Sets.powerSet(ENV_NAMES_IN_ORDER);
@@ -119,6 +120,10 @@ public class BootstrapPropertyPriorityOrderingTest {
 		@Override
 		public Iterable<Supplier<Map<String, String>>> getMachinePropertiesSupplier() {
 			return getEnvPropOrEmpty(MACHINE_PROPERTY);
+		}
+		@Override
+		public Iterable<Supplier<Map<String, String>>> getOsPropertiesSupplier() {
+			return getEnvPropOrEmpty(OS_PROPERTY);
 		}
 		@Override
 		public Iterable<Supplier<Map<String, String>>> getIdePropertiesSupplier() {

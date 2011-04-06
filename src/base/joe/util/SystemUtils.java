@@ -10,6 +10,9 @@ public class SystemUtils {
 	public static final String JAVA_USER_NAME_SYSPROP_KEY = "user.name";
 	public static final String JAVA_CLASS_PATH_SYSPROP_KEY = "java.class.path";
 	public static final String JAVA_FILE_SEPARATOR_SYSPROP_KEY = "file.separator";
+	public static final String JAVA_OS_NAME_SYSPROP_KEY = "os.name";
+
+	public static final String HOST_NAME_KEY = "host.name";
 
 	private static final int PID = doGetPid();
 	/**
@@ -53,6 +56,17 @@ public class SystemUtils {
 		} catch (UnknownHostException e) {
 			throw new UnsupportedOperationException("Host name not available (through InetAddress)", e);
 		}
+	}
+
+	/**
+	 * Attempts to determine the type of the operating system by parsing the value of the {@code os.name} system
+	 * property.
+	 * 
+	 * @return type of the OS
+	 * @throws IllegalArgumentException if the parameter cannot be parsed for any reason
+	 */
+	public static OperatingSystem getOperatingSystem() {
+		return OperatingSystem.thisOperatingSystem();
 	}
 
 	/**
