@@ -41,9 +41,10 @@ import com.google.common.collect.Maps;
  * <ol>
  * <li>System properties
  * <li>User properties, taken from files defined by {@code bootstrap.properties.user.file} <li>Machine properties, taken
- * from files defined by {@code bootstrap.properties.machine.file} <li>IDE properties, taken from files defined by
- * {@code bootstrap.properties.ide.file} <li>Environment properties, taken from files defined by
- * {@code bootstrap.properties.env.file} </ol>
+ * from files defined by {@code bootstrap.properties.machine.file} <li>Operating-system properties, taken from files
+ * defined by {@code bootstrap.properties.os.file}, defaulting to {@code windows.properties} and {@code unix.properties}
+ * <li>IDE properties, taken from files defined by {@code bootstrap.properties.ide.file} <li>Environment properties,
+ * taken from files defined by {@code bootstrap.properties.env.file} </ol>
  * <p>
  * <h3>Usage</h3>
  * There are two usage patterns.
@@ -105,6 +106,7 @@ public final class BootstrapMain {
 	 * * system properties
 	 * * user properties (<user_name>.properties, user.properties)
 	 * * machine.properties
+	 * * os.properties
 	 * * ide.properties
 	 * * <environment>.properties
 	 * * common.properties
@@ -322,21 +324,31 @@ public final class BootstrapMain {
 	 * This does all of the work of the bootstrapper except for actually launching the application, for which you should
 	 * consider using {@link BootstrapMain#launchApplication(Class)} or the builder API through
 	 * {@link BootstrapMain#withMainArgs(String...)}.
+	 * 
+	 * @return an object providing access to the state of the properties before and after bootstrapping
 	 */
-	public static void prepareProperties() {
-		new BootstrapMain().preparePropertiesInternal();
+	public static BootstrapResult prepareProperties() {
+		BootstrapMain bootstrapMain = new BootstrapMain();
+		return bootstrapMain.preparePropertiesInternal();
 	}
 	/**
 	 * Finds property sources for this application and builds the application's runtime property set.
-	 * 
+	 * <p>
 	 * This does all of the work of the bootstrapper except for actually launching the application, for which you should
 	 * consider using {@link #launchApplication(Class)} or the builder API through {@link #withMainArgs(String...)}.
+	 * 
+	 * @return an object providing access to the state of the properties before and after bootstrapping
 	 */
-	final void preparePropertiesInternal() {
+	final BootstrapResult preparePropertiesInternal() {
+		if (bootstrapResult != null) {
+			logger.log("Bootstrapping has already been completed, and will not be re-run.");
+			return bootstrapResult;
+		}
+		
 		addComputedProperties();
 		findRootConfigDirectory();
 		generateProperties();
-		setSystemProperties();
+		return setSystemProperties();
 	}
 
 	private static final MapJoiner MAP_JOINER = Joiner.on("\n  ").withKeyValueSeparator(" => ");
@@ -418,16 +430,19 @@ public final class BootstrapMain {
 
 	/** Properties computed by the bootstrapper and registered prior to  */
 	@VisibleForTesting
-	static final Map<String, String> COMPUTED_PROPERTIES = ImmutableMap.of(SystemUtils.HOST_NAME_KEY, SystemUtils.getHostName());
 	// TODO and others?
+	static final Map<String, String> COMPUTED_PROPERTIES = ImmutableMap.of(SystemUtils.HOST_NAME_KEY, SystemUtils.getHostName());
 	private void addComputedProperties() {
 		Map<String, String> sysprops = PropertyUtils.getSystemPropertyStrings();
 		putAllIfAbsent(sysprops, COMPUTED_PROPERTIES);
 	}
-	private void setSystemProperties() {
+	private BootstrapResult bootstrapResult = null;
+	private BootstrapResult setSystemProperties() {
+		final Map<String, String> priorSystemProperties = ImmutableMap.copyOf(getSystemPropertyStrings());
 		if (isBootstrappingEnabled()) {
 			logger.log("Setting application system properties");
-			MapDifference<String, String> difference = Maps.difference(getSystemPropertyStrings(),
+			
+			final MapDifference<String, String> difference = Maps.difference(priorSystemProperties,
 					applicationProperties);
 			System.getProperties().putAll(applicationProperties);
 
@@ -452,9 +467,12 @@ public final class BootstrapMain {
 					+ "  system properties\n    "
 					+ MAP_JOINER_INDENTED.join(ImmutableSortedMap.copyOf(transformValues(
 							PropertyUtils.getSystemPropertyStrings(), StringUtils.UNESCAPE))) + "\n");
+			
+			return bootstrapResult = new BootstrapResult(priorSystemProperties, applicationProperties);
 		} else {
 			logger.log("Bootstrapping disabled, system properties will not be set for the application; "
 					+ "it will be launched with no changes to its environment.");
+			return bootstrapResult = new BootstrapResult(priorSystemProperties, priorSystemProperties);
 		}
 	}
 
