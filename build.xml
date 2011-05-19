@@ -26,7 +26,7 @@
 		<sequential>
 			<property name="@{component}.jar.name" value="${jars.dir}/libjoe-@{component}-${version}.jar" />
 			<mkdir dir="${classes.root.dir}/@{component}" />
-			<javac srcdir="${src.root.dir}/@{component}" destdir="${classes.root.dir}/@{component}" debug="on">
+			<javac srcdir="${src.root.dir}/@{component}" destdir="${classes.root.dir}/@{component}" debug="on" >
 				<compilerarg value="-Xlint:all" />
 				<classpath>
 					<fileset dir=".">
@@ -35,11 +35,14 @@
 					</fileset>
 				</classpath>
 			</javac>
+			<copy todir="${classes.root.dir}/@{component}">
+				<fileset dir="${src.root.dir}/@{component}" excludes="**/*.java" />
+			</copy>
 			<jar destfile="${jars.dir}/libjoe-@{component}-${version}.jar" basedir="${classes.root.dir}/@{component}" />
 			<jar destfile="${jars.dir}/libjoe-@{component}-${version}.src.jar" basedir="${src.root.dir}/@{component}" />
 		</sequential>
 	</macrodef>
-
+	
 	<target name="jar-bootstrapper" depends="compile-all" description="Builds the bootstrapper jars: one standalone incorporating its jarjar'd dependencies and one with only the libjoe code.">
 		<jarjar destfile="${jars.dir}/libjoe-bootstrapper-standalone-${version}.jar" basedir="${classes.root.dir}/${src.bootstrapper.dir}">
 			<zipfileset src="${bootstrapper.jar.name}" />

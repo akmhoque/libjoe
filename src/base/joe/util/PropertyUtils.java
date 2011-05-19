@@ -67,6 +67,29 @@ public class PropertyUtils {
 		return resolvedCopy;
 	}
 	/**
+	 * Resolves properties found in values that are defined as keys in another map. The input maps are unchanged.
+	 * Consider {@linkplain #resolvePropertiesInternally(Map) resolving properties internally} before or after doing
+	 * this, depending on the intended priority ordering.
+	 * 
+	 * @param unresolvedProperties a map of properties including some that need to be resolved
+	 * @param context a map of properties from which to resolve property references
+	 * @return an immutable copy of the input where values have nested properties resolved
+	 */
+	public static Map<String, String> resolvePropertiesExternally(final Map<String, String> unresolvedProperties, final Map<String, String> context) {
+		Function<String, String> propertyResolver = propertyResolverFromMap(context);
+		
+		Map<String, String> initialProperties;
+		Map<String, String> resolvedCopy = unresolvedProperties;
+		
+		do {
+			initialProperties = resolvedCopy;
+			resolvedCopy = ImmutableMap.copyOf(transformValues(initialProperties,
+					propertyResolver));
+		} while (!resolvedCopy.equals(initialProperties));
+		
+		return resolvedCopy;
+	}
+	/**
 	 * Gets a live view over the entries in the current system properties map
 	 * that map a {@link String} key to a {@code String} value. This will
 	 * typically be everything, but typed more usefully than a {@code Hashtable<Object, Object>}.
