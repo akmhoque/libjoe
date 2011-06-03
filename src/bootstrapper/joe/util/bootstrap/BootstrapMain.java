@@ -34,17 +34,45 @@ import com.google.common.collect.Maps;
  * properties. It can be invoked transparently: invocation without being explicitly enabled will have no effect other
  * than to delegate through to the bootstrapped application with no changes to the environment.
  * <p>
+ * <h3>Why would you want to do this?</h3>
+ * This library is designed to help manage using different property sets for different environments. For example, it
+ * supports different runtime environments (production, development, others in between), specific properties for when
+ * running in an IDE, specific properties for different users as well as for different machines and operating systems.
+ * <p>
+ * This gives flexibility in the property sets that are loaded into the runtime, whether in development or deployment.
+ * It also allows changes to be made very cheaply, simply by changing system properties and restarting, rather than
+ * having to recompile code with new values for constants.
+ * <p>
  * <h3>Priority Ordering of Property Sets</h3>
  * With highest priority property sets first. Properties specified in a higher priority property set will override
  * those defined in lower priority property sets.
  * <p>
  * <ol>
- * <li>System properties
- * <li>User properties, taken from files defined by {@code bootstrap.properties.user.file} <li>Machine properties, taken
- * from files defined by {@code bootstrap.properties.machine.file} <li>Operating-system properties, taken from files
- * defined by {@code bootstrap.properties.os.file}, defaulting to {@code windows.properties} and {@code unix.properties}
- * <li>IDE properties, taken from files defined by {@code bootstrap.properties.ide.file} <li>Environment properties,
- * taken from files defined by {@code bootstrap.properties.env.file} </ol>
+ * <li><b>System properties</b> These override everything else.
+ * <li><b>User properties</b> taken from files defined by {@code bootstrap.properties.user.file}. These often define the
+ * environment for the running process, by setting the {@code bootstrap.environment} property.
+ * <li><b>Machine properties</b> taken from files defined by {@code bootstrap.properties.machine.file}.
+ * <li><b>Operating-system properties</b> taken from files defined by {@code bootstrap.properties.os.file}, defaulting to
+ * {@code windows.properties} and {@code unix.properties}. For example, set templated paths to common shared file
+ * locations, which will be used elsewhere. Consider {@code my.path.to.stuff=C:/foo} or
+ * {@code my.path.to.stuff=/mnt/foo}, for example.
+ * <li><b>IDE properties</b> taken from files defined by {@code bootstrap.properties.ide.file}. This might set properties to
+ * turn on debug modes, or turn off features like emails that should not be sent while debugging.
+ * <li><b>Environment properties</b> taken from files defined by {@code bootstrap.properties.env.file}. This defines the
+ * environment, for example the production/development database URLs, paths to environment-specific files etc.
+ * <li><b>Common properties</b> taken from files defined by {@code bootstrap.properties.common.file}. Define here those
+ * properties that are common to all environments, or sensible defaults.
+ * </ol>
+ * Note that between all property sets, properties are resolved where values contain keys to other properties. The
+ * syntax for this looks like the following.
+ * <pre>
+ * some.property=some.value
+ * my.template.property=abc.${some.property}</pre>
+ * Here, the value {@code my.template.property} will be resolved to {@code abc.some.value}.
+ * <p>
+ * Note, also, that these two lines can be defined in different places. The property resolution step happens very late
+ * in order to catch this. As usual, higher priority properties take precedence when looking for the resolved values.
+ * Nested properties are supported in the usual manner.
  * <p>
  * <h3>Usage</h3>
  * There are two usage patterns.
@@ -73,6 +101,14 @@ import com.google.common.collect.Maps;
  * <tr align=left><td> {@code bootstrap.logging.jul}<td>Logs through {@code java.util.logging} instead of
  * {@code System.out}.</td><td>{@code false} (uses {@code System.out})</td></tr>
  * <tr align=left><td> {@code bootstrap.environment}<td>Specifies the name of the environment.</td><td>(none)</td></tr>
+ * <tr align=left><td> {@code bootstrap.application.name}<td>Specifies the name of the
+ * application.</td><td>(none)</td></tr>
+ * <tr align=left><td> {@code bootstrap.main.class}<td>Specifies the name of the entry point class for the application.
+ * This is used only by the {@link #launchApplication()} family of methods. If not set, then the bootstrapper will
+ * attempt to set this property to the detected main class, by scanning the stack trace of the bootstrapping
+ * thread.</td><td>(none)</td></tr>
+ * <tr align=left><td> {@code bootstrap.main.method}<td>Specifies the name of the entry point method for the
+ * application. This is used only by the {@link #launchApplication()} family of methods.</td><td>(none)</td></tr>
  * <tr align=left><td>{@code bootstrap.properties.root.dir}</td><td>Root directory in which to look for properties
  * files. This may only be specified in system properties.</td><td>{@code config}</td></tr>
  * <tr align=left><td>{@code bootstrap.properties.user.file}</td><td>Comma separated list of file names, relative to the
@@ -86,8 +122,10 @@ import com.google.common.collect.Maps;
  * <td>{@code windows.properties} or {@code unix.properties}, determined by parsing the system property {@code os.name}.
  * See {@link SystemUtils#getOperatingSystem()}</td></tr>
  * <tr align=left><td>{@code bootstrap.properties.ide.file}</td><td>File name, relative to the root directory specified
- * by {@code bootstrap.properties.root.dir}, in which to look for an IDE properties file.</td><td>{@code ide.properties}
- * </td></tr>
+ * by {@code bootstrap.properties.root.dir}, in which to look for an IDE properties file. Note that if this file is
+ * present, its properties will be loaded. So to prevent these properties from being loaded into your production
+ * runtime, either set {@code bootstrap.properties.ide.file} to empty or add a build step to remove this file from
+ * deployments.</td><td>{@code ide.properties}</td></tr>
  * <tr align=left><td>{@code bootstrap.properties.env.file}</td><td>File name, relative to the root directory
  * specified by {@code bootstrap.properties.root.dir}, in which to look for a environment-specific properties file.</td>
  * <td><tt> ${bootstrap.environment}.properties</tt></td></tr></tr>
@@ -98,7 +136,8 @@ import com.google.common.collect.Maps;
  * <p>
  * 
  * @author Joe Kearney
- * @see PropertySupplier
+ * @see #prepareProperties()
+ * @see #withApplicationName(String)
  */
 public final class BootstrapMain {
 	/*
@@ -116,6 +155,7 @@ public final class BootstrapMain {
 	public static final String BOOTSTRAP_ENABLE_LOGGING_KEY = "bootstrap.logging.enable";
 	public static final String BOOTSTRAP_ENABLE_JAVA_UTIL_LOGGING_KEY = "bootstrap.logging.jul";
 	public static final String BOOTSTRAP_ENVIRONMENT_KEY = "bootstrap.environment";
+	public static final String BOOTSTRAP_APPLICATION_NAME_KEY = "bootstrap.application.name";
 	public static final String BOOTSTRAP_MAIN_METHOD_KEY = "bootstrap.main.method";
 	public static final String BOOTSTRAP_MAIN_CLASS_KEY = "bootstrap.main.class";
 
@@ -138,6 +178,7 @@ public final class BootstrapMain {
 
 	private Class<?> mainClass; // no default
 	private String[] mainArgs = new String[0]; // default to no args
+	private String applicationName; // no default
 	private PropertySupplier propertySupplier = new DefaultPropertySupplier(this);
 
 	/** the system properties to be provided to the application */
@@ -146,6 +187,8 @@ public final class BootstrapMain {
 	private final BootstrapLogger logger = new BootstrapLogger(applicationProperties);
 	/** path to the root of all config, defaulting to {@link #PROPERTIES_FILE_ROOT_LOCATION_DEFAULT} */
 	private String rootPropertiesDirectory;
+	
+	BootstrapMain() {}
 
 	final void setMainClass(Class<?> mainClass) {
 		this.mainClass = mainClass;
@@ -155,6 +198,9 @@ public final class BootstrapMain {
 	}
 	final void setPropertySupplier(PropertySupplier propertySupplier) {
 		this.propertySupplier = propertySupplier;
+	}
+	final void setApplicationName(String applicationName) {
+		this.applicationName = applicationName;
 	}
 
 	/**
@@ -168,7 +214,6 @@ public final class BootstrapMain {
 	public static BootstrapBuilder withCustomPropertySupplier(PropertySupplier propertySupplier) {
 		return new BootstrapBuilder().withCustomPropertySupplier(propertySupplier);
 	}
-
 	/**
 	 * Specifies main arguments for the application.
 	 * 
@@ -178,6 +223,19 @@ public final class BootstrapMain {
 	public static BootstrapBuilder withMainArgs(String ... args) {
 		return new BootstrapBuilder().withMainArgs(args);
 	}
+	/**
+	 * Sets an application name for this process, which will be subsequently accessible through the
+	 * {@link BootstrapMain#BOOTSTRAP_APPLICATION_NAME_KEY} system property. If a value is already set in any other
+	 * property, this value will not override it. 
+	 * 
+	 * @param appName application name to set
+	 * @return the builder
+	 * @see BootstrapMain#BOOTSTRAP_APPLICATION_NAME_KEY
+	 */
+	public static BootstrapBuilder withApplicationName(String appName) {
+		return new BootstrapBuilder().withApplicationName(appName);
+	}
+	
 	/**
 	 * Launches the application with the given entry point and no main arguments.
 	 * 
@@ -290,8 +348,8 @@ public final class BootstrapMain {
 		 * should consider using {@link BootstrapMain#launchApplication(Class)} or the builder API through
 		 * {@link BootstrapMain#withMainArgs(String...)}.
 		 */
-		public void prepareProperties() {
-			bootstrapMain.preparePropertiesInternal();
+		public BootstrapResult prepareProperties() {
+			return bootstrapMain.preparePropertiesInternal();
 		}
 
 		/**
@@ -314,6 +372,19 @@ public final class BootstrapMain {
 		 */
 		public BootstrapBuilder withCustomPropertySupplier(PropertySupplier propertySupplier) {
 			bootstrapMain.setPropertySupplier(checkNotNull(propertySupplier, "PropertySupplier may not be null"));
+			return this;
+		}
+		/**
+		 * Sets an application name for this process, which will be subsequently accessible through the
+		 * {@link BootstrapMain#BOOTSTRAP_APPLICATION_NAME_KEY} system property. If a value is already set in any other
+		 * property, this value will not override it. 
+		 * 
+		 * @param appName application name to set
+		 * @return this builder
+		 * @see BootstrapMain#BOOTSTRAP_APPLICATION_NAME_KEY
+		 */
+		public BootstrapBuilder withApplicationName(String appName) {
+			bootstrapMain.setApplicationName(checkNotNull(appName, "Application name may not be null"));
 			return this;
 		}
 	}
@@ -386,6 +457,15 @@ public final class BootstrapMain {
 					+ MAP_JOINER.join(mapDifference.entriesDiffering()));
 		}
 
+		
+		if (!resolvedProperties.containsKey(BOOTSTRAP_MAIN_CLASS_KEY)) {
+			String mainClassName = detectMainClass();
+			if (mainClassName != null) {
+				resolvedProperties = ImmutableMap.<String, String> builder().putAll(resolvedProperties).put(
+						BOOTSTRAP_MAIN_CLASS_KEY, mainClassName).build();
+			}
+		}
+		
 		applicationProperties = resolvedProperties;
 	}
 	private boolean processPropertySupplierGroup(Iterable<Supplier<Map<String, String>>> groupPropertiesSuppliers) {
@@ -435,7 +515,18 @@ public final class BootstrapMain {
 	private void addComputedProperties() {
 		Map<String, String> sysprops = PropertyUtils.getSystemPropertyStrings();
 		putAllIfAbsent(sysprops, COMPUTED_PROPERTIES);
+		
+		if (applicationName != null) {
+			String alreadySetAppName = putIfAbsent(applicationProperties, BOOTSTRAP_APPLICATION_NAME_KEY,
+					applicationName);
+			if (alreadySetAppName != null) {
+				logger.log(String.format(
+						"Application name [%s] set programmatically was overridden from some property as [%s]",
+						applicationName, alreadySetAppName));
+			}
+		}
 	}
+	
 	private BootstrapResult bootstrapResult = null;
 	private BootstrapResult setSystemProperties() {
 		final Map<String, String> priorSystemProperties = ImmutableMap.copyOf(getSystemPropertyStrings());
@@ -499,10 +590,20 @@ public final class BootstrapMain {
 			putIfAbsent(destination, entry.getKey(), entry.getValue());
 		}
 	}
-	private static <K, V> void putIfAbsent(Map<? super K, ? super V> destination, K key, V value) {
-		if (!destination.containsKey(key)) {
+	/**
+	 * Adds the key-value pair to the map if there is currently no mapping for that key.
+	 * 
+	 * @param destination the map
+	 * @param key
+	 * @param value
+	 * @return the old value if there was one, or {@code null} if the new mapping was added to the map
+	 */
+	private static <K, V> V putIfAbsent(Map<K, V> destination, K key, V value) {
+		V oldValue = destination.get(key);
+		if (oldValue == null) {
 			destination.put(key, value);
 		}
+		return oldValue;
 	}
 	/**
 	 * Gets a "system property" from the set of properties already set for the application.
@@ -521,7 +622,7 @@ public final class BootstrapMain {
 
 	/**
 	 * Launches the application. After all properties have been set in the appropriate places, this does the reflective
-	 * work or actually invoking the main method of the target application.
+	 * work of actually invoking the main method of the target application.
 	 */
 	private void launch() {
 		final Class<?> mainClass = getMainClass();
@@ -595,5 +696,25 @@ public final class BootstrapMain {
 					+ methodName + "(String[]) method", e);
 		}
 		return mainMethod;
+	}
+	/**
+	 * Attempts to infer the name of the main class, the entry point in this process. This will work only if the current
+	 * thread is the main thread. If the current thread is any other thread, or if the thread's stack trace is
+	 * unavailable for any reason, {@code null} will be returned.
+	 * 
+	 * @return the name of the main class, or {@code null} if failed to infer the main class
+	 */
+	private static String detectMainClass() {
+		Thread currentThread = Thread.currentThread();
+		if ("main".equals(currentThread.getName())) {
+			StackTraceElement[] stackTrace = currentThread.getStackTrace();
+			if (stackTrace.length == 0) {
+				return null;
+			} else {
+				return stackTrace[stackTrace.length - 1].getClassName();
+			}
+		} else {
+			return null;
+		}
 	}
 }

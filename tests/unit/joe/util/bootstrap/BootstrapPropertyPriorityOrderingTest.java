@@ -42,6 +42,7 @@ public class BootstrapPropertyPriorityOrderingTest {
 
 	@Test
 	public void testThroughMainMethod() throws Exception {
+		int testedCount = 0;
 		for (Set<String> set : ENV_NAMES_POWER_SET) {
 			Iterable<List<String>> combinations = new Permutator<String>(ImmutableList.copyOf(set));
 
@@ -63,14 +64,18 @@ public class BootstrapPropertyPriorityOrderingTest {
 				} finally {
 					System.clearProperty(PROPERTY_UNDER_TEST_KEY);
 				}
+				++testedCount;
 			}
 		}
+		
+		System.out.println("Tested " + testedCount + " combinations of properties.");
 	}
 	/**
 	 * @throws Exception
 	 */
 	@Test
 	public void testPropertyPreparationOnly() throws Exception {
+		int testedCount = 0;
 		for (Set<String> set : ENV_NAMES_POWER_SET) {
 			Iterable<List<String>> combinations = new Permutator<String>(ImmutableList.copyOf(set));
 			
@@ -97,8 +102,11 @@ public class BootstrapPropertyPriorityOrderingTest {
 					p.putAll(propsToReinstate);
 					System.setProperties(p);
 				}
+				++testedCount;
 			}
 		}
+		
+		System.out.println("Tested " + testedCount + " combinations of properties.");
 	}
 
 	private static class ExplicitPropertySupplier implements PropertySupplier {

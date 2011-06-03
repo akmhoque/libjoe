@@ -61,6 +61,9 @@ public class BootstrapComputedEnvTest {
 			System.clearProperty(KEY);
 			System.clearProperty(ENVIRONMENT);
 			System.clearProperty(BOOTSTRAP_ENABLE_KEY);
+			for (String key : BootstrapMain.COMPUTED_PROPERTIES.keySet()) {
+				System.clearProperty(key);
+			}
 		}
 	}
 	
@@ -76,6 +79,9 @@ public class BootstrapComputedEnvTest {
 			System.clearProperty(KEY);
 			System.clearProperty(ENVIRONMENT);
 			System.clearProperty(BOOTSTRAP_ENABLE_KEY);
+			for (String key : BootstrapMain.COMPUTED_PROPERTIES.keySet()) {
+				System.clearProperty(key);
+			}
 		}
 	}
 }

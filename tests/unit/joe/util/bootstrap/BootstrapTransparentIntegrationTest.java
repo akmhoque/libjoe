@@ -20,15 +20,15 @@ public class BootstrapTransparentIntegrationTest {
 		// value change from empty to "Europe/London", for example.
 		TimeZone.getDefault();
 	}
-	static Map<String, String> priorProperties;
+	Map<String, String> priorProperties;
 
 	@Test
 	public void test() throws Exception {
 		final String userName = SystemUtils.getUserName();
 		System.setProperty("user.name", "blah");
 		try {
-		System.clearProperty(BootstrapMain.BOOTSTRAP_ENABLE_KEY);
-		priorProperties = ImmutableMap.copyOf(PropertyUtils.getSystemPropertyStrings());
+			System.clearProperty(BootstrapMain.BOOTSTRAP_ENABLE_KEY);
+			priorProperties = ImmutableMap.copyOf(PropertyUtils.getSystemPropertyStrings());
 			BootstrapMain.prepareProperties();
 			Map<String, String> systemProperties = PropertyUtils.getSystemPropertyStrings();
 			// but don't complain about the other ones added by the bootstrapper
