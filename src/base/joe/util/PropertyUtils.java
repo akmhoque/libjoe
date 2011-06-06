@@ -27,15 +27,10 @@ public class PropertyUtils {
 	private PropertyUtils() {}
 
 	/**
-	 * Function to transform from a file path to a property map based on the
-	 * contents.
+	 * Function to transform from a file path to a property map based on the contents. The map returned from the
+	 * function is immutable.
 	 * 
-	 * @param fileName name of the file to parse
-	 * @return {@link ImmutableMap} of properties found in the file
-	 * @throws FileNotFoundException if the file did not exist
-	 * @throws IOException if there was a problem reading the file
-	 * @throws IllegalArgumentException if the file was malformed and could not
-	 *             be parsed
+	 * @see #loadPropertiesFile(String)
 	 */
 	public static final Function<String, Map<String, String>> READ_PROP_FILE_TO_MAP = new Function<String, Map<String, String>>() {
 		@Override
@@ -155,7 +150,7 @@ public class PropertyUtils {
 	 * Loads a properties file into a map if, returning a immutable view, if the
 	 * file exists. Returns an empty map otherwise.
 	 * 
-	 * @param file file to parse
+	 * @param fileName file to parse
 	 * @return {@link ImmutableMap} of properties found in the file if the file
 	 *         exists, or an empty map otherwise
 	 * @throws IOException if there was a problem reading the file
@@ -208,54 +203,60 @@ public class PropertyUtils {
 	static final String PROPERTY_KEY_START_MARKER = "${";
 	static final String PROPERTY_KEY_END_MARKER = "}";
 	static final Pattern PROPERTY_KEY_PATTERN = Pattern.compile(quote(PROPERTY_KEY_START_MARKER) + "([^"
-			+ quote(PROPERTY_KEY_END_MARKER) + "]*)" + quote(PROPERTY_KEY_END_MARKER));
+			+ quote(PROPERTY_KEY_START_MARKER) + quote(PROPERTY_KEY_END_MARKER) + "]*)"
+			+ quote(PROPERTY_KEY_END_MARKER));
 	public static Function<String, String> propertyResolverFromMap(final Map<String, String> properties) {
-		return new Function<String, String>() {
-			@Override
-			public String apply(final String input) {
-				String result = input;
-				boolean changed = false;
-
-				do {
-					StringBuffer sb = new StringBuffer();
-					if (changed = resolvePropertyName(result, false, sb)) {
-						result = sb.toString();
-					}
-				} while (changed);
-
-				return result;
-			}
-			private boolean resolvePropertyName(String input, boolean isKey, StringBuffer sb) {
-				if (isKey) {
-					String value = properties.get(input);
-					if (value != null) {
-						sb.append(value);
-						return true;
-					} else {
-						sb.append(PROPERTY_KEY_START_MARKER);
-						sb.append(input);
-						sb.append(PROPERTY_KEY_END_MARKER);
-						return false;
-					}
-				}
-
-				Matcher matcher = PROPERTY_KEY_PATTERN.matcher(input);
-
-				boolean changed = false;
-				int furthestIndexOfInputCopied = 0;
-				while (matcher.find()) {
-					sb.append(input.substring(furthestIndexOfInputCopied, matcher.start()));
-					changed |= resolvePropertyName(matcher.group(1), true, sb);
-					furthestIndexOfInputCopied = matcher.end(); // not end(1), want to skip the '}'
-				}
-				
-				sb.append(input.substring(furthestIndexOfInputCopied));
-
-				return changed;
-			}
-		};
+		return new PropertyResolverFromMap(properties);
 	}
 	
+	private static final class PropertyResolverFromMap implements Function<String, String> {
+		private final Map<String, String> properties;
+		private PropertyResolverFromMap(Map<String, String> properties) {
+			this.properties = properties;
+		}
+		@Override
+		public String apply(final String input) {
+			String result = input;
+			boolean changed = false;
+	
+			do {
+				StringBuffer sb = new StringBuffer();
+				if (changed = resolvePropertyName(result, false, sb)) {
+					result = sb.toString();
+				}
+			} while (changed);
+	
+			return result;
+		}
+		private boolean resolvePropertyName(String input, boolean isKey, StringBuffer sb) {
+			if (isKey) {
+				String value = properties.get(input);
+				if (value != null) {
+					sb.append(value);
+					return true;
+				} else {
+					sb.append(PROPERTY_KEY_START_MARKER);
+					sb.append(input);
+					sb.append(PROPERTY_KEY_END_MARKER);
+					return false;
+				}
+			}
+	
+			Matcher matcher = PROPERTY_KEY_PATTERN.matcher(input);
+	
+			boolean changed = false;
+			int furthestIndexOfInputCopied = 0;
+			while (matcher.find()) {
+				sb.append(input.substring(furthestIndexOfInputCopied, matcher.start()));
+				changed |= resolvePropertyName(matcher.group(1), true, sb);
+				furthestIndexOfInputCopied = matcher.end(); // not end(1), want to skip the '}'
+			}
+			
+			sb.append(input.substring(furthestIndexOfInputCopied));
+	
+			return changed;
+		}
+	}
 	private static final MapJoiner PRINT_FRIENDLY_MAP_JOINER = Joiner.on("\n  ").withKeyValueSeparator(" => ").useForNull(
 			"(null)");
 	public static final String toLogFriendlyString(Map<String, String> properties) {

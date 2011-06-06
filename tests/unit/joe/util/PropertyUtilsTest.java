@@ -20,9 +20,14 @@ public class PropertyUtilsTest {
 		assertThat(propertyResolverFromMap.apply("abc${k}def"), is("abcvdef"));
 	}
 	@Test
-	public void testPropertyResolveIndirect() throws Exception {
+	public void testPropertyResolveNested() throws Exception {
 		Function<String, String> propertyResolverFromMap = PropertyUtils.propertyResolverFromMap(ImmutableMap.of("key1", "${key2}", "key2", "v"));
 		assertThat(propertyResolverFromMap.apply("abc${key1}def"), is("abcvdef"));
+	}
+	@Test
+	public void testPropertyResolveNestedDirect() throws Exception {
+		Function<String, String> propertyResolverFromMap = PropertyUtils.propertyResolverFromMap(ImmutableMap.of("key1", "${key2}", "key2", "v2", "key1.v2", "x"));
+		assertThat(propertyResolverFromMap.apply("abc${key1.${key2}}def"), is("abcxdef"));
 	}
 	@Test
 	public void testPropertyResolveTwo() throws Exception {
