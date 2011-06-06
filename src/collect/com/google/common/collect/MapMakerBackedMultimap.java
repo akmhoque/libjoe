@@ -1,6 +1,6 @@
 package com.google.common.collect;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -244,7 +244,6 @@ public final class MapMakerBackedMultimap<K, V> extends AbstractSetMultimap<K, V
 	 * 
 	 * @param <K> type of the keys in the map
 	 * @param <V> type of the values in the map
-	 * @param concurrencyLevel number of allowed concurrent accesses to the map without blocking
 	 * @return the new multimap
 	 */
 	public static <K, V> MapMakerBackedMultimap<K, V> create() {

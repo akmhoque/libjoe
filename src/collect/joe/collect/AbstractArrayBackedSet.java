@@ -15,7 +15,6 @@ import com.google.common.base.Joiner;
  * 
  * @author Joe Kearney
  * @param <E> type of the elements stored in the set
- * @param <V> type of the values stored in the set
  */
 public abstract class AbstractArrayBackedSet<E> implements Set<E> {
 	/*
