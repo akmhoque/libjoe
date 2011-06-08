@@ -446,6 +446,16 @@ public final class BootstrapMain {
 		if (!processPropertySupplierGroup(propertySupplier.getCommonPropertiesSupplier())) {
 			return;
 		}
+		
+		if (applicationName != null) {
+			String alreadySetAppName = putIfAbsent(applicationProperties, BOOTSTRAP_APPLICATION_NAME_KEY,
+					applicationName);
+			if (alreadySetAppName != null) {
+				logger.log(String.format(
+						"Application name [%s] set programmatically was overridden from some property as [%s]",
+						applicationName, alreadySetAppName));
+			}
+		}
 
 		Map<String, String> resolvedProperties = PropertyUtils.resolvePropertiesInternally(applicationProperties);
 		MapDifference<String, String> mapDifference = Maps.difference(transformValues(applicationProperties, UNESCAPE),
@@ -515,16 +525,6 @@ public final class BootstrapMain {
 	private void addComputedProperties() {
 		Map<String, String> sysprops = PropertyUtils.getSystemPropertyStrings();
 		putAllIfAbsent(sysprops, COMPUTED_PROPERTIES);
-		
-		if (applicationName != null) {
-			String alreadySetAppName = putIfAbsent(applicationProperties, BOOTSTRAP_APPLICATION_NAME_KEY,
-					applicationName);
-			if (alreadySetAppName != null) {
-				logger.log(String.format(
-						"Application name [%s] set programmatically was overridden from some property as [%s]",
-						applicationName, alreadySetAppName));
-			}
-		}
 	}
 	
 	private BootstrapResult bootstrapResult = null;

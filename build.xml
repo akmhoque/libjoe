@@ -12,7 +12,7 @@
 
 	<taskdef name="jarjar" classname="com.tonicsystems.jarjar.JarJarTask" classpath="lib/jarjar-1.0.jar" />
 
-	<target name="clean-dist" depends="clean-build-all,dist-zip-file" description="Cleans the build area, builds everything and puts the jars in the distribution directory" />
+	<target name="clean-dist" depends="clean-build-all,dist-zip-file,javadoc" description="Cleans the build area, builds everything and puts the jars in the distribution directory" />
 	<target name="clean-build-all" depends="clean-all,build-all" description="Cleans the build area and builds everything from scratch" />
 	<target name="build-all" depends="compile-all,jar-bootstrapper" description="Builds jars for all components" />
 	<target name="clean-all" description="Cleans the build area">
@@ -69,11 +69,13 @@
 	</target>
 
 	<target name="javadoc">
-		<delete dir="${dist.dir}/javadoc" />
+		<delete includeemptydirs="true">
+			<fileset dir="${dist.dir}/javadoc" defaultexcludes="on" includes="**/*" />
+		</delete>
 		<mkdir dir="${dist.dir}/javadoc" />
 
 		<!-- javadoc ant script adapted from guava build.xml -->
-		
+
 		<javadoc packagenames="joe.*,com.google.common.collect.*" destdir="${dist.dir}/javadoc" encoding="UTF-8" docencoding="UTF-8" charset="UTF-8" additionalparam="-XDignore.symbol.file" author="true" protected="true" use="${fulljavadoc}" windowtitle="libjoe - Java data structures and utilities - ${version}">
 			<sourcepath>
 				<pathelement location="${src.root.dir}/${src.base.dir}" />
