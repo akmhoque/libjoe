@@ -1,0 +1,820 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<TITLE>
+BootstrapMain (libjoe - Java data structures and utilities - 0.14.1)
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../../stylesheet.css" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="BootstrapMain (libjoe - Java data structures and utilities - 0.14.1)";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/BootstrapMain.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../joe/util/bootstrap/BootstrapException.html" title="class in joe.util.bootstrap"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../joe/util/bootstrap/BootstrapMain.BootstrapBuilder.html" title="class in joe.util.bootstrap"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../index.html?joe/util/bootstrap/BootstrapMain.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="BootstrapMain.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../allclasses-noframe.html"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../allclasses-noframe.html"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+joe.util.bootstrap</FONT>
+<BR>
+Class BootstrapMain</H2>
+<PRE>
+java.lang.Object
+  <IMG SRC="../../../resources/inherit.gif" ALT="extended by "><B>joe.util.bootstrap.BootstrapMain</B>
+</PRE>
+<HR>
+<DL>
+<DT><PRE>public final class <B>BootstrapMain</B><DT>extends java.lang.Object</DL>
+</PRE>
+
+<P>
+A general application entry point that loads and merges properties from different files, based on username and other
+ properties. It can be invoked transparently: invocation without being explicitly enabled will have no effect other
+ than to delegate through to the bootstrapped application with no changes to the environment.
+ <p>
+ <h3>Why would you want to do this?</h3>
+ This library is designed to help manage using different property sets for different environments. For example, it
+ supports different runtime environments (production, development, others in between), specific properties for when
+ running in an IDE, specific properties for different users as well as for different machines and operating systems.
+ <p>
+ This gives flexibility in the property sets that are loaded into the runtime, whether in development or deployment.
+ It also allows changes to be made very cheaply, simply by changing system properties and restarting, rather than
+ having to recompile code with new values for constants.
+ <p>
+ <h3>Priority Ordering of Property Sets</h3>
+ With highest priority property sets first. Properties specified in a higher priority property set will override
+ those defined in lower priority property sets.
+ <p>
+ <ol>
+ <li><b>System properties</b> These override everything else.
+ <li><b>User properties</b> taken from files defined by <code>bootstrap.properties.user.file</code>. These often define the
+ environment for the running process, by setting the <code>bootstrap.environment</code> property.
+ <li><b>Machine properties</b> taken from files defined by <code>bootstrap.properties.machine.file</code>.
+ <li><b>Operating-system properties</b> taken from files defined by <code>bootstrap.properties.os.file</code>, defaulting to
+ <code>windows.properties</code> and <code>unix.properties</code>. For example, set templated paths to common shared file
+ locations, which will be used elsewhere. Consider <code>my.path.to.stuff=C:/foo</code> or
+ <code>my.path.to.stuff=/mnt/foo</code>, for example.
+ <li><b>IDE properties</b> taken from files defined by <code>bootstrap.properties.ide.file</code>. This might set properties to
+ turn on debug modes, or turn off features like emails that should not be sent while debugging.
+ <li><b>Environment properties</b> taken from files defined by <code>bootstrap.properties.env.file</code>. This defines the
+ environment, for example the production/development database URLs, paths to environment-specific files etc.
+ <li><b>Common properties</b> taken from files defined by <code>bootstrap.properties.common.file</code>. Define here those
+ properties that are common to all environments, or sensible defaults.
+ </ol>
+ Note that between all property sets, properties are resolved where values contain keys to other properties. The
+ syntax for this looks like the following.
+ <pre>
+ some.property=some.value
+ my.template.property=abc.${some.property}</pre>
+ Here, the value <code>my.template.property</code> will be resolved to <code>abc.some.value</code>.
+ <p>
+ Note, also, that these two lines can be defined in different places. The property resolution step happens very late
+ in order to catch this. As usual, higher priority properties take precedence when looking for the resolved values.
+ Nested properties are supported in the usual manner.
+ <p>
+ <h3>Usage</h3>
+ There are two usage patterns.
+ <ul>
+ <li /><h4>Calling into <code>BootstrapMain</code> to configure properties</h4>
+ Call <A HREF="../../../joe/util/bootstrap/BootstrapMain.html#prepareProperties()"><CODE>prepareProperties()</CODE></A> from your main method. This will configure all properties in the
+ environment, if bootstrapping is enabled by such a property. Note that since properties will not be configured before
+ this method is invoked, they will not be visible from static initialisers of the main class.
+ <li /><h4><code>BootstrapMain</code> as a main class</h4>
+ Specify the application entry point class using the <code>bootstrap.main.class</code> property and the main method name
+ using the <code>bootstrap.main.method</code> property. These must be defined somewhere within the property hierarchy.
+ <p>
+ The application main thread will run within the scope of bootstrapper stack frames, and the main class will be this
+ class. Note that tools such as <code>jps</code> will report on this main class name, which may make it more difficult to
+ disambiguate running bootstrapped processes.
+ </ul>
+ <h3>Summary of Understood Properties</h3>
+ 
+ <table border>
+ <tr><th>Property</th><th>Behaviour</th><th>Default value</th>
+ <tr valign=top>
+ <tr align=left><td><code>bootstrap.enable</code><td><code>true</code> to enable bootstrapping behaviour. No changes will be
+ made to the application environment without this property set.</td> <td><code>false</code></td></tr> <tr align=left><td>
+ <code>bootstrap.logging.enable</code><td>Turns on verbose logging of properties found and set.</td><td><code>false</code>
+ </td></tr>
+ <tr align=left><td> <code>bootstrap.logging.jul</code><td>Logs through <code>java.util.logging</code> instead of
+ <code>System.out</code>.</td><td><code>false</code> (uses <code>System.out</code>)</td></tr>
+ <tr align=left><td> <code>bootstrap.environment</code><td>Specifies the name of the environment.</td><td>(none)</td></tr>
+ <tr align=left><td> <code>bootstrap.application.name</code><td>Specifies the name of the
+ application.</td><td>(none)</td></tr>
+ <tr align=left><td> <code>bootstrap.main.class</code><td>Specifies the name of the entry point class for the application.
+ This is used only by the <A HREF="../../../joe/util/bootstrap/BootstrapMain.html#launchApplication()"><CODE>launchApplication()</CODE></A> family of methods. If not set, then the bootstrapper will
+ attempt to set this property to the detected main class, by scanning the stack trace of the bootstrapping
+ thread.</td><td>(none)</td></tr>
+ <tr align=left><td> <code>bootstrap.main.method</code><td>Specifies the name of the entry point method for the
+ application. This is used only by the <A HREF="../../../joe/util/bootstrap/BootstrapMain.html#launchApplication()"><CODE>launchApplication()</CODE></A> family of methods.</td><td>(none)</td></tr>
+ <tr align=left><td><code>bootstrap.properties.root.dir</code></td><td>Root directory in which to look for properties
+ files. This may only be specified in system properties.</td><td><code>config</code></td></tr>
+ <tr align=left><td><code>bootstrap.properties.user.file</code></td><td>Comma separated list of file names, relative to the
+ root directory specified by <code>bootstrap.properties.root.dir</code>, in which to look for user properties
+ files.</td><td><code>&lt;user_name&gt;.properties,</code> <code>user.properties</code></td></tr>
+ <tr align=left><td><code>bootstrap.properties.machine.file</code></td><td>File name, relative to the root directory
+ specified by <code>bootstrap.properties.root.dir</code>, in which to look for a machine-specific properties file.</td>
+ <td><code>&lt;hostname&gt;.properties</code>, determined by <code>InetAddress.getLocalHost().getHostName()</code></td></tr>
+ <tr align=left><td><code>bootstrap.properties.os.file</code></td><td>File name, relative to the root directory
+ specified by <code>bootstrap.properties.root.dir</code>, in which to look for a OS-specific properties file.</td>
+ <td><code>windows.properties</code> or <code>unix.properties</code>, determined by parsing the system property <code>os.name</code>.
+ See <A HREF="../../../joe/util/SystemUtils.html#getOperatingSystem()"><CODE>SystemUtils.getOperatingSystem()</CODE></A></td></tr>
+ <tr align=left><td><code>bootstrap.properties.ide.file</code></td><td>File name, relative to the root directory specified
+ by <code>bootstrap.properties.root.dir</code>, in which to look for an IDE properties file. Note that if this file is
+ present, its properties will be loaded. So to prevent these properties from being loaded into your production
+ runtime, either set <code>bootstrap.properties.ide.file</code> to empty or add a build step to remove this file from
+ deployments.</td><td><code>ide.properties</code></td></tr>
+ <tr align=left><td><code>bootstrap.properties.env.file</code></td><td>File name, relative to the root directory
+ specified by <code>bootstrap.properties.root.dir</code>, in which to look for a environment-specific properties file.</td>
+ <td><tt> ${bootstrap.environment}.properties</tt></td></tr></tr>
+ <tr align=left><td><code>bootstrap.properties.common.file</code></td><td>File name, relative to the root directory
+ specified by <code>bootstrap.properties.root.dir</code>, in which to look for a common properties file.</td>
+ <td><tt> common.properties</tt></td></tr></tr>
+ </table>
+ <p>
+<P>
+
+<P>
+<DL>
+<DT><B>Author:</B></DT>
+  <DD>Joe Kearney</DD>
+<DT><B>See Also:</B><DD><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#prepareProperties()"><CODE>prepareProperties()</CODE></A>, 
+<A HREF="../../../joe/util/bootstrap/BootstrapMain.html#withApplicationName(java.lang.String)"><CODE>withApplicationName(String)</CODE></A></DL>
+<HR>
+
+<P>
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+
+<A NAME="nested_class_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Nested Class Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;class</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.BootstrapBuilder.html" title="class in joe.util.bootstrap">BootstrapMain.BootstrapBuilder</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Builder class providing the fluent bootstrapping API.</TD>
+</TR>
+</TABLE>
+&nbsp;<!-- =========== FIELD SUMMARY =========== -->
+
+<A NAME="field_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Field Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#BOOTSTRAP_APPLICATION_NAME_KEY">BOOTSTRAP_APPLICATION_NAME_KEY</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#BOOTSTRAP_ENABLE_JAVA_UTIL_LOGGING_KEY">BOOTSTRAP_ENABLE_JAVA_UTIL_LOGGING_KEY</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#BOOTSTRAP_ENABLE_KEY">BOOTSTRAP_ENABLE_KEY</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#BOOTSTRAP_ENABLE_LOGGING_KEY">BOOTSTRAP_ENABLE_LOGGING_KEY</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#BOOTSTRAP_ENVIRONMENT_KEY">BOOTSTRAP_ENVIRONMENT_KEY</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#BOOTSTRAP_MAIN_CLASS_KEY">BOOTSTRAP_MAIN_CLASS_KEY</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#BOOTSTRAP_MAIN_METHOD_KEY">BOOTSTRAP_MAIN_METHOD_KEY</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#COMMON_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY">COMMON_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#ENVIRONMENT_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY">ENVIRONMENT_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#IDE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY">IDE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#MACHINE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY">MACHINE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#OS_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY">OS_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#PROPERTIES_FILE_ROOT_LOCATIONS_KEY">PROPERTIES_FILE_ROOT_LOCATIONS_KEY</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#USER_PROPERTIES_FILE_LOCATIONS_OVERRIDE_KEY">USER_PROPERTIES_FILE_LOCATIONS_OVERRIDE_KEY</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#launchApplication()">launchApplication</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Launches the application with entry point defined in properties and no main arguments.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#launchApplication(java.lang.Class)">launchApplication</A></B>(java.lang.Class&lt;?&gt;&nbsp;mainClass)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Launches the application with the given entry point and no main arguments.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#main(java.lang.Class, java.lang.String...)">main</A></B>(java.lang.Class&lt;?&gt;&nbsp;mainClass,
+     java.lang.String...&nbsp;args)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Starts the application, loading the main class from the first of the supplied parameters, using the entire args
+ list as the program args.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#main(java.lang.String...)">main</A></B>(java.lang.String...&nbsp;args)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Starts the application, loading the main class by name from the first of the supplied arguments.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#main(java.lang.String, java.lang.String...)">main</A></B>(java.lang.String&nbsp;mainClassName,
+     java.lang.String...&nbsp;args)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Starts the application, loading the main class by name from the first of the supplied parameters, using the
+ entire args list as the program args.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../joe/util/bootstrap/BootstrapResult.html" title="class in joe.util.bootstrap">BootstrapResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#prepareProperties()">prepareProperties</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Finds property sources for this application and builds the application's runtime property set.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../joe/util/bootstrap/BootstrapMain.BootstrapBuilder.html" title="class in joe.util.bootstrap">BootstrapMain.BootstrapBuilder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#withApplicationName(java.lang.String)">withApplicationName</A></B>(java.lang.String&nbsp;appName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Sets an application name for this process, which will be subsequently accessible through the
+ <A HREF="../../../joe/util/bootstrap/BootstrapMain.html#BOOTSTRAP_APPLICATION_NAME_KEY"><CODE>BOOTSTRAP_APPLICATION_NAME_KEY</CODE></A> system property.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../joe/util/bootstrap/BootstrapMain.BootstrapBuilder.html" title="class in joe.util.bootstrap">BootstrapMain.BootstrapBuilder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#withCustomPropertySupplier(joe.util.bootstrap.PropertySupplier)">withCustomPropertySupplier</A></B>(<A HREF="../../../joe/util/bootstrap/PropertySupplier.html" title="interface in joe.util.bootstrap">PropertySupplier</A>&nbsp;propertySupplier)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Specifies a custom property supplier for the application bootstrapper.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../joe/util/bootstrap/BootstrapMain.BootstrapBuilder.html" title="class in joe.util.bootstrap">BootstrapMain.BootstrapBuilder</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#withMainArgs(java.lang.String...)">withMainArgs</A></B>(java.lang.String...&nbsp;args)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Specifies main arguments for the application.</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ============ FIELD DETAIL =========== -->
+
+<A NAME="field_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Field Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="BOOTSTRAP_ENABLE_KEY"><!-- --></A><H3>
+BOOTSTRAP_ENABLE_KEY</H3>
+<PRE>
+public static final java.lang.String <B>BOOTSTRAP_ENABLE_KEY</B></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../constant-values.html#joe.util.bootstrap.BootstrapMain.BOOTSTRAP_ENABLE_KEY">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="BOOTSTRAP_ENABLE_LOGGING_KEY"><!-- --></A><H3>
+BOOTSTRAP_ENABLE_LOGGING_KEY</H3>
+<PRE>
+public static final java.lang.String <B>BOOTSTRAP_ENABLE_LOGGING_KEY</B></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../constant-values.html#joe.util.bootstrap.BootstrapMain.BOOTSTRAP_ENABLE_LOGGING_KEY">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="BOOTSTRAP_ENABLE_JAVA_UTIL_LOGGING_KEY"><!-- --></A><H3>
+BOOTSTRAP_ENABLE_JAVA_UTIL_LOGGING_KEY</H3>
+<PRE>
+public static final java.lang.String <B>BOOTSTRAP_ENABLE_JAVA_UTIL_LOGGING_KEY</B></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../constant-values.html#joe.util.bootstrap.BootstrapMain.BOOTSTRAP_ENABLE_JAVA_UTIL_LOGGING_KEY">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="BOOTSTRAP_ENVIRONMENT_KEY"><!-- --></A><H3>
+BOOTSTRAP_ENVIRONMENT_KEY</H3>
+<PRE>
+public static final java.lang.String <B>BOOTSTRAP_ENVIRONMENT_KEY</B></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../constant-values.html#joe.util.bootstrap.BootstrapMain.BOOTSTRAP_ENVIRONMENT_KEY">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="BOOTSTRAP_APPLICATION_NAME_KEY"><!-- --></A><H3>
+BOOTSTRAP_APPLICATION_NAME_KEY</H3>
+<PRE>
+public static final java.lang.String <B>BOOTSTRAP_APPLICATION_NAME_KEY</B></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../constant-values.html#joe.util.bootstrap.BootstrapMain.BOOTSTRAP_APPLICATION_NAME_KEY">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="BOOTSTRAP_MAIN_METHOD_KEY"><!-- --></A><H3>
+BOOTSTRAP_MAIN_METHOD_KEY</H3>
+<PRE>
+public static final java.lang.String <B>BOOTSTRAP_MAIN_METHOD_KEY</B></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../constant-values.html#joe.util.bootstrap.BootstrapMain.BOOTSTRAP_MAIN_METHOD_KEY">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="BOOTSTRAP_MAIN_CLASS_KEY"><!-- --></A><H3>
+BOOTSTRAP_MAIN_CLASS_KEY</H3>
+<PRE>
+public static final java.lang.String <B>BOOTSTRAP_MAIN_CLASS_KEY</B></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../constant-values.html#joe.util.bootstrap.BootstrapMain.BOOTSTRAP_MAIN_CLASS_KEY">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="PROPERTIES_FILE_ROOT_LOCATIONS_KEY"><!-- --></A><H3>
+PROPERTIES_FILE_ROOT_LOCATIONS_KEY</H3>
+<PRE>
+public static final java.lang.String <B>PROPERTIES_FILE_ROOT_LOCATIONS_KEY</B></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../constant-values.html#joe.util.bootstrap.BootstrapMain.PROPERTIES_FILE_ROOT_LOCATIONS_KEY">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="USER_PROPERTIES_FILE_LOCATIONS_OVERRIDE_KEY"><!-- --></A><H3>
+USER_PROPERTIES_FILE_LOCATIONS_OVERRIDE_KEY</H3>
+<PRE>
+public static final java.lang.String <B>USER_PROPERTIES_FILE_LOCATIONS_OVERRIDE_KEY</B></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../constant-values.html#joe.util.bootstrap.BootstrapMain.USER_PROPERTIES_FILE_LOCATIONS_OVERRIDE_KEY">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="MACHINE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY"><!-- --></A><H3>
+MACHINE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY</H3>
+<PRE>
+public static final java.lang.String <B>MACHINE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY</B></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../constant-values.html#joe.util.bootstrap.BootstrapMain.MACHINE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="OS_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY"><!-- --></A><H3>
+OS_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY</H3>
+<PRE>
+public static final java.lang.String <B>OS_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY</B></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../constant-values.html#joe.util.bootstrap.BootstrapMain.OS_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="IDE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY"><!-- --></A><H3>
+IDE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY</H3>
+<PRE>
+public static final java.lang.String <B>IDE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY</B></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../constant-values.html#joe.util.bootstrap.BootstrapMain.IDE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="ENVIRONMENT_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY"><!-- --></A><H3>
+ENVIRONMENT_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY</H3>
+<PRE>
+public static final java.lang.String <B>ENVIRONMENT_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY</B></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../constant-values.html#joe.util.bootstrap.BootstrapMain.ENVIRONMENT_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY">Constant Field Values</A></DL>
+</DL>
+<HR>
+
+<A NAME="COMMON_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY"><!-- --></A><H3>
+COMMON_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY</H3>
+<PRE>
+public static final java.lang.String <B>COMMON_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY</B></PRE>
+<DL>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../../constant-values.html#joe.util.bootstrap.BootstrapMain.COMMON_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY">Constant Field Values</A></DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="withCustomPropertySupplier(joe.util.bootstrap.PropertySupplier)"><!-- --></A><H3>
+withCustomPropertySupplier</H3>
+<PRE>
+public static <A HREF="../../../joe/util/bootstrap/BootstrapMain.BootstrapBuilder.html" title="class in joe.util.bootstrap">BootstrapMain.BootstrapBuilder</A> <B>withCustomPropertySupplier</B>(<A HREF="../../../joe/util/bootstrap/PropertySupplier.html" title="interface in joe.util.bootstrap">PropertySupplier</A>&nbsp;propertySupplier)</PRE>
+<DL>
+<DD>Specifies a custom property supplier for the application bootstrapper. Only use this if you want to override the
+ default behaviour which reads from files determined by the current system property values. See the
+ <A HREF="../../../joe/util/bootstrap/BootstrapMain.html" title="class in joe.util.bootstrap"><CODE>BootstrapMain</CODE></A> class-level documentation for details of these.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>propertySupplier</CODE> - the property supplier
+<DT><B>Returns:</B><DD>the builder</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="withMainArgs(java.lang.String...)"><!-- --></A><H3>
+withMainArgs</H3>
+<PRE>
+public static <A HREF="../../../joe/util/bootstrap/BootstrapMain.BootstrapBuilder.html" title="class in joe.util.bootstrap">BootstrapMain.BootstrapBuilder</A> <B>withMainArgs</B>(java.lang.String...&nbsp;args)</PRE>
+<DL>
+<DD>Specifies main arguments for the application.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>args</CODE> - program arguments
+<DT><B>Returns:</B><DD>the builder</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="withApplicationName(java.lang.String)"><!-- --></A><H3>
+withApplicationName</H3>
+<PRE>
+public static <A HREF="../../../joe/util/bootstrap/BootstrapMain.BootstrapBuilder.html" title="class in joe.util.bootstrap">BootstrapMain.BootstrapBuilder</A> <B>withApplicationName</B>(java.lang.String&nbsp;appName)</PRE>
+<DL>
+<DD>Sets an application name for this process, which will be subsequently accessible through the
+ <A HREF="../../../joe/util/bootstrap/BootstrapMain.html#BOOTSTRAP_APPLICATION_NAME_KEY"><CODE>BOOTSTRAP_APPLICATION_NAME_KEY</CODE></A> system property. If a value is already set in any other
+ property, this value will not override it.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>appName</CODE> - application name to set
+<DT><B>Returns:</B><DD>the builder<DT><B>See Also:</B><DD><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#BOOTSTRAP_APPLICATION_NAME_KEY"><CODE>BOOTSTRAP_APPLICATION_NAME_KEY</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="launchApplication(java.lang.Class)"><!-- --></A><H3>
+launchApplication</H3>
+<PRE>
+public static void <B>launchApplication</B>(java.lang.Class&lt;?&gt;&nbsp;mainClass)</PRE>
+<DL>
+<DD>Launches the application with the given entry point and no main arguments.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>mainClass</CODE> - entry point to the application</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="launchApplication()"><!-- --></A><H3>
+launchApplication</H3>
+<PRE>
+public static void <B>launchApplication</B>()</PRE>
+<DL>
+<DD>Launches the application with entry point defined in properties and no main arguments.
+ <p>
+ <strong>Note:</strong> this launch method is applicable only when properties have been set to determine entry
+ point method and class.
+<P>
+<DD><DL>
+<DT><B>See Also:</B><DD><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#BOOTSTRAP_MAIN_CLASS_KEY"><CODE>BOOTSTRAP_MAIN_CLASS_KEY</CODE></A>, 
+<A HREF="../../../joe/util/bootstrap/BootstrapMain.html#BOOTSTRAP_MAIN_METHOD_KEY"><CODE>BOOTSTRAP_MAIN_METHOD_KEY</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="main(java.lang.String...)"><!-- --></A><H3>
+main</H3>
+<PRE>
+public static void <B>main</B>(java.lang.String...&nbsp;args)
+                 throws java.lang.ClassNotFoundException</PRE>
+<DL>
+<DD>Starts the application, loading the main class by name from the first of the supplied arguments.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>args</CODE> - the name of the main class to be executed followed by the main arguments
+<DT><B>Throws:</B>
+<DD><CODE>java.lang.ClassNotFoundException</CODE> - if the class does not exist</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="main(java.lang.String, java.lang.String...)"><!-- --></A><H3>
+main</H3>
+<PRE>
+public static void <B>main</B>(java.lang.String&nbsp;mainClassName,
+                        java.lang.String...&nbsp;args)
+                 throws java.lang.ClassNotFoundException</PRE>
+<DL>
+<DD>Starts the application, loading the main class by name from the first of the supplied parameters, using the
+ entire args list as the program args.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>mainClassName</CODE> - name of the main class<DD><CODE>args</CODE> - program arguments
+<DT><B>Throws:</B>
+<DD><CODE>java.lang.ClassNotFoundException</CODE> - if the class does not exist</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="main(java.lang.Class, java.lang.String...)"><!-- --></A><H3>
+main</H3>
+<PRE>
+public static void <B>main</B>(java.lang.Class&lt;?&gt;&nbsp;mainClass,
+                        java.lang.String...&nbsp;args)</PRE>
+<DL>
+<DD>Starts the application, loading the main class from the first of the supplied parameters, using the entire args
+ list as the program args.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>mainClass</CODE> - main class type token<DD><CODE>args</CODE> - program arguments
+<DT><B>Throws:</B>
+<DD><CODE>java.lang.ClassNotFoundException</CODE> - if the class does not exist</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="prepareProperties()"><!-- --></A><H3>
+prepareProperties</H3>
+<PRE>
+public static <A HREF="../../../joe/util/bootstrap/BootstrapResult.html" title="class in joe.util.bootstrap">BootstrapResult</A> <B>prepareProperties</B>()</PRE>
+<DL>
+<DD>Finds property sources for this application and builds the application's runtime property set.
+ <p>
+ This does all of the work of the bootstrapper except for actually launching the application, for which you should
+ consider using <A HREF="../../../joe/util/bootstrap/BootstrapMain.html#launchApplication(java.lang.Class)"><CODE>launchApplication(Class)</CODE></A> or the builder API through
+ <A HREF="../../../joe/util/bootstrap/BootstrapMain.html#withMainArgs(java.lang.String...)"><CODE>withMainArgs(String...)</CODE></A>.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>an object providing access to the state of the properties before and after bootstrapping</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/BootstrapMain.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../../joe/util/bootstrap/BootstrapException.html" title="class in joe.util.bootstrap"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../../joe/util/bootstrap/BootstrapMain.BootstrapBuilder.html" title="class in joe.util.bootstrap"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../../index.html?joe/util/bootstrap/BootstrapMain.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="BootstrapMain.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../../allclasses-noframe.html"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../../allclasses-noframe.html"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;<A HREF="#nested_class_summary">NESTED</A>&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

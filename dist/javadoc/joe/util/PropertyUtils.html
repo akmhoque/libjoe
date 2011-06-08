@@ -1,0 +1,569 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<TITLE>
+PropertyUtils (libjoe - Java data structures and utilities - 0.14.1)
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../stylesheet.css" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="PropertyUtils (libjoe - Java data structures and utilities - 0.14.1)";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/PropertyUtils.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../joe/util/OperatingSystem.html" title="enum in joe.util"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../joe/util/StringUtils.html" title="class in joe.util"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../index.html?joe/util/PropertyUtils.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="PropertyUtils.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../allclasses-noframe.html"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../allclasses-noframe.html"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+joe.util</FONT>
+<BR>
+Class PropertyUtils</H2>
+<PRE>
+java.lang.Object
+  <IMG SRC="../../resources/inherit.gif" ALT="extended by "><B>joe.util.PropertyUtils</B>
+</PRE>
+<HR>
+<DL>
+<DT><PRE>public class <B>PropertyUtils</B><DT>extends java.lang.Object</DL>
+</PRE>
+
+<P>
+<HR>
+
+<P>
+<!-- =========== FIELD SUMMARY =========== -->
+
+<A NAME="field_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Field Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;com.google.common.base.Function&lt;java.lang.String,java.util.Map&lt;java.lang.String,java.lang.String&gt;&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/util/PropertyUtils.html#READ_PROP_FILE_TO_MAP">READ_PROP_FILE_TO_MAP</A></B></CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Function to transform from a file path to a property map based on the contents.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.util.Map&lt;java.lang.String,java.lang.String&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/util/PropertyUtils.html#emptyPropertiesMap()">emptyPropertiesMap</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns an empty map, typed for ease of use.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.util.Map&lt;java.lang.String,java.lang.String&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/util/PropertyUtils.html#getStringEntries(java.util.Map)">getStringEntries</A></B>(java.util.Map&lt;?,?&gt;&nbsp;map)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets a live view over the entries in the specified map that map a <CODE>String</CODE> key to a <code>String</code> value.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.util.Map&lt;java.lang.String,java.lang.String&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/util/PropertyUtils.html#getSystemPropertyStrings()">getSystemPropertyStrings</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Gets a live view over the entries in the current system properties map
+ that map a <CODE>String</CODE> key to a <code>String</code> value.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.util.Map&lt;java.lang.String,java.lang.String&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/util/PropertyUtils.html#loadPropertiesFile(java.io.File)">loadPropertiesFile</A></B>(java.io.File&nbsp;file)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Loads a properties file into a map, returning a immutable view.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.util.Map&lt;java.lang.String,java.lang.String&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/util/PropertyUtils.html#loadPropertiesFile(java.lang.String)">loadPropertiesFile</A></B>(java.lang.String&nbsp;fileName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Loads a properties file into a map, returning a immutable view.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.util.Map&lt;java.lang.String,java.lang.String&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/util/PropertyUtils.html#loadPropertiesFileIfExists(java.io.File)">loadPropertiesFileIfExists</A></B>(java.io.File&nbsp;file)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Loads a properties file into a map if, returning a immutable view, if the
+ file exists.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.util.Map&lt;java.lang.String,java.lang.String&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/util/PropertyUtils.html#loadPropertiesFileIfExists(java.lang.String)">loadPropertiesFileIfExists</A></B>(java.lang.String&nbsp;fileName)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Loads a properties file into a map if, returning a immutable view, if the
+ file exists.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.util.Map&lt;java.lang.String,java.lang.String&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/util/PropertyUtils.html#loadPropertiesStream(java.io.InputStream)">loadPropertiesStream</A></B>(java.io.InputStream&nbsp;inputStream)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Loads an input stream containing <code>key=value</code> pairs into a map,
+ returning a immutable view.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;com.google.common.base.Function&lt;java.lang.String,java.lang.String&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/util/PropertyUtils.html#propertyResolverFromMap(java.util.Map)">propertyResolverFromMap</A></B>(java.util.Map&lt;java.lang.String,java.lang.String&gt;&nbsp;properties)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.util.Map&lt;java.lang.String,java.lang.String&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/util/PropertyUtils.html#resolvePropertiesExternally(java.util.Map, java.util.Map)">resolvePropertiesExternally</A></B>(java.util.Map&lt;java.lang.String,java.lang.String&gt;&nbsp;unresolvedProperties,
+                            java.util.Map&lt;java.lang.String,java.lang.String&gt;&nbsp;context)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Resolves properties found in values that are defined as keys in another map.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.util.Map&lt;java.lang.String,java.lang.String&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/util/PropertyUtils.html#resolvePropertiesInternally(java.util.Map)">resolvePropertiesInternally</A></B>(java.util.Map&lt;java.lang.String,java.lang.String&gt;&nbsp;unresolvedProperties)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Resolves properties found in values that are defined as keys in the map.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.lang.String</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/util/PropertyUtils.html#toLogFriendlyString(java.util.Map)">toLogFriendlyString</A></B>(java.util.Map&lt;java.lang.String,java.lang.String&gt;&nbsp;properties)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;java.lang.StringBuilder</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/util/PropertyUtils.html#toLogFriendlyString(java.lang.StringBuilder, java.util.Map)">toLogFriendlyString</A></B>(java.lang.StringBuilder&nbsp;sb,
+                    java.util.Map&lt;java.lang.String,java.lang.String&gt;&nbsp;properties)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>clone, equals, finalize, getClass, hashCode, notify, notifyAll, toString, wait, wait, wait</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ============ FIELD DETAIL =========== -->
+
+<A NAME="field_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Field Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="READ_PROP_FILE_TO_MAP"><!-- --></A><H3>
+READ_PROP_FILE_TO_MAP</H3>
+<PRE>
+public static final com.google.common.base.Function&lt;java.lang.String,java.util.Map&lt;java.lang.String,java.lang.String&gt;&gt; <B>READ_PROP_FILE_TO_MAP</B></PRE>
+<DL>
+<DD>Function to transform from a file path to a property map based on the contents. The map returned from the
+ function is immutable.
+<P>
+<DL>
+<DT><B>See Also:</B><DD><A HREF="../../joe/util/PropertyUtils.html#loadPropertiesFile(java.lang.String)"><CODE>loadPropertiesFile(String)</CODE></A></DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="resolvePropertiesInternally(java.util.Map)"><!-- --></A><H3>
+resolvePropertiesInternally</H3>
+<PRE>
+public static java.util.Map&lt;java.lang.String,java.lang.String&gt; <B>resolvePropertiesInternally</B>(java.util.Map&lt;java.lang.String,java.lang.String&gt;&nbsp;unresolvedProperties)</PRE>
+<DL>
+<DD>Resolves properties found in values that are defined as keys in the map. The input map is unchanged.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>unresolvedProperties</CODE> - a map of properties
+<DT><B>Returns:</B><DD>an immutable copy of the input where values have nested properties resolved</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="resolvePropertiesExternally(java.util.Map, java.util.Map)"><!-- --></A><H3>
+resolvePropertiesExternally</H3>
+<PRE>
+public static java.util.Map&lt;java.lang.String,java.lang.String&gt; <B>resolvePropertiesExternally</B>(java.util.Map&lt;java.lang.String,java.lang.String&gt;&nbsp;unresolvedProperties,
+                                                                                           java.util.Map&lt;java.lang.String,java.lang.String&gt;&nbsp;context)</PRE>
+<DL>
+<DD>Resolves properties found in values that are defined as keys in another map. The input maps are unchanged.
+ Consider <A HREF="../../joe/util/PropertyUtils.html#resolvePropertiesInternally(java.util.Map)">resolving properties internally</A> before or after doing
+ this, depending on the intended priority ordering.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>unresolvedProperties</CODE> - a map of properties including some that need to be resolved<DD><CODE>context</CODE> - a map of properties from which to resolve property references
+<DT><B>Returns:</B><DD>an immutable copy of the input where values have nested properties resolved</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getSystemPropertyStrings()"><!-- --></A><H3>
+getSystemPropertyStrings</H3>
+<PRE>
+public static java.util.Map&lt;java.lang.String,java.lang.String&gt; <B>getSystemPropertyStrings</B>()</PRE>
+<DL>
+<DD>Gets a live view over the entries in the current system properties map
+ that map a <CODE>String</CODE> key to a <code>String</code> value. This will
+ typically be everything, but typed more usefully than a <code>Hashtable&lt;Object, Object&gt;</code>.
+ <p>
+ Consider copying the result with <CODE>ImmutableMap.copyOf(Map)</CODE> in order to avoid the extra performance penalty
+ on each lookup.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>view of the <code>String</code> entries in the system property map</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getStringEntries(java.util.Map)"><!-- --></A><H3>
+getStringEntries</H3>
+<PRE>
+public static java.util.Map&lt;java.lang.String,java.lang.String&gt; <B>getStringEntries</B>(java.util.Map&lt;?,?&gt;&nbsp;map)</PRE>
+<DL>
+<DD>Gets a live view over the entries in the specified map that map a <CODE>String</CODE> key to a <code>String</code> value.
+ <p>
+ Consider copying the result with <CODE>ImmutableMap.copyOf(Map)</CODE> in order to avoid the extra performance penalty
+ on each lookup.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>map</CODE> - over which to provide a view
+<DT><B>Returns:</B><DD>view of the <code>String</code> entries in the map</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="loadPropertiesFile(java.lang.String)"><!-- --></A><H3>
+loadPropertiesFile</H3>
+<PRE>
+public static java.util.Map&lt;java.lang.String,java.lang.String&gt; <B>loadPropertiesFile</B>(java.lang.String&nbsp;fileName)
+                                                                           throws java.io.FileNotFoundException,
+                                                                                  java.io.IOException,
+                                                                                  java.lang.IllegalArgumentException</PRE>
+<DL>
+<DD>Loads a properties file into a map, returning a immutable view.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>fileName</CODE> - name of the file to parse
+<DT><B>Returns:</B><DD><CODE>ImmutableMap</CODE> of properties found in the file
+<DT><B>Throws:</B>
+<DD><CODE>java.io.FileNotFoundException</CODE> - if the file did not exist
+<DD><CODE>java.io.IOException</CODE> - if there was a problem reading the file
+<DD><CODE>java.lang.IllegalArgumentException</CODE> - if the file was malformed and could not
+             be parsed</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="loadPropertiesFile(java.io.File)"><!-- --></A><H3>
+loadPropertiesFile</H3>
+<PRE>
+public static java.util.Map&lt;java.lang.String,java.lang.String&gt; <B>loadPropertiesFile</B>(java.io.File&nbsp;file)
+                                                                           throws java.io.FileNotFoundException,
+                                                                                  java.io.IOException,
+                                                                                  java.lang.IllegalArgumentException</PRE>
+<DL>
+<DD>Loads a properties file into a map, returning a immutable view.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>file</CODE> - file to parse
+<DT><B>Returns:</B><DD><CODE>ImmutableMap</CODE> of properties found in the file
+<DT><B>Throws:</B>
+<DD><CODE>java.io.FileNotFoundException</CODE> - if the file did not exist
+<DD><CODE>java.io.IOException</CODE> - if there was a problem reading the file
+<DD><CODE>java.lang.IllegalArgumentException</CODE> - if the file was malformed and could not
+             be parsed</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="loadPropertiesFileIfExists(java.lang.String)"><!-- --></A><H3>
+loadPropertiesFileIfExists</H3>
+<PRE>
+public static java.util.Map&lt;java.lang.String,java.lang.String&gt; <B>loadPropertiesFileIfExists</B>(java.lang.String&nbsp;fileName)
+                                                                                   throws java.io.IOException</PRE>
+<DL>
+<DD>Loads a properties file into a map if, returning a immutable view, if the
+ file exists. Returns an empty map otherwise.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>fileName</CODE> - file to parse
+<DT><B>Returns:</B><DD><CODE>ImmutableMap</CODE> of properties found in the file if the file
+         exists, or an empty map otherwise
+<DT><B>Throws:</B>
+<DD><CODE>java.io.IOException</CODE> - if there was a problem reading the file
+<DD><CODE>java.lang.IllegalArgumentException</CODE> - if the file was malformed and could not
+             be parsed</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="loadPropertiesFileIfExists(java.io.File)"><!-- --></A><H3>
+loadPropertiesFileIfExists</H3>
+<PRE>
+public static java.util.Map&lt;java.lang.String,java.lang.String&gt; <B>loadPropertiesFileIfExists</B>(java.io.File&nbsp;file)
+                                                                                   throws java.io.IOException</PRE>
+<DL>
+<DD>Loads a properties file into a map if, returning a immutable view, if the
+ file exists. Returns an empty map otherwise.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>file</CODE> - file to parse
+<DT><B>Returns:</B><DD><CODE>ImmutableMap</CODE> of properties found in the file if the file
+         exists, or an empty map otherwise
+<DT><B>Throws:</B>
+<DD><CODE>java.io.IOException</CODE> - if there was a problem reading the file
+<DD><CODE>java.lang.IllegalArgumentException</CODE> - if the file was malformed and could not
+             be parsed</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="loadPropertiesStream(java.io.InputStream)"><!-- --></A><H3>
+loadPropertiesStream</H3>
+<PRE>
+public static java.util.Map&lt;java.lang.String,java.lang.String&gt; <B>loadPropertiesStream</B>(java.io.InputStream&nbsp;inputStream)
+                                                                             throws java.io.IOException,
+                                                                                    java.lang.IllegalArgumentException</PRE>
+<DL>
+<DD>Loads an input stream containing <code>key=value</code> pairs into a map,
+ returning a immutable view. The parameter is typically an <CODE>InputStream</CODE> over a properties file.
+<P>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>inputStream</CODE> - stream to parse
+<DT><B>Returns:</B><DD><CODE>ImmutableMap</CODE> of properties found in the stream
+<DT><B>Throws:</B>
+<DD><CODE>java.io.IOException</CODE> - if there was a problem reading from the stream
+<DD><CODE>java.lang.IllegalArgumentException</CODE> - if the stream was malformed and could
+             not be parsed<DT><B>See Also:</B><DD><A HREF="../../joe/util/PropertyUtils.html#loadPropertiesFile(java.lang.String)"><CODE>loadPropertiesFile(String)</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="emptyPropertiesMap()"><!-- --></A><H3>
+emptyPropertiesMap</H3>
+<PRE>
+public static java.util.Map&lt;java.lang.String,java.lang.String&gt; <B>emptyPropertiesMap</B>()</PRE>
+<DL>
+<DD>Returns an empty map, typed for ease of use.
+<P>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="propertyResolverFromMap(java.util.Map)"><!-- --></A><H3>
+propertyResolverFromMap</H3>
+<PRE>
+public static com.google.common.base.Function&lt;java.lang.String,java.lang.String&gt; <B>propertyResolverFromMap</B>(java.util.Map&lt;java.lang.String,java.lang.String&gt;&nbsp;properties)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="toLogFriendlyString(java.util.Map)"><!-- --></A><H3>
+toLogFriendlyString</H3>
+<PRE>
+public static final java.lang.String <B>toLogFriendlyString</B>(java.util.Map&lt;java.lang.String,java.lang.String&gt;&nbsp;properties)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="toLogFriendlyString(java.lang.StringBuilder, java.util.Map)"><!-- --></A><H3>
+toLogFriendlyString</H3>
+<PRE>
+public static final java.lang.StringBuilder <B>toLogFriendlyString</B>(java.lang.StringBuilder&nbsp;sb,
+                                                                java.util.Map&lt;java.lang.String,java.lang.String&gt;&nbsp;properties)</PRE>
+<DL>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/PropertyUtils.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../joe/util/OperatingSystem.html" title="enum in joe.util"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../joe/util/StringUtils.html" title="class in joe.util"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../index.html?joe/util/PropertyUtils.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="PropertyUtils.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../allclasses-noframe.html"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../allclasses-noframe.html"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#field_summary">FIELD</A>&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;<A HREF="#field_detail">FIELD</A>&nbsp;|&nbsp;CONSTR&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>

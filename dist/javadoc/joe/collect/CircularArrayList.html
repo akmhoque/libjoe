@@ -1,0 +1,1671 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!--NewPage-->
+<HTML>
+<HEAD>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<TITLE>
+CircularArrayList (libjoe - Java data structures and utilities - 0.14.1)
+</TITLE>
+
+
+<LINK REL ="stylesheet" TYPE="text/css" HREF="../../stylesheet.css" TITLE="Style">
+
+<SCRIPT type="text/javascript">
+function windowTitle()
+{
+    if (location.href.indexOf('is-external=true') == -1) {
+        parent.document.title="CircularArrayList (libjoe - Java data structures and utilities - 0.14.1)";
+    }
+}
+</SCRIPT>
+<NOSCRIPT>
+</NOSCRIPT>
+
+</HEAD>
+
+<BODY BGCOLOR="white" onload="windowTitle();">
+<HR>
+
+
+<!-- ========= START OF TOP NAVBAR ======= -->
+<A NAME="navbar_top"><!-- --></A>
+<A HREF="#skip-navbar_top" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_top_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/CircularArrayList.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../joe/collect/ArrayBackedMap.html" title="class in joe.collect"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../joe/collect/SortedArrayBackedMap.html" title="class in joe.collect"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../index.html?joe/collect/CircularArrayList.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="CircularArrayList.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../allclasses-noframe.html"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../allclasses-noframe.html"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#fields_inherited_from_class_java.util.AbstractList">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_top"></A>
+<!-- ========= END OF TOP NAVBAR ========= -->
+
+<HR>
+<!-- ======== START OF CLASS DATA ======== -->
+<H2>
+<FONT SIZE="-1">
+joe.collect</FONT>
+<BR>
+Class CircularArrayList&lt;E&gt;</H2>
+<PRE>
+java.lang.Object
+  <IMG SRC="../../resources/inherit.gif" ALT="extended by ">java.util.AbstractCollection&lt;E&gt;
+      <IMG SRC="../../resources/inherit.gif" ALT="extended by ">java.util.AbstractList&lt;E&gt;
+          <IMG SRC="../../resources/inherit.gif" ALT="extended by "><B>joe.collect.CircularArrayList&lt;E&gt;</B>
+</PRE>
+<DL>
+<DT><DT><B>Type Parameters:</B><DD><CODE>E</CODE> - the type of elements held in this collection</DL>
+<DL>
+<DT><B>All Implemented Interfaces:</B> <DD>java.io.Serializable, java.lang.Cloneable, java.lang.Iterable&lt;E&gt;, java.util.Collection&lt;E&gt;, java.util.Deque&lt;E&gt;, java.util.List&lt;E&gt;, java.util.Queue&lt;E&gt;, java.util.RandomAccess</DD>
+</DL>
+<HR>
+<DL>
+<DT><PRE>public class <B>CircularArrayList&lt;E&gt;</B><DT>extends java.util.AbstractList&lt;E&gt;<DT>implements java.util.Deque&lt;E&gt;, java.util.List&lt;E&gt;, java.util.RandomAccess, java.lang.Cloneable, java.io.Serializable</DL>
+</PRE>
+
+<P>
+Resizable-array implementation of the <CODE>Deque</CODE> and <CODE>List</CODE> interfaces, based on <CODE>ArrayDeque</CODE>. Array
+ deques have no capacity restrictions; they grow as necessary to support usage. They are not thread-safe; in the
+ absence of external synchronization, they do not support concurrent access by multiple threads. Null elements are
+ prohibited. This class is likely to be faster than <CODE>Stack</CODE> when used as a stack, faster than <CODE>LinkedList</CODE>
+ when used as a queue and comparable to <CODE>ArrayList</CODE> when used as a list, with some substantially faster
+ operations, such as <code>remove(0)</code>.
+ <p>
+ Most operations run in amortized constant time. Exceptions include <A HREF="../../joe/collect/CircularArrayList.html#remove(java.lang.Object)"><CODE>remove</CODE></A>,
+ <A HREF="../../joe/collect/CircularArrayList.html#removeFirstOccurrence(java.lang.Object)"><CODE>removeFirstOccurrence</CODE></A>, <A HREF="../../joe/collect/CircularArrayList.html#removeLastOccurrence(java.lang.Object)"><CODE>removeLastOccurrence</CODE></A>,
+ <A HREF="../../joe/collect/CircularArrayList.html#contains(java.lang.Object)"><CODE>contains</CODE></A>, <A HREF="../../joe/collect/CircularArrayList.html#iterator()"><CODE>iterator.remove()</CODE></A>, the indexed insert and remove operations and the
+ bulk operations, all of which run in linear time.
+ <p>
+ The iterators returned by this class's <code>iterator</code> method are <i>fail-fast</i>: if the list is modified at any
+ time after the iterator is created, in any way except through the iterator's own <code>remove</code> method, the iterator
+ will generally throw a <CODE>ConcurrentModificationException</CODE>. Thus, in the face of concurrent modification, the
+ iterator fails quickly and cleanly, rather than risking arbitrary, non-deterministic behavior at an undetermined time
+ in the future.
+ <p>
+ Note that the fail-fast behavior of an iterator cannot be guaranteed as it is, generally speaking, impossible to make
+ any hard guarantees in the presence of unsynchronized concurrent modification. Fail-fast iterators throw
+ <code>ConcurrentModificationException</code> on a best-effort basis. Therefore, it would be wrong to write a program that
+ depended on this exception for its correctness: <i>the fail-fast behavior of iterators should be used only to detect
+ bugs.</i>
+ <p>
+ This class and its iterator implement all of the <em>optional</em> methods of the <CODE>Collection</CODE> and
+ <CODE>Iterator</CODE> interfaces.
+ <p>
+ This class is a member of the <a href="../../../technotes/guides/collections/index.html"> Java Collections
+ Framework</a>.
+<P>
+
+<P>
+<DL>
+<DT><B>Author:</B></DT>
+  <DD>original <code>ArrayDeque</code> implementation by Josh Bloch and Doug Lea, adapted from <code>ArrayDeque</code> by Joe Kearney</DD>
+<DT><B>See Also:</B><DD><A HREF="../../serialized-form.html#joe.collect.CircularArrayList">Serialized Form</A></DL>
+<HR>
+
+<P>
+<!-- =========== FIELD SUMMARY =========== -->
+
+<A NAME="field_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Field Summary</B></FONT></TH>
+</TR>
+</TABLE>
+&nbsp;<A NAME="fields_inherited_from_class_java.util.AbstractList"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Fields inherited from class java.util.AbstractList</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>modCount</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+
+<A NAME="constructor_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Constructor Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#CircularArrayList()">CircularArrayList</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs an empty array deque with an initial capacity sufficient to hold 16 elements.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#CircularArrayList(java.util.Collection)">CircularArrayList</A></B>(java.util.Collection&lt;? extends <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;&nbsp;c)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs a deque containing the elements of the specified collection, in the order they are returned by the
+ collection's iterator.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#CircularArrayList(int)">CircularArrayList</A></B>(int&nbsp;numElements)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Constructs an empty array deque with an initial capacity sufficient to hold the specified number of elements.</TD>
+</TR>
+</TABLE>
+&nbsp;
+<!-- ========== METHOD SUMMARY =========== -->
+
+<A NAME="method_summary"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="2"><FONT SIZE="+2">
+<B>Method Summary</B></FONT></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#add(E)">add</A></B>(<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&nbsp;e)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Inserts the specified element at the end of this deque.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#add(int, E)">add</A></B>(int&nbsp;index,
+    <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&nbsp;element)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Inserts the specified element at the specified position in this list
+ (optional operation).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#addAll(java.util.Collection)">addAll</A></B>(java.util.Collection&lt;? extends <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;&nbsp;c)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Adds all of the elements in the specified collection to this collection
+ (optional operation).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#addAll(int, java.util.Collection)">addAll</A></B>(int&nbsp;index,
+       java.util.Collection&lt;? extends <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;&nbsp;c)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Inserts all of the elements in the specified collection into this
+ list at the specified position (optional operation).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#addFirst(E)">addFirst</A></B>(<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&nbsp;e)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Inserts the specified element at the front of this deque.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#addLast(E)">addLast</A></B>(<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&nbsp;e)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Inserts the specified element at the end of this deque.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#clear()">clear</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Removes all of the elements from this deque.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../joe/collect/CircularArrayList.html" title="class in joe.collect">CircularArrayList</A>&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#clone()">clone</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a copy of this deque.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#contains(java.lang.Object)">contains</A></B>(java.lang.Object&nbsp;o)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns <code>true</code> if this deque contains the specified element.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.util.Iterator&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#descendingIterator()">descendingIterator</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns an iterator over the elements in this deque in reverse
+ sequential order.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#element()">element</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Retrieves, but does not remove, the head of the queue represented by this deque.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#get(int)">get</A></B>(int&nbsp;index)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the element at the specified position in this list.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#getFirst()">getFirst</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Retrieves, but does not remove, the first element of this deque.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#getLast()">getLast</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Retrieves, but does not remove, the last element of this deque.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#indexOf(java.lang.Object)">indexOf</A></B>(java.lang.Object&nbsp;o)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the index of the first occurrence of the specified element
+ in this list, or -1 if this list does not contain the element.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#isEmpty()">isEmpty</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns <code>true</code> if this deque contains no elements.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.util.Iterator&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#iterator()">iterator</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns an iterator over the elements in this deque.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#lastIndexOf(java.lang.Object)">lastIndexOf</A></B>(java.lang.Object&nbsp;o)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the index of the last occurrence of the specified element
+ in this list, or -1 if this list does not contain the element.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.util.ListIterator&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#listIterator()">listIterator</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a list iterator over the elements in this list (in proper
+ sequence).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.util.ListIterator&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#listIterator(int)">listIterator</A></B>(int&nbsp;index)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns a list iterator of the elements in this list (in proper
+ sequence), starting at the specified position in this list.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#offer(E)">offer</A></B>(<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&nbsp;e)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Inserts the specified element at the end of this deque.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#offerFirst(E)">offerFirst</A></B>(<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&nbsp;e)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Inserts the specified element at the front of this deque.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#offerLast(E)">offerLast</A></B>(<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&nbsp;e)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Inserts the specified element at the end of this deque.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#peek()">peek</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Retrieves, but does not remove, the head of the queue represented by this deque, or returns <code>null</code> if this
+ deque is empty.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#peekFirst()">peekFirst</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Retrieves, but does not remove, the first element of this deque,
+ or returns <tt>null</tt> if this deque is empty.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#peekLast()">peekLast</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Retrieves, but does not remove, the last element of this deque,
+ or returns <tt>null</tt> if this deque is empty.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#poll()">poll</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Retrieves and removes the head of the queue represented by this deque (in other words, the first element of this
+ deque), or returns <code>null</code> if this deque is empty.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#pollFirst()">pollFirst</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Retrieves and removes the first element of this deque,
+ or returns <tt>null</tt> if this deque is empty.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#pollLast()">pollLast</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Retrieves and removes the last element of this deque,
+ or returns <tt>null</tt> if this deque is empty.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#pop()">pop</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pops an element from the stack represented by this deque.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;void</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#push(E)">push</A></B>(<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&nbsp;e)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Pushes an element onto the stack represented by this deque.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#remove()">remove</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Retrieves and removes the head of the queue represented by this deque.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#remove(int)">remove</A></B>(int&nbsp;index)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Removes the element at the specified position in this list (optional
+ operation).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#remove(java.lang.Object)">remove</A></B>(java.lang.Object&nbsp;o)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Removes a single instance of the specified element from this deque.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#removeFirst()">removeFirst</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Retrieves and removes the first element of this deque.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#removeFirstOccurrence(java.lang.Object)">removeFirstOccurrence</A></B>(java.lang.Object&nbsp;o)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Removes the first occurrence of the specified element in this deque (when traversing the deque from head to
+ tail).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#removeLast()">removeLast</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Retrieves and removes the last element of this deque.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;boolean</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#removeLastOccurrence(java.lang.Object)">removeLastOccurrence</A></B>(java.lang.Object&nbsp;o)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Removes the last occurrence of the specified element in this deque (when traversing the deque from head to tail).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#set(int, E)">set</A></B>(int&nbsp;index,
+    <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&nbsp;element)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Replaces the element at the specified position in this list with the
+ specified element (optional operation).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;int</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#size()">size</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns the number of elements in this deque.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;java.lang.Object[]</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#toArray()">toArray</A></B>()</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns an array containing all of the elements in this deque in proper sequence (from first to last element).</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="0" SUMMARY="">
+<TR ALIGN="right" VALIGN="">
+<TD NOWRAP><FONT SIZE="-1">
+<CODE>&lt;T&gt; T[]</CODE></FONT></TD>
+</TR>
+</TABLE>
+</CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../joe/collect/CircularArrayList.html#toArray(T[])">toArray</A></B>(T[]&nbsp;a)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Returns an array containing all of the elements in this deque in proper sequence (from first to last element);
+ the runtime type of the returned array is that of the specified array.</TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.util.AbstractList"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.util.AbstractList</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>equals, hashCode, removeRange, subList</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.util.AbstractCollection"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.util.AbstractCollection</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>containsAll, removeAll, retainAll, toString</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.lang.Object"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from class java.lang.Object</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>finalize, getClass, notify, notifyAll, wait, wait, wait</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.util.Collection"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from interface java.util.Collection</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>containsAll, equals, hashCode, removeAll, retainAll</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;<A NAME="methods_inherited_from_class_java.util.List"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#EEEEFF" CLASS="TableSubHeadingColor">
+<TH ALIGN="left"><B>Methods inherited from interface java.util.List</B></TH>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD><CODE>containsAll, equals, hashCode, removeAll, retainAll, subList</CODE></TD>
+</TR>
+</TABLE>
+&nbsp;
+<P>
+
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+
+<A NAME="constructor_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Constructor Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="CircularArrayList()"><!-- --></A><H3>
+CircularArrayList</H3>
+<PRE>
+public <B>CircularArrayList</B>()</PRE>
+<DL>
+<DD>Constructs an empty array deque with an initial capacity sufficient to hold 16 elements.
+<P>
+</DL>
+<HR>
+
+<A NAME="CircularArrayList(int)"><!-- --></A><H3>
+CircularArrayList</H3>
+<PRE>
+public <B>CircularArrayList</B>(int&nbsp;numElements)</PRE>
+<DL>
+<DD>Constructs an empty array deque with an initial capacity sufficient to hold the specified number of elements.
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>numElements</CODE> - lower bound on initial capacity of the deque</DL>
+</DL>
+<HR>
+
+<A NAME="CircularArrayList(java.util.Collection)"><!-- --></A><H3>
+CircularArrayList</H3>
+<PRE>
+public <B>CircularArrayList</B>(java.util.Collection&lt;? extends <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;&nbsp;c)</PRE>
+<DL>
+<DD>Constructs a deque containing the elements of the specified collection, in the order they are returned by the
+ collection's iterator. (The first element returned by the collection's iterator becomes the first element, or
+ <i>front</i> of the deque.)
+<P>
+<DL>
+<DT><B>Parameters:</B><DD><CODE>c</CODE> - the collection whose elements are to be placed into the deque
+<DT><B>Throws:</B>
+<DD><CODE>java.lang.NullPointerException</CODE> - if the specified collection is null</DL>
+</DL>
+
+<!-- ============ METHOD DETAIL ========== -->
+
+<A NAME="method_detail"><!-- --></A>
+<TABLE BORDER="1" WIDTH="100%" CELLPADDING="3" CELLSPACING="0" SUMMARY="">
+<TR BGCOLOR="#CCCCFF" CLASS="TableHeadingColor">
+<TH ALIGN="left" COLSPAN="1"><FONT SIZE="+2">
+<B>Method Detail</B></FONT></TH>
+</TR>
+</TABLE>
+
+<A NAME="addFirst(java.lang.Object)"><!-- --></A><A NAME="addFirst(E)"><!-- --></A><H3>
+addFirst</H3>
+<PRE>
+public void <B>addFirst</B>(<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&nbsp;e)</PRE>
+<DL>
+<DD>Inserts the specified element at the front of this deque.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>addFirst</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>e</CODE> - the element to add
+<DT><B>Throws:</B>
+<DD><CODE>java.lang.NullPointerException</CODE> - if the specified element is null</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addLast(java.lang.Object)"><!-- --></A><A NAME="addLast(E)"><!-- --></A><H3>
+addLast</H3>
+<PRE>
+public void <B>addLast</B>(<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&nbsp;e)</PRE>
+<DL>
+<DD>Inserts the specified element at the end of this deque.
+ <p>
+ This method is equivalent to <A HREF="../../joe/collect/CircularArrayList.html#add(int, E)"><CODE>add(int, E)</CODE></A>.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>addLast</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>e</CODE> - the element to add
+<DT><B>Throws:</B>
+<DD><CODE>java.lang.NullPointerException</CODE> - if the specified element is null</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="offerFirst(java.lang.Object)"><!-- --></A><A NAME="offerFirst(E)"><!-- --></A><H3>
+offerFirst</H3>
+<PRE>
+public boolean <B>offerFirst</B>(<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&nbsp;e)</PRE>
+<DL>
+<DD>Inserts the specified element at the front of this deque.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>offerFirst</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>e</CODE> - the element to add
+<DT><B>Returns:</B><DD><code>true</code> (as specified by <CODE>Deque.offerFirst(E)</CODE>)
+<DT><B>Throws:</B>
+<DD><CODE>java.lang.NullPointerException</CODE> - if the specified element is null</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="offerLast(java.lang.Object)"><!-- --></A><A NAME="offerLast(E)"><!-- --></A><H3>
+offerLast</H3>
+<PRE>
+public boolean <B>offerLast</B>(<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&nbsp;e)</PRE>
+<DL>
+<DD>Inserts the specified element at the end of this deque.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>offerLast</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>e</CODE> - the element to add
+<DT><B>Returns:</B><DD><code>true</code> (as specified by <CODE>Deque.offerLast(E)</CODE>)
+<DT><B>Throws:</B>
+<DD><CODE>java.lang.NullPointerException</CODE> - if the specified element is null</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="removeFirst()"><!-- --></A><H3>
+removeFirst</H3>
+<PRE>
+public <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A> <B>removeFirst</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE>java.util.Deque</CODE></B></DD>
+<DD>Retrieves and removes the first element of this deque.  This method
+ differs from <CODE>pollFirst</CODE> only in that it throws an
+ exception if this deque is empty.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>removeFirst</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the head of this deque
+<DT><B>Throws:</B>
+<DD><CODE>java.util.NoSuchElementException</CODE> - if this deque is empty</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="removeLast()"><!-- --></A><H3>
+removeLast</H3>
+<PRE>
+public <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A> <B>removeLast</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE>java.util.Deque</CODE></B></DD>
+<DD>Retrieves and removes the last element of this deque.  This method
+ differs from <CODE>pollLast</CODE> only in that it throws an
+ exception if this deque is empty.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>removeLast</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the tail of this deque
+<DT><B>Throws:</B>
+<DD><CODE>java.util.NoSuchElementException</CODE> - if this deque is empty</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="pollFirst()"><!-- --></A><H3>
+pollFirst</H3>
+<PRE>
+public <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A> <B>pollFirst</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE>java.util.Deque</CODE></B></DD>
+<DD>Retrieves and removes the first element of this deque,
+ or returns <tt>null</tt> if this deque is empty.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>pollFirst</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the head of this deque, or <tt>null</tt> if this deque is empty</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="pollLast()"><!-- --></A><H3>
+pollLast</H3>
+<PRE>
+public <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A> <B>pollLast</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE>java.util.Deque</CODE></B></DD>
+<DD>Retrieves and removes the last element of this deque,
+ or returns <tt>null</tt> if this deque is empty.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>pollLast</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the tail of this deque, or <tt>null</tt> if this deque is empty</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getFirst()"><!-- --></A><H3>
+getFirst</H3>
+<PRE>
+public <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A> <B>getFirst</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE>java.util.Deque</CODE></B></DD>
+<DD>Retrieves, but does not remove, the first element of this deque.
+
+ This method differs from <CODE>peekFirst</CODE> only in that it
+ throws an exception if this deque is empty.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>getFirst</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the head of this deque
+<DT><B>Throws:</B>
+<DD><CODE>java.util.NoSuchElementException</CODE> - if this deque is empty</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="getLast()"><!-- --></A><H3>
+getLast</H3>
+<PRE>
+public <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A> <B>getLast</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE>java.util.Deque</CODE></B></DD>
+<DD>Retrieves, but does not remove, the last element of this deque.
+ This method differs from <CODE>peekLast</CODE> only in that it
+ throws an exception if this deque is empty.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>getLast</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the tail of this deque
+<DT><B>Throws:</B>
+<DD><CODE>java.util.NoSuchElementException</CODE> - if this deque is empty</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="peekFirst()"><!-- --></A><H3>
+peekFirst</H3>
+<PRE>
+public <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A> <B>peekFirst</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE>java.util.Deque</CODE></B></DD>
+<DD>Retrieves, but does not remove, the first element of this deque,
+ or returns <tt>null</tt> if this deque is empty.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>peekFirst</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the head of this deque, or <tt>null</tt> if this deque is empty</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="peekLast()"><!-- --></A><H3>
+peekLast</H3>
+<PRE>
+public <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A> <B>peekLast</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE>java.util.Deque</CODE></B></DD>
+<DD>Retrieves, but does not remove, the last element of this deque,
+ or returns <tt>null</tt> if this deque is empty.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>peekLast</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the tail of this deque, or <tt>null</tt> if this deque is empty</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="removeFirstOccurrence(java.lang.Object)"><!-- --></A><H3>
+removeFirstOccurrence</H3>
+<PRE>
+public boolean <B>removeFirstOccurrence</B>(java.lang.Object&nbsp;o)</PRE>
+<DL>
+<DD>Removes the first occurrence of the specified element in this deque (when traversing the deque from head to
+ tail). If the deque does not contain the element, it is unchanged. More formally, removes the first element
+ <code>e</code> such that <code>o.equals(e)</code> (if such an element exists). Returns <code>true</code> if this deque contained
+ the specified element (or equivalently, if this deque changed as a result of the call).
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>removeFirstOccurrence</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>o</CODE> - element to be removed from this deque, if present
+<DT><B>Returns:</B><DD><code>true</code> if the deque contained the specified element</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="removeLastOccurrence(java.lang.Object)"><!-- --></A><H3>
+removeLastOccurrence</H3>
+<PRE>
+public boolean <B>removeLastOccurrence</B>(java.lang.Object&nbsp;o)</PRE>
+<DL>
+<DD>Removes the last occurrence of the specified element in this deque (when traversing the deque from head to tail).
+ If the deque does not contain the element, it is unchanged. More formally, removes the last element <code>e</code>
+ such that <code>o.equals(e)</code> (if such an element exists). Returns <code>true</code> if this deque contained the
+ specified element (or equivalently, if this deque changed as a result of the call).
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>removeLastOccurrence</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>o</CODE> - element to be removed from this deque, if present
+<DT><B>Returns:</B><DD><code>true</code> if the deque contained the specified element</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="add(int,java.lang.Object)"><!-- --></A><A NAME="add(int, E)"><!-- --></A><H3>
+add</H3>
+<PRE>
+public void <B>add</B>(int&nbsp;index,
+                <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&nbsp;element)</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE>java.util.AbstractList</CODE></B></DD>
+<DD>Inserts the specified element at the specified position in this list
+ (optional operation).  Shifts the element currently at that position
+ (if any) and any subsequent elements to the right (adds one to their
+ indices).
+
+ <p>This implementation always throws an
+ <code>UnsupportedOperationException</code>.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>add</CODE> in interface <CODE>java.util.List&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE>add</CODE> in class <CODE>java.util.AbstractList&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>index</CODE> - index at which the specified element is to be inserted<DD><CODE>element</CODE> - element to be inserted</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addAll(java.util.Collection)"><!-- --></A><H3>
+addAll</H3>
+<PRE>
+public boolean <B>addAll</B>(java.util.Collection&lt;? extends <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;&nbsp;c)</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE>java.util.AbstractCollection</CODE></B></DD>
+<DD>Adds all of the elements in the specified collection to this collection
+ (optional operation).  The behavior of this operation is undefined if
+ the specified collection is modified while the operation is in progress.
+ (This implies that the behavior of this call is undefined if the
+ specified collection is this collection, and this collection is
+ nonempty.)
+
+ <p>This implementation iterates over the specified collection, and adds
+ each object returned by the iterator to this collection, in turn.
+
+ <p>Note that this implementation will throw an
+ <tt>UnsupportedOperationException</tt> unless <tt>add</tt> is
+ overridden (assuming the specified collection is non-empty).
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>addAll</CODE> in interface <CODE>java.util.Collection&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>addAll</CODE> in interface <CODE>java.util.List&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE>addAll</CODE> in class <CODE>java.util.AbstractCollection&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>c</CODE> - collection containing elements to be added to this collection
+<DT><B>Returns:</B><DD><tt>true</tt> if this collection changed as a result of the call<DT><B>See Also:</B><DD><CODE>AbstractCollection.add(Object)</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="addAll(int, java.util.Collection)"><!-- --></A><H3>
+addAll</H3>
+<PRE>
+public boolean <B>addAll</B>(int&nbsp;index,
+                      java.util.Collection&lt;? extends <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;&nbsp;c)</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE>java.util.AbstractList</CODE></B></DD>
+<DD>Inserts all of the elements in the specified collection into this
+ list at the specified position (optional operation).  Shifts the
+ element currently at that position (if any) and any subsequent
+ elements to the right (increases their indices).  The new elements
+ will appear in this list in the order that they are returned by the
+ specified collection's iterator.  The behavior of this operation is
+ undefined if the specified collection is modified while the
+ operation is in progress.  (Note that this will occur if the specified
+ collection is this list, and it's nonempty.)
+
+ <p>This implementation gets an iterator over the specified collection
+ and iterates over it, inserting the elements obtained from the
+ iterator into this list at the appropriate position, one at a time,
+ using <code>add(int, E)</code>.
+ Many implementations will override this method for efficiency.
+
+ <p>Note that this implementation throws an
+ <code>UnsupportedOperationException</code> unless
+ <CODE>add(int, E)</CODE> is overridden.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>addAll</CODE> in interface <CODE>java.util.List&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE>addAll</CODE> in class <CODE>java.util.AbstractList&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>index</CODE> - index at which to insert the first element from the
+              specified collection<DD><CODE>c</CODE> - collection containing elements to be added to this list
+<DT><B>Returns:</B><DD><tt>true</tt> if this list changed as a result of the call</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="get(int)"><!-- --></A><H3>
+get</H3>
+<PRE>
+public <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A> <B>get</B>(int&nbsp;index)</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE>java.util.AbstractList</CODE></B></DD>
+<DD>Returns the element at the specified position in this list.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>get</CODE> in interface <CODE>java.util.List&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>get</CODE> in class <CODE>java.util.AbstractList&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>index</CODE> - index of the element to return
+<DT><B>Returns:</B><DD>the element at the specified position in this list</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="indexOf(java.lang.Object)"><!-- --></A><H3>
+indexOf</H3>
+<PRE>
+public int <B>indexOf</B>(java.lang.Object&nbsp;o)</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE>java.util.AbstractList</CODE></B></DD>
+<DD>Returns the index of the first occurrence of the specified element
+ in this list, or -1 if this list does not contain the element.
+ More formally, returns the lowest index <tt>i</tt> such that
+ <tt>(o==null&nbsp;?&nbsp;get(i)==null&nbsp;:&nbsp;o.equals(get(i)))</tt>,
+ or -1 if there is no such index.
+
+ <p>This implementation first gets a list iterator (with
+ <code>listIterator()</code>).  Then, it iterates over the list until the
+ specified element is found or the end of the list is reached.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>indexOf</CODE> in interface <CODE>java.util.List&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE>indexOf</CODE> in class <CODE>java.util.AbstractList&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>o</CODE> - element to search for
+<DT><B>Returns:</B><DD>the index of the first occurrence of the specified element in
+         this list, or -1 if this list does not contain the element</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="lastIndexOf(java.lang.Object)"><!-- --></A><H3>
+lastIndexOf</H3>
+<PRE>
+public int <B>lastIndexOf</B>(java.lang.Object&nbsp;o)</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE>java.util.AbstractList</CODE></B></DD>
+<DD>Returns the index of the last occurrence of the specified element
+ in this list, or -1 if this list does not contain the element.
+ More formally, returns the highest index <tt>i</tt> such that
+ <tt>(o==null&nbsp;?&nbsp;get(i)==null&nbsp;:&nbsp;o.equals(get(i)))</tt>,
+ or -1 if there is no such index.
+
+ <p>This implementation first gets a list iterator that points to the end
+ of the list (with <code>listIterator(size())</code>).  Then, it iterates
+ backwards over the list until the specified element is found, or the
+ beginning of the list is reached.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>lastIndexOf</CODE> in interface <CODE>java.util.List&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE>lastIndexOf</CODE> in class <CODE>java.util.AbstractList&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>o</CODE> - element to search for
+<DT><B>Returns:</B><DD>the index of the last occurrence of the specified element in
+         this list, or -1 if this list does not contain the element</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="remove(int)"><!-- --></A><H3>
+remove</H3>
+<PRE>
+public <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A> <B>remove</B>(int&nbsp;index)</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE>java.util.AbstractList</CODE></B></DD>
+<DD>Removes the element at the specified position in this list (optional
+ operation).  Shifts any subsequent elements to the left (subtracts one
+ from their indices).  Returns the element that was removed from the
+ list.
+
+ <p>This implementation always throws an
+ <code>UnsupportedOperationException</code>.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>remove</CODE> in interface <CODE>java.util.List&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE>remove</CODE> in class <CODE>java.util.AbstractList&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>index</CODE> - the index of the element to be removed
+<DT><B>Returns:</B><DD>the element previously at the specified position</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="set(int,java.lang.Object)"><!-- --></A><A NAME="set(int, E)"><!-- --></A><H3>
+set</H3>
+<PRE>
+public <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A> <B>set</B>(int&nbsp;index,
+             <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&nbsp;element)</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE>java.util.AbstractList</CODE></B></DD>
+<DD>Replaces the element at the specified position in this list with the
+ specified element (optional operation).
+
+ <p>This implementation always throws an
+ <code>UnsupportedOperationException</code>.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>set</CODE> in interface <CODE>java.util.List&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE>set</CODE> in class <CODE>java.util.AbstractList&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>index</CODE> - index of the element to replace<DD><CODE>element</CODE> - element to be stored at the specified position
+<DT><B>Returns:</B><DD>the element previously at the specified position</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="listIterator()"><!-- --></A><H3>
+listIterator</H3>
+<PRE>
+public java.util.ListIterator&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt; <B>listIterator</B>()</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE>java.util.AbstractList</CODE></B></DD>
+<DD>Returns a list iterator over the elements in this list (in proper
+ sequence).
+
+ <p>This implementation returns <code>listIterator(0)</code>.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>listIterator</CODE> in interface <CODE>java.util.List&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE>listIterator</CODE> in class <CODE>java.util.AbstractList&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>a list iterator over the elements in this list (in proper
+         sequence)<DT><B>See Also:</B><DD><CODE>AbstractList.listIterator(int)</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="listIterator(int)"><!-- --></A><H3>
+listIterator</H3>
+<PRE>
+public java.util.ListIterator&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt; <B>listIterator</B>(int&nbsp;index)</PRE>
+<DL>
+<DD><B>Description copied from class: <CODE>java.util.AbstractList</CODE></B></DD>
+<DD>Returns a list iterator of the elements in this list (in proper
+ sequence), starting at the specified position in this list.
+ The specified index indicates the first element that would be
+ returned by an initial call to <CODE>next</CODE>.
+ An initial call to <CODE>previous</CODE> would
+ return the element with the specified index minus one.
+
+ <p>This implementation returns a straightforward implementation of the
+ <code>ListIterator</code> interface that extends the implementation of the
+ <code>Iterator</code> interface returned by the <code>iterator()</code> method.
+ The <code>ListIterator</code> implementation relies on the backing list's
+ <code>get(int)</code>, <code>set(int, E)</code>, <code>add(int, E)</code>
+ and <code>remove(int)</code> methods.
+
+ <p>Note that the list iterator returned by this implementation will
+ throw an <code>UnsupportedOperationException</code> in response to its
+ <code>remove</code>, <code>set</code> and <code>add</code> methods unless the
+ list's <code>remove(int)</code>, <code>set(int, E)</code>, and
+ <code>add(int, E)</code> methods are overridden.
+
+ <p>This implementation can be made to throw runtime exceptions in the
+ face of concurrent modification, as described in the specification for
+ the (protected) <code>modCount</code> field.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>listIterator</CODE> in interface <CODE>java.util.List&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE>listIterator</CODE> in class <CODE>java.util.AbstractList&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>index</CODE> - index of first element to be returned from the
+              list iterator (by a call to the <tt>next</tt> method)
+<DT><B>Returns:</B><DD>a list iterator of the elements in this list (in proper
+         sequence), starting at the specified position in this list<DT><B>See Also:</B><DD><CODE>AbstractList.modCount</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="add(java.lang.Object)"><!-- --></A><A NAME="add(E)"><!-- --></A><H3>
+add</H3>
+<PRE>
+public boolean <B>add</B>(<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&nbsp;e)</PRE>
+<DL>
+<DD>Inserts the specified element at the end of this deque.
+ <p>
+ This method is equivalent to <A HREF="../../joe/collect/CircularArrayList.html#addLast(E)"><CODE>addLast(E)</CODE></A>.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>add</CODE> in interface <CODE>java.util.Collection&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>add</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>add</CODE> in interface <CODE>java.util.List&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>add</CODE> in interface <CODE>java.util.Queue&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE>add</CODE> in class <CODE>java.util.AbstractList&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>e</CODE> - the element to add
+<DT><B>Returns:</B><DD><code>true</code> (as specified by <CODE>Collection.add(E)</CODE>)
+<DT><B>Throws:</B>
+<DD><CODE>java.lang.NullPointerException</CODE> - if the specified element is null</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="offer(java.lang.Object)"><!-- --></A><A NAME="offer(E)"><!-- --></A><H3>
+offer</H3>
+<PRE>
+public boolean <B>offer</B>(<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&nbsp;e)</PRE>
+<DL>
+<DD>Inserts the specified element at the end of this deque.
+ <p>
+ This method is equivalent to <A HREF="../../joe/collect/CircularArrayList.html#offerLast(E)"><CODE>offerLast(E)</CODE></A>.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>offer</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>offer</CODE> in interface <CODE>java.util.Queue&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>e</CODE> - the element to add
+<DT><B>Returns:</B><DD><code>true</code> (as specified by <CODE>Queue.offer(E)</CODE>)
+<DT><B>Throws:</B>
+<DD><CODE>java.lang.NullPointerException</CODE> - if the specified element is null</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="remove()"><!-- --></A><H3>
+remove</H3>
+<PRE>
+public <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A> <B>remove</B>()</PRE>
+<DL>
+<DD>Retrieves and removes the head of the queue represented by this deque. This method differs from <A HREF="../../joe/collect/CircularArrayList.html#poll()"><CODE>poll</CODE></A> only in that it throws an exception if this deque is empty.
+ <p>
+ This method is equivalent to <A HREF="../../joe/collect/CircularArrayList.html#removeFirst()"><CODE>removeFirst()</CODE></A>.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>remove</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>remove</CODE> in interface <CODE>java.util.Queue&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the head of the queue represented by this deque
+<DT><B>Throws:</B>
+<DD><CODE>java.util.NoSuchElementException</CODE> - if this deque is empty</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="poll()"><!-- --></A><H3>
+poll</H3>
+<PRE>
+public <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A> <B>poll</B>()</PRE>
+<DL>
+<DD>Retrieves and removes the head of the queue represented by this deque (in other words, the first element of this
+ deque), or returns <code>null</code> if this deque is empty.
+ <p>
+ This method is equivalent to <A HREF="../../joe/collect/CircularArrayList.html#pollFirst()"><CODE>pollFirst()</CODE></A>.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>poll</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>poll</CODE> in interface <CODE>java.util.Queue&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the head of the queue represented by this deque, or <code>null</code> if this deque is empty</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="element()"><!-- --></A><H3>
+element</H3>
+<PRE>
+public <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A> <B>element</B>()</PRE>
+<DL>
+<DD>Retrieves, but does not remove, the head of the queue represented by this deque. This method differs from
+ <A HREF="../../joe/collect/CircularArrayList.html#peek()"><CODE>peek</CODE></A> only in that it throws an exception if this deque is empty.
+ <p>
+ This method is equivalent to <A HREF="../../joe/collect/CircularArrayList.html#getFirst()"><CODE>getFirst()</CODE></A>.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>element</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>element</CODE> in interface <CODE>java.util.Queue&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the head of the queue represented by this deque
+<DT><B>Throws:</B>
+<DD><CODE>java.util.NoSuchElementException</CODE> - if this deque is empty</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="peek()"><!-- --></A><H3>
+peek</H3>
+<PRE>
+public <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A> <B>peek</B>()</PRE>
+<DL>
+<DD>Retrieves, but does not remove, the head of the queue represented by this deque, or returns <code>null</code> if this
+ deque is empty.
+ <p>
+ This method is equivalent to <A HREF="../../joe/collect/CircularArrayList.html#peekFirst()"><CODE>peekFirst()</CODE></A>.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>peek</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>peek</CODE> in interface <CODE>java.util.Queue&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the head of the queue represented by this deque, or <code>null</code> if this deque is empty</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="push(java.lang.Object)"><!-- --></A><A NAME="push(E)"><!-- --></A><H3>
+push</H3>
+<PRE>
+public void <B>push</B>(<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&nbsp;e)</PRE>
+<DL>
+<DD>Pushes an element onto the stack represented by this deque. In other words, inserts the element at the front of
+ this deque.
+ <p>
+ This method is equivalent to <A HREF="../../joe/collect/CircularArrayList.html#addFirst(E)"><CODE>addFirst(E)</CODE></A>.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>push</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>e</CODE> - the element to push
+<DT><B>Throws:</B>
+<DD><CODE>java.lang.NullPointerException</CODE> - if the specified element is null</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="pop()"><!-- --></A><H3>
+pop</H3>
+<PRE>
+public <A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A> <B>pop</B>()</PRE>
+<DL>
+<DD>Pops an element from the stack represented by this deque. In other words, removes and returns the first element
+ of this deque.
+ <p>
+ This method is equivalent to <A HREF="../../joe/collect/CircularArrayList.html#removeFirst()"><CODE>removeFirst()</CODE></A>.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>pop</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the element at the front of this deque (which is the top of the stack represented by this deque)
+<DT><B>Throws:</B>
+<DD><CODE>java.util.NoSuchElementException</CODE> - if this deque is empty</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="size()"><!-- --></A><H3>
+size</H3>
+<PRE>
+public int <B>size</B>()</PRE>
+<DL>
+<DD>Returns the number of elements in this deque.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>size</CODE> in interface <CODE>java.util.Collection&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>size</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>size</CODE> in interface <CODE>java.util.List&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>size</CODE> in class <CODE>java.util.AbstractCollection&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>the number of elements in this deque</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="isEmpty()"><!-- --></A><H3>
+isEmpty</H3>
+<PRE>
+public boolean <B>isEmpty</B>()</PRE>
+<DL>
+<DD>Returns <code>true</code> if this deque contains no elements.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>isEmpty</CODE> in interface <CODE>java.util.Collection&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>isEmpty</CODE> in interface <CODE>java.util.List&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE>isEmpty</CODE> in class <CODE>java.util.AbstractCollection&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD><code>true</code> if this deque contains no elements</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="iterator()"><!-- --></A><H3>
+iterator</H3>
+<PRE>
+public java.util.Iterator&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt; <B>iterator</B>()</PRE>
+<DL>
+<DD>Returns an iterator over the elements in this deque. The elements will be ordered from first (head) to last
+ (tail). This is the same order that elements would be dequeued (via successive calls to <A HREF="../../joe/collect/CircularArrayList.html#remove(int)"><CODE>remove(int)</CODE></A> or popped
+ (via successive calls to <A HREF="../../joe/collect/CircularArrayList.html#pop()"><CODE>pop()</CODE></A>).
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>iterator</CODE> in interface <CODE>java.lang.Iterable&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>iterator</CODE> in interface <CODE>java.util.Collection&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>iterator</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>iterator</CODE> in interface <CODE>java.util.List&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE>iterator</CODE> in class <CODE>java.util.AbstractList&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>an iterator over the elements in this deque<DT><B>See Also:</B><DD><CODE>AbstractList.modCount</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="descendingIterator()"><!-- --></A><H3>
+descendingIterator</H3>
+<PRE>
+public java.util.Iterator&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt; <B>descendingIterator</B>()</PRE>
+<DL>
+<DD><B>Description copied from interface: <CODE>java.util.Deque</CODE></B></DD>
+<DD>Returns an iterator over the elements in this deque in reverse
+ sequential order.  The elements will be returned in order from
+ last (tail) to first (head).
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>descendingIterator</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>an iterator over the elements in this deque in reverse
+ sequence</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="contains(java.lang.Object)"><!-- --></A><H3>
+contains</H3>
+<PRE>
+public boolean <B>contains</B>(java.lang.Object&nbsp;o)</PRE>
+<DL>
+<DD>Returns <code>true</code> if this deque contains the specified element. More formally, returns <code>true</code> if and
+ only if this deque contains at least one element <code>e</code> such that <code>o.equals(e)</code>.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>contains</CODE> in interface <CODE>java.util.Collection&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>contains</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>contains</CODE> in interface <CODE>java.util.List&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE>contains</CODE> in class <CODE>java.util.AbstractCollection&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>o</CODE> - object to be checked for containment in this deque
+<DT><B>Returns:</B><DD><code>true</code> if this deque contains the specified element</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="remove(java.lang.Object)"><!-- --></A><H3>
+remove</H3>
+<PRE>
+public boolean <B>remove</B>(java.lang.Object&nbsp;o)</PRE>
+<DL>
+<DD>Removes a single instance of the specified element from this deque. If the deque does not contain the element, it
+ is unchanged. More formally, removes the first element <code>e</code> such that <code>o.equals(e)</code> (if such an
+ element exists). Returns <code>true</code> if this deque contained the specified element (or equivalently, if this
+ deque changed as a result of the call).
+ <p>
+ This method is equivalent to <A HREF="../../joe/collect/CircularArrayList.html#removeFirstOccurrence(java.lang.Object)"><CODE>removeFirstOccurrence(java.lang.Object)</CODE></A>.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>remove</CODE> in interface <CODE>java.util.Collection&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>remove</CODE> in interface <CODE>java.util.Deque&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>remove</CODE> in interface <CODE>java.util.List&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE>remove</CODE> in class <CODE>java.util.AbstractCollection&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>o</CODE> - element to be removed from this deque, if present
+<DT><B>Returns:</B><DD><code>true</code> if this deque contained the specified element</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="clear()"><!-- --></A><H3>
+clear</H3>
+<PRE>
+public void <B>clear</B>()</PRE>
+<DL>
+<DD>Removes all of the elements from this deque. The deque will be empty after this call returns.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>clear</CODE> in interface <CODE>java.util.Collection&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>clear</CODE> in interface <CODE>java.util.List&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE>clear</CODE> in class <CODE>java.util.AbstractList&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="toArray()"><!-- --></A><H3>
+toArray</H3>
+<PRE>
+public java.lang.Object[] <B>toArray</B>()</PRE>
+<DL>
+<DD>Returns an array containing all of the elements in this deque in proper sequence (from first to last element).
+ <p>
+ The returned array will be "safe" in that no references to it are maintained by this deque. (In other words, this
+ method must allocate a new array). The caller is thus free to modify the returned array.
+ <p>
+ This method acts as bridge between array-based and collection-based APIs.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>toArray</CODE> in interface <CODE>java.util.Collection&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>toArray</CODE> in interface <CODE>java.util.List&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE>toArray</CODE> in class <CODE>java.util.AbstractCollection&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>an array containing all of the elements in this deque<DT><B>See Also:</B><DD><CODE>Arrays.asList(Object[])</CODE></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="toArray(java.lang.Object[])"><!-- --></A><A NAME="toArray(T[])"><!-- --></A><H3>
+toArray</H3>
+<PRE>
+public &lt;T&gt; T[] <B>toArray</B>(T[]&nbsp;a)</PRE>
+<DL>
+<DD>Returns an array containing all of the elements in this deque in proper sequence (from first to last element);
+ the runtime type of the returned array is that of the specified array. If the deque fits in the specified array,
+ it is returned therein. Otherwise, a new array is allocated with the runtime type of the specified array and the
+ size of this deque.
+ <p>
+ If this deque fits in the specified array with room to spare (i.e., the array has more elements than this deque),
+ the element in the array immediately following the end of the deque is set to <code>null</code>.
+ <p>
+ Like the <A HREF="../../joe/collect/CircularArrayList.html#toArray()"><CODE>toArray()</CODE></A> method, this method acts as bridge between array-based and collection-based APIs.
+ Further, this method allows precise control over the runtime type of the output array, and may, under certain
+ circumstances, be used to save allocation costs.
+ <p>
+ Suppose <code>x</code> is a deque known to contain only strings. The following code can be used to dump the deque into
+ a newly allocated array of <code>String</code>:
+
+ <pre>
+ String[] y = x.toArray(new String[0]);
+ </pre>
+
+ Note that <code>toArray(new Object[0])</code> is identical in function to <code>toArray()</code>.
+<P>
+<DD><DL>
+<DT><B>Specified by:</B><DD><CODE>toArray</CODE> in interface <CODE>java.util.Collection&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Specified by:</B><DD><CODE>toArray</CODE> in interface <CODE>java.util.List&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE><DT><B>Overrides:</B><DD><CODE>toArray</CODE> in class <CODE>java.util.AbstractCollection&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt;</CODE></DL>
+</DD>
+<DD><DL>
+<DT><B>Parameters:</B><DD><CODE>a</CODE> - the array into which the elements of the deque are to be stored, if it is big enough; otherwise, a new
+            array of the same runtime type is allocated for this purpose
+<DT><B>Returns:</B><DD>an array containing all of the elements in this deque
+<DT><B>Throws:</B>
+<DD><CODE>java.lang.ArrayStoreException</CODE> - if the runtime type of the specified array is not a supertype of the runtime type of
+             every element in this deque
+<DD><CODE>java.lang.NullPointerException</CODE> - if the specified array is null</DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="clone()"><!-- --></A><H3>
+clone</H3>
+<PRE>
+public <A HREF="../../joe/collect/CircularArrayList.html" title="class in joe.collect">CircularArrayList</A>&lt;<A HREF="../../joe/collect/CircularArrayList.html" title="type parameter in CircularArrayList">E</A>&gt; <B>clone</B>()</PRE>
+<DL>
+<DD>Returns a copy of this deque.
+<P>
+<DD><DL>
+<DT><B>Overrides:</B><DD><CODE>clone</CODE> in class <CODE>java.lang.Object</CODE></DL>
+</DD>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>a copy of this deque<DT><B>See Also:</B><DD><CODE>Cloneable</CODE></DL>
+</DD>
+</DL>
+<!-- ========= END OF CLASS DATA ========= -->
+<HR>
+
+
+<!-- ======= START OF BOTTOM NAVBAR ====== -->
+<A NAME="navbar_bottom"><!-- --></A>
+<A HREF="#skip-navbar_bottom" title="Skip navigation links"></A>
+<TABLE BORDER="0" WIDTH="100%" CELLPADDING="1" CELLSPACING="0" SUMMARY="">
+<TR>
+<TD COLSPAN=2 BGCOLOR="#EEEEFF" CLASS="NavBarCell1">
+<A NAME="navbar_bottom_firstrow"><!-- --></A>
+<TABLE BORDER="0" CELLPADDING="0" CELLSPACING="3" SUMMARY="">
+  <TR ALIGN="center" VALIGN="top">
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../overview-summary.html"><FONT CLASS="NavBarFont1"><B>Overview</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-summary.html"><FONT CLASS="NavBarFont1"><B>Package</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#FFFFFF" CLASS="NavBarCell1Rev"> &nbsp;<FONT CLASS="NavBarFont1Rev"><B>Class</B></FONT>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="class-use/CircularArrayList.html"><FONT CLASS="NavBarFont1"><B>Use</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="package-tree.html"><FONT CLASS="NavBarFont1"><B>Tree</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../deprecated-list.html"><FONT CLASS="NavBarFont1"><B>Deprecated</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../index-all.html"><FONT CLASS="NavBarFont1"><B>Index</B></FONT></A>&nbsp;</TD>
+  <TD BGCOLOR="#EEEEFF" CLASS="NavBarCell1">    <A HREF="../../help-doc.html"><FONT CLASS="NavBarFont1"><B>Help</B></FONT></A>&nbsp;</TD>
+  </TR>
+</TABLE>
+</TD>
+<TD ALIGN="right" VALIGN="top" ROWSPAN=3><EM>
+</EM>
+</TD>
+</TR>
+
+<TR>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+&nbsp;<A HREF="../../joe/collect/ArrayBackedMap.html" title="class in joe.collect"><B>PREV CLASS</B></A>&nbsp;
+&nbsp;<A HREF="../../joe/collect/SortedArrayBackedMap.html" title="class in joe.collect"><B>NEXT CLASS</B></A></FONT></TD>
+<TD BGCOLOR="white" CLASS="NavBarCell2"><FONT SIZE="-2">
+  <A HREF="../../index.html?joe/collect/CircularArrayList.html" target="_top"><B>FRAMES</B></A>  &nbsp;
+&nbsp;<A HREF="CircularArrayList.html" target="_top"><B>NO FRAMES</B></A>  &nbsp;
+&nbsp;<SCRIPT type="text/javascript">
+  <!--
+  if(window==top) {
+    document.writeln('<A HREF="../../allclasses-noframe.html"><B>All Classes</B></A>');
+  }
+  //-->
+</SCRIPT>
+<NOSCRIPT>
+  <A HREF="../../allclasses-noframe.html"><B>All Classes</B></A>
+</NOSCRIPT>
+
+
+</FONT></TD>
+</TR>
+<TR>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+  SUMMARY:&nbsp;NESTED&nbsp;|&nbsp;<A HREF="#fields_inherited_from_class_java.util.AbstractList">FIELD</A>&nbsp;|&nbsp;<A HREF="#constructor_summary">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_summary">METHOD</A></FONT></TD>
+<TD VALIGN="top" CLASS="NavBarCell3"><FONT SIZE="-2">
+DETAIL:&nbsp;FIELD&nbsp;|&nbsp;<A HREF="#constructor_detail">CONSTR</A>&nbsp;|&nbsp;<A HREF="#method_detail">METHOD</A></FONT></TD>
+</TR>
+</TABLE>
+<A NAME="skip-navbar_bottom"></A>
+<!-- ======== END OF BOTTOM NAVBAR ======= -->
+
+<HR>
+
+</BODY>
+</HTML>
