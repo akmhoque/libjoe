@@ -235,7 +235,30 @@ public final class BootstrapMain {
 	public static BootstrapBuilder withApplicationName(String appName) {
 		return new BootstrapBuilder().withApplicationName(appName);
 	}
-	
+
+	/**
+	 * Finds property sources for this application and builds the application's runtime property set, but does not
+	 * publish the properties into the System properties map.
+	 * 
+	 * @return an object providing access to the state of the properties before and after bootstrapping
+	 * @see #prepareProperties()
+	 */
+	public static BootstrapResult loadPropertiesForEnvironment(String bootstrapEnvironment) {
+		return new BootstrapBuilder().loadPropertiesForEnvironment(bootstrapEnvironment);
+	}
+	/**
+	 * Finds property sources for this application, builds the application's runtime property set and publishes them to
+	 * the System property map.
+	 * <p>
+	 * This does all of the work of the bootstrapper except for actually launching the application, for which you should
+	 * consider using {@link BootstrapMain#launchApplication(Class)} or the builder API through
+	 * {@link BootstrapMain#withMainArgs(String...)}.
+	 * 
+	 * @return an object providing access to the state of the properties before and after bootstrapping
+	 */
+	public static BootstrapResult prepareProperties() {
+		return new BootstrapBuilder().prepareProperties();
+	}
 	/**
 	 * Launches the application with the given entry point and no main arguments.
 	 * 
@@ -323,7 +346,7 @@ public final class BootstrapMain {
 		public void launchApplication(Class<?> mainClass) {
 			checkNotNull(mainClass, "Entry point class type token may not be null");
 			bootstrapMain.setMainClass(mainClass);
-			bootstrapMain.preparePropertiesInternal();
+			bootstrapMain.preparePropertiesInternal(true);
 			bootstrapMain.launch();
 		}
 		/**
@@ -338,7 +361,7 @@ public final class BootstrapMain {
 		 * @see BootstrapMain#BOOTSTRAP_MAIN_METHOD_KEY
 		 */
 		public void launchApplication() {
-			bootstrapMain.preparePropertiesInternal();
+			bootstrapMain.preparePropertiesInternal(true);
 			bootstrapMain.launch();
 		}
 		/**
@@ -349,7 +372,19 @@ public final class BootstrapMain {
 		 * {@link BootstrapMain#withMainArgs(String...)}.
 		 */
 		public BootstrapResult prepareProperties() {
-			return bootstrapMain.preparePropertiesInternal();
+			return bootstrapMain.preparePropertiesInternal(true);
+		}
+		/**
+		 * Finds property sources for this application and builds the application's runtime property set, but does not
+		 * publish the properties into the System properties map.
+		 * 
+		 * @return an object providing access to the state of the properties before and after bootstrapping
+		 * @see #prepareProperties()
+		 */
+		public BootstrapResult loadPropertiesForEnvironment(String bootstrapEnvironment) {
+			bootstrapMain.applicationProperties.put(BOOTSTRAP_ENVIRONMENT_KEY, bootstrapEnvironment);
+			bootstrapMain.logger.log("Loading properties for environment [" + bootstrapEnvironment + "]");
+			return bootstrapMain.preparePropertiesInternal(false);
 		}
 
 		/**
@@ -393,24 +428,12 @@ public final class BootstrapMain {
 	 * Finds property sources for this application and builds the application's runtime property set.
 	 * <p>
 	 * This does all of the work of the bootstrapper except for actually launching the application, for which you should
-	 * consider using {@link BootstrapMain#launchApplication(Class)} or the builder API through
-	 * {@link BootstrapMain#withMainArgs(String...)}.
-	 * 
-	 * @return an object providing access to the state of the properties before and after bootstrapping
-	 */
-	public static BootstrapResult prepareProperties() {
-		BootstrapMain bootstrapMain = new BootstrapMain();
-		return bootstrapMain.preparePropertiesInternal();
-	}
-	/**
-	 * Finds property sources for this application and builds the application's runtime property set.
-	 * <p>
-	 * This does all of the work of the bootstrapper except for actually launching the application, for which you should
 	 * consider using {@link #launchApplication(Class)} or the builder API through {@link #withMainArgs(String...)}.
+	 * @param publish TODO
 	 * 
 	 * @return an object providing access to the state of the properties before and after bootstrapping
 	 */
-	final BootstrapResult preparePropertiesInternal() {
+	final BootstrapResult preparePropertiesInternal(boolean publish) {
 		if (bootstrapResult != null) {
 			logger.log("Bootstrapping has already been completed, and will not be re-run.");
 			return bootstrapResult;
@@ -419,7 +442,7 @@ public final class BootstrapMain {
 		addComputedProperties();
 		findRootConfigDirectory();
 		generateProperties();
-		return setSystemProperties();
+		return setSystemProperties(publish);
 	}
 
 	private static final MapJoiner MAP_JOINER = Joiner.on("\n  ").withKeyValueSeparator(" => ");
@@ -528,14 +551,16 @@ public final class BootstrapMain {
 	}
 	
 	private BootstrapResult bootstrapResult = null;
-	private BootstrapResult setSystemProperties() {
+	private BootstrapResult setSystemProperties(boolean publish) {
 		final Map<String, String> priorSystemProperties = ImmutableMap.copyOf(getSystemPropertyStrings());
 		if (isBootstrappingEnabled()) {
 			logger.log("Setting application system properties");
 			
 			final MapDifference<String, String> difference = Maps.difference(priorSystemProperties,
 					applicationProperties);
-			System.getProperties().putAll(applicationProperties);
+			if (publish) {
+				System.getProperties().putAll(applicationProperties);
+			}
 
 			logger.log("Application system properties set");
 			
@@ -557,7 +582,8 @@ public final class BootstrapMain {
 					+ "]\n"
 					+ "  system properties\n    "
 					+ MAP_JOINER_INDENTED.join(ImmutableSortedMap.copyOf(transformValues(
-							PropertyUtils.getSystemPropertyStrings(), StringUtils.UNESCAPE))) + "\n");
+							(publish ? PropertyUtils.getSystemPropertyStrings() : applicationProperties),
+							StringUtils.UNESCAPE))) + "\n");
 			
 			return bootstrapResult = new BootstrapResult(priorSystemProperties, applicationProperties);
 		} else {

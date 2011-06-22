@@ -54,7 +54,7 @@ public class BootstrapComputedEnvTest {
 			BootstrapMain bootstrap = new BootstrapMain();
 			PropertySupplier propertySupplier = new EnvironmentPropertySupplier(bootstrap);
 			bootstrap.setPropertySupplier(propertySupplier);
-			bootstrap.preparePropertiesInternal();
+			bootstrap.preparePropertiesInternal(true);
 			assertThat(System.getProperty(BOOTSTRAP_ENVIRONMENT_KEY), is(ENVIRONMENT));
 			assertThat(System.getProperty(KEY), is(VALUE));
 		} finally {
@@ -73,7 +73,7 @@ public class BootstrapComputedEnvTest {
 			BootstrapMain bootstrap = new BootstrapMain();
 			PropertySupplier propertySupplier = new EnvironmentPropertySupplier(bootstrap);
 			bootstrap.setPropertySupplier(propertySupplier);
-			bootstrap.preparePropertiesInternal();
+			bootstrap.preparePropertiesInternal(true);
 			assertThat(System.getProperty(KEY_TO_RESOLVE), is(RESOLVED_VALUE));
 		} finally {
 			System.clearProperty(KEY);
