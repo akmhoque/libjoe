@@ -4,7 +4,7 @@
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <TITLE>
-BootstrapMain.BootstrapBuilder (libjoe - Java data structures and utilities - 0.14.1)
+BootstrapMain.BootstrapBuilder (libjoe - Java data structures and utilities - 0.15)
 </TITLE>
 
 
@@ -14,7 +14,7 @@ BootstrapMain.BootstrapBuilder (libjoe - Java data structures and utilities - 0.
 function windowTitle()
 {
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="BootstrapMain.BootstrapBuilder (libjoe - Java data structures and utilities - 0.14.1)";
+        parent.document.title="BootstrapMain.BootstrapBuilder (libjoe - Java data structures and utilities - 0.15)";
     }
 }
 </SCRIPT>
@@ -166,6 +166,15 @@ Builder class providing the fluent bootstrapping API. Start with the static meth
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>&nbsp;<A HREF="../../../joe/util/bootstrap/BootstrapResult.html" title="class in joe.util.bootstrap">BootstrapResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.BootstrapBuilder.html#loadPropertiesForEnvironment(java.lang.String)">loadPropertiesForEnvironment</A></B>(java.lang.String&nbsp;bootstrapEnvironment)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Finds property sources for this application and builds the application's runtime property set, but does not
+ publish the properties into the System properties map.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>&nbsp;<A HREF="../../../joe/util/bootstrap/BootstrapResult.html" title="class in joe.util.bootstrap">BootstrapResult</A></CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.BootstrapBuilder.html#prepareProperties()">prepareProperties</A></B>()</CODE>
 
 <BR>
@@ -301,6 +310,21 @@ public <A HREF="../../../joe/util/bootstrap/BootstrapResult.html" title="class i
 <P>
 <DD><DL>
 </DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="loadPropertiesForEnvironment(java.lang.String)"><!-- --></A><H3>
+loadPropertiesForEnvironment</H3>
+<PRE>
+public <A HREF="../../../joe/util/bootstrap/BootstrapResult.html" title="class in joe.util.bootstrap">BootstrapResult</A> <B>loadPropertiesForEnvironment</B>(java.lang.String&nbsp;bootstrapEnvironment)</PRE>
+<DL>
+<DD>Finds property sources for this application and builds the application's runtime property set, but does not
+ publish the properties into the System properties map.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>an object providing access to the state of the properties before and after bootstrapping<DT><B>See Also:</B><DD><A HREF="../../../joe/util/bootstrap/BootstrapMain.BootstrapBuilder.html#prepareProperties()"><CODE>prepareProperties()</CODE></A></DL>
 </DD>
 </DL>
 <HR>

@@ -4,7 +4,7 @@
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <TITLE>
-Index (libjoe - Java data structures and utilities - 0.14.1)
+Index (libjoe - Java data structures and utilities - 0.15)
 </TITLE>
 
 
@@ -14,7 +14,7 @@ Index (libjoe - Java data structures and utilities - 0.14.1)
 function windowTitle()
 {
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="Index (libjoe - Java data structures and utilities - 0.14.1)";
+        parent.document.title="Index (libjoe - Java data structures and utilities - 0.15)";
     }
 }
 </SCRIPT>
@@ -570,6 +570,14 @@ Static method in class joe.util.<A HREF="./joe/util/PropertyUtils.html" title="c
 Static method in class joe.util.<A HREF="./joe/util/PropertyUtils.html" title="class in joe.util">PropertyUtils</A>
 <DD>Loads a properties file into a map if, returning a immutable view, if the
  file exists.
+<DT><A HREF="./joe/util/bootstrap/BootstrapMain.BootstrapBuilder.html#loadPropertiesForEnvironment(java.lang.String)"><B>loadPropertiesForEnvironment(String)</B></A> - 
+Method in class joe.util.bootstrap.<A HREF="./joe/util/bootstrap/BootstrapMain.BootstrapBuilder.html" title="class in joe.util.bootstrap">BootstrapMain.BootstrapBuilder</A>
+<DD>Finds property sources for this application and builds the application's runtime property set, but does not
+ publish the properties into the System properties map.
+<DT><A HREF="./joe/util/bootstrap/BootstrapMain.html#loadPropertiesForEnvironment(java.lang.String)"><B>loadPropertiesForEnvironment(String)</B></A> - 
+Static method in class joe.util.bootstrap.<A HREF="./joe/util/bootstrap/BootstrapMain.html" title="class in joe.util.bootstrap">BootstrapMain</A>
+<DD>Finds property sources for this application and builds the application's runtime property set, but does not
+ publish the properties into the System properties map.
 <DT><A HREF="./joe/util/PropertyUtils.html#loadPropertiesStream(java.io.InputStream)"><B>loadPropertiesStream(InputStream)</B></A> - 
 Static method in class joe.util.<A HREF="./joe/util/PropertyUtils.html" title="class in joe.util">PropertyUtils</A>
 <DD>Loads an input stream containing <code>key=value</code> pairs into a map,
@@ -652,7 +660,8 @@ Method in class joe.util.bootstrap.<A HREF="./joe/util/bootstrap/BootstrapMain.B
 <DD>Finds property sources for this application and builds the application's runtime property set.
 <DT><A HREF="./joe/util/bootstrap/BootstrapMain.html#prepareProperties()"><B>prepareProperties()</B></A> - 
 Static method in class joe.util.bootstrap.<A HREF="./joe/util/bootstrap/BootstrapMain.html" title="class in joe.util.bootstrap">BootstrapMain</A>
-<DD>Finds property sources for this application and builds the application's runtime property set.
+<DD>Finds property sources for this application, builds the application's runtime property set and publishes them to
+ the System property map.
 <DT><A HREF="./joe/util/bootstrap/BootstrapMain.html#PROPERTIES_FILE_ROOT_LOCATIONS_KEY"><B>PROPERTIES_FILE_ROOT_LOCATIONS_KEY</B></A> - 
 Static variable in class joe.util.bootstrap.<A HREF="./joe/util/bootstrap/BootstrapMain.html" title="class in joe.util.bootstrap">BootstrapMain</A>
 <DD>&nbsp;

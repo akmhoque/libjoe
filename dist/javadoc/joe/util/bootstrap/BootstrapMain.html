@@ -4,7 +4,7 @@
 <HEAD>
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <TITLE>
-BootstrapMain (libjoe - Java data structures and utilities - 0.14.1)
+BootstrapMain (libjoe - Java data structures and utilities - 0.15)
 </TITLE>
 
 
@@ -14,7 +14,7 @@ BootstrapMain (libjoe - Java data structures and utilities - 0.14.1)
 function windowTitle()
 {
     if (location.href.indexOf('is-external=true') == -1) {
-        parent.document.title="BootstrapMain (libjoe - Java data structures and utilities - 0.14.1)";
+        parent.document.title="BootstrapMain (libjoe - Java data structures and utilities - 0.15)";
     }
 }
 </SCRIPT>
@@ -380,6 +380,15 @@ A general application entry point that loads and merges properties from differen
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
+<CODE>static&nbsp;<A HREF="../../../joe/util/bootstrap/BootstrapResult.html" title="class in joe.util.bootstrap">BootstrapResult</A></CODE></FONT></TD>
+<TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#loadPropertiesForEnvironment(java.lang.String)">loadPropertiesForEnvironment</A></B>(java.lang.String&nbsp;bootstrapEnvironment)</CODE>
+
+<BR>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Finds property sources for this application and builds the application's runtime property set, but does not
+ publish the properties into the System properties map.</TD>
+</TR>
+<TR BGCOLOR="white" CLASS="TableRowColor">
+<TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
 <CODE>static&nbsp;void</CODE></FONT></TD>
 <TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#main(java.lang.Class, java.lang.String...)">main</A></B>(java.lang.Class&lt;?&gt;&nbsp;mainClass,
      java.lang.String...&nbsp;args)</CODE>
@@ -412,7 +421,8 @@ A general application entry point that loads and merges properties from differen
 <TD><CODE><B><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#prepareProperties()">prepareProperties</A></B>()</CODE>
 
 <BR>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Finds property sources for this application and builds the application's runtime property set.</TD>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Finds property sources for this application, builds the application's runtime property set and publishes them to
+ the System property map.</TD>
 </TR>
 <TR BGCOLOR="white" CLASS="TableRowColor">
 <TD ALIGN="right" VALIGN="top" WIDTH="1%"><FONT SIZE="-1">
@@ -657,6 +667,40 @@ public static <A HREF="../../../joe/util/bootstrap/BootstrapMain.BootstrapBuilde
 </DL>
 <HR>
 
+<A NAME="loadPropertiesForEnvironment(java.lang.String)"><!-- --></A><H3>
+loadPropertiesForEnvironment</H3>
+<PRE>
+public static <A HREF="../../../joe/util/bootstrap/BootstrapResult.html" title="class in joe.util.bootstrap">BootstrapResult</A> <B>loadPropertiesForEnvironment</B>(java.lang.String&nbsp;bootstrapEnvironment)</PRE>
+<DL>
+<DD>Finds property sources for this application and builds the application's runtime property set, but does not
+ publish the properties into the System properties map.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>an object providing access to the state of the properties before and after bootstrapping<DT><B>See Also:</B><DD><A HREF="../../../joe/util/bootstrap/BootstrapMain.html#prepareProperties()"><CODE>prepareProperties()</CODE></A></DL>
+</DD>
+</DL>
+<HR>
+
+<A NAME="prepareProperties()"><!-- --></A><H3>
+prepareProperties</H3>
+<PRE>
+public static <A HREF="../../../joe/util/bootstrap/BootstrapResult.html" title="class in joe.util.bootstrap">BootstrapResult</A> <B>prepareProperties</B>()</PRE>
+<DL>
+<DD>Finds property sources for this application, builds the application's runtime property set and publishes them to
+ the System property map.
+ <p>
+ This does all of the work of the bootstrapper except for actually launching the application, for which you should
+ consider using <A HREF="../../../joe/util/bootstrap/BootstrapMain.html#launchApplication(java.lang.Class)"><CODE>launchApplication(Class)</CODE></A> or the builder API through
+ <A HREF="../../../joe/util/bootstrap/BootstrapMain.html#withMainArgs(java.lang.String...)"><CODE>withMainArgs(String...)</CODE></A>.
+<P>
+<DD><DL>
+
+<DT><B>Returns:</B><DD>an object providing access to the state of the properties before and after bootstrapping</DL>
+</DD>
+</DL>
+<HR>
+
 <A NAME="launchApplication(java.lang.Class)"><!-- --></A><H3>
 launchApplication</H3>
 <PRE>
@@ -734,24 +778,6 @@ public static void <B>main</B>(java.lang.Class&lt;?&gt;&nbsp;mainClass,
 <DT><B>Parameters:</B><DD><CODE>mainClass</CODE> - main class type token<DD><CODE>args</CODE> - program arguments
 <DT><B>Throws:</B>
 <DD><CODE>java.lang.ClassNotFoundException</CODE> - if the class does not exist</DL>
-</DD>
-</DL>
-<HR>
-
-<A NAME="prepareProperties()"><!-- --></A><H3>
-prepareProperties</H3>
-<PRE>
-public static <A HREF="../../../joe/util/bootstrap/BootstrapResult.html" title="class in joe.util.bootstrap">BootstrapResult</A> <B>prepareProperties</B>()</PRE>
-<DL>
-<DD>Finds property sources for this application and builds the application's runtime property set.
- <p>
- This does all of the work of the bootstrapper except for actually launching the application, for which you should
- consider using <A HREF="../../../joe/util/bootstrap/BootstrapMain.html#launchApplication(java.lang.Class)"><CODE>launchApplication(Class)</CODE></A> or the builder API through
- <A HREF="../../../joe/util/bootstrap/BootstrapMain.html#withMainArgs(java.lang.String...)"><CODE>withMainArgs(String...)</CODE></A>.
-<P>
-<DD><DL>
-
-<DT><B>Returns:</B><DD>an object providing access to the state of the properties before and after bootstrapping</DL>
 </DD>
 </DL>
 <!-- ========= END OF CLASS DATA ========= -->
