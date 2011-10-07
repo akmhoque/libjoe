@@ -7,6 +7,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import com.google.common.collect.Ordering;
 import com.google.common.collect.testing.MapTestSuiteBuilder;
 import com.google.common.collect.testing.TestStringMapGenerator;
 import com.google.common.collect.testing.features.CollectionFeature;
@@ -22,6 +23,7 @@ public class ArrayBackedMapTest extends TestCase {
 		TestSuite suite = new TestSuite("Array-backed maps");
 		suite.addTest(testsForArrayBackedMap());
 		suite.addTest(testsForSortedArrayBackedMap());
+		suite.addTest(testsForSortedArrayBackedMapWithComparator());
 		return suite;
 	}
 
@@ -38,6 +40,15 @@ public class ArrayBackedMapTest extends TestCase {
 			@Override
 			protected Map<String, String> create(Entry<String, String>[] entries) {
 				return populate(new SortedArrayBackedMap<String, String>(), entries);
+			}
+		}).named("SortedArrayBackedMap").withFeatures(MapFeature.GENERAL_PURPOSE, CollectionFeature.KNOWN_ORDER,
+				CollectionSize.ANY).createTestSuite();
+	}
+	public Test testsForSortedArrayBackedMapWithComparator() {
+		return MapTestSuiteBuilder.using(new TestStringMapGenerator() {
+			@Override
+			protected Map<String, String> create(Entry<String, String>[] entries) {
+				return populate(new SortedArrayBackedMap<String, String>(Ordering.natural()), entries);
 			}
 		}).named("SortedArrayBackedMap").withFeatures(MapFeature.GENERAL_PURPOSE, CollectionFeature.KNOWN_ORDER,
 				CollectionSize.ANY).createTestSuite();

@@ -1,12 +1,11 @@
 package joe.collect;
 
+import java.util.AbstractSet;
 import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Set;
-
-import com.google.common.base.Joiner;
 
 /**
  * Abstract implementation of a set backed by a pair of arrays, one for elements and one for values. Implementors need only
@@ -16,7 +15,7 @@ import com.google.common.base.Joiner;
  * @author Joe Kearney
  * @param <E> type of the elements stored in the set
  */
-public abstract class AbstractArrayBackedSet<E> implements Set<E> {
+public abstract class AbstractArrayBackedSet<E> extends AbstractSet<E> {
 	/*
 	 * INVARIANTS:
 	 * elements != null
@@ -44,29 +43,6 @@ public abstract class AbstractArrayBackedSet<E> implements Set<E> {
 	@Override
 	public boolean isEmpty() {
 		return elements.length == 0;
-	}
-
-	@Override
-	public boolean equals(Object object) {
-		if (this == object) {
-			return true;
-		}
-		if (object instanceof Set) {
-			// TODO
-		}
-		return false;
-	}
-	@Override
-	public int hashCode() {
-		// TODO
-		return 0;
-	}
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder("{");
-		Joiner.on(", ").appendTo(sb , this);
-		sb.append('}');
-		return sb.toString();
 	}
 
 	@Override
@@ -111,7 +87,7 @@ public abstract class AbstractArrayBackedSet<E> implements Set<E> {
 		elements = (E[]) new Object[0];
 	}
 
-	protected final E[] getelementsArray() {
+	protected final E[] getElementsArray() {
 		return elements;
 	}
 
@@ -125,7 +101,7 @@ public abstract class AbstractArrayBackedSet<E> implements Set<E> {
 	/**
 	 * Gets the index for insertion of a new element, where the element is
 	 * not currently in the set. The index may depend on the element. The returned value must be in the range
-	 * {@code [0, size()]}. If it is equal to size of the set prior to this insertion, then the new entry
+	 * {@code [0, size()]}. If it is equal to the size of the set prior to this insertion, then the new entry
 	 * will be placed at the tail of the array.
 	 * 
 	 * @param element the new element
@@ -199,18 +175,28 @@ public abstract class AbstractArrayBackedSet<E> implements Set<E> {
 	
 	@Override
 	public Iterator<E> iterator() {
-		return new ElementIterator();
+		return new ArrayBackedSetIterator();
 	}
 
 	// TODO weakly-consistent version that does not throw CME?
-	private abstract class IndexIterator {
+	class ArrayBackedSetIterator implements Iterator<E> {
 		private int expectedModCount = modCount;
-		private int index = -1;
+		int index = -1;
 
-		IndexIterator() {}
+		ArrayBackedSetIterator() {}
 
-		public final boolean hasNext() {
-			return modCount == expectedModCount && size() > index + 1;
+		ArrayBackedSetIterator(int indexOfFirstElement) {
+			index = indexOfFirstElement - 1;
+		}
+
+		@Override
+		public boolean hasNext() {
+			checkForComodification(expectedModCount);
+			return size() > index + 1;
+		}
+		
+		final int peekNextIndex() {
+			return index + 1;
 		}
 
 		final int nextIndex() {
@@ -228,6 +214,7 @@ public abstract class AbstractArrayBackedSet<E> implements Set<E> {
 
 		/** marker that we have returned and not removed a {@code next} element */
 		private boolean currentReady = false;
+		@Override
 		public final void remove() {
 			if (!currentReady) {
 				throw new IllegalStateException("next() has not been called "
@@ -240,11 +227,7 @@ public abstract class AbstractArrayBackedSet<E> implements Set<E> {
 			currentReady = false;
 			expectedModCount = modCount;
 		}
-	}
-
-	private final class ElementIterator extends IndexIterator implements Iterator<E> {
-		ElementIterator() {}
-
+		
 		@Override
 		public E next() {
 			return elements[nextIndex()];

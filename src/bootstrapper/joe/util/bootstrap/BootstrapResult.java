@@ -20,18 +20,40 @@ public final class BootstrapResult {
 	private final Map<String, String> priorSystemProperties;
 	private final Map<String, String> publishedSystemProperties;
 
-	public BootstrapResult(Map<String, String> priorSystemProperties, Map<String, String> publishedSystemProperties) {
+	BootstrapResult(Map<String, String> priorSystemProperties, Map<String, String> publishedSystemProperties) {
 		this.priorSystemProperties = ImmutableMap.copyOf(priorSystemProperties);
 		this.publishedSystemProperties = ImmutableMap.copyOf(publishedSystemProperties);
-		difference = Maps.difference(priorSystemProperties, publishedSystemProperties);
+		this.difference = Maps.difference(priorSystemProperties, publishedSystemProperties);
 	}
 
+	/**
+	 * Gets a copy of the system property map as seen prior to bootstrapping.
+	 * 
+	 * @return immutable copy of pre-bootstrapping properties
+	 */
 	public Map<String, String> getPriorSystemProperties() {
 		return priorSystemProperties;
 	}
+
+	/**
+	 * Gets a copy of the full property set after bootstrapping. This contains all system properties
+	 * and all properties loaded or computed by the bootstrapper. Note that these properties will be
+	 * present in the System property map if {@link BootstrapMain#prepareProperties()} was used; if
+	 * properties were loaded through {@link BootstrapMain#loadPropertiesForEnvironment(String)
+	 * loadPropertiesForEnvironment} then this will be the only record of the loaded property set.
+	 * 
+	 * @return immutable copy of the post-bootstrapping properties
+	 */
 	public Map<String, String> getPublishedSystemProperties() {
 		return publishedSystemProperties;
 	}
+
+	/**
+	 * Gets a {@link Maps#difference(Map, Map)} of the {@linkplain #getPriorSystemProperties() pre-} and
+	 * {@linkplain #getPublishedSystemProperties() post-}bootstrapping properties.
+	 * 
+	 * @return difference effected by the bootstrapper to produce this result
+	 */
 	public MapDifference<String, String> getDifference() {
 		return difference;
 	}

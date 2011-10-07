@@ -35,103 +35,157 @@ import com.google.common.collect.Maps;
  * than to delegate through to the bootstrapped application with no changes to the environment.
  * <p>
  * <h3>Why would you want to do this?</h3>
- * This library is designed to help manage using different property sets for different environments. For example, it
- * supports different runtime environments (production, development, others in between), specific properties for when
- * running in an IDE, specific properties for different users as well as for different machines and operating systems.
+ * This library is designed to help manage using different property sets for different environments. For example, it supports different
+ * runtime environments (production, development, others in between), specific properties for when running in an IDE, specific properties
+ * for different users as well as for different machines and operating systems.
  * <p>
- * This gives flexibility in the property sets that are loaded into the runtime, whether in development or deployment.
- * It also allows changes to be made very cheaply, simply by changing system properties and restarting, rather than
- * having to recompile code with new values for constants.
+ * This gives flexibility in the property sets that are loaded into the runtime, whether in development or deployment. It also allows
+ * changes to be made very cheaply, simply by changing system properties and restarting, rather than having to recompile code with new
+ * values for constants.
  * <p>
  * <h3>Priority Ordering of Property Sets</h3>
- * With highest priority property sets first. Properties specified in a higher priority property set will override
- * those defined in lower priority property sets.
+ * With highest priority property sets first. Properties specified in a higher priority property set will override those defined in lower
+ * priority property sets.
  * <p>
  * <ol>
  * <li><b>System properties</b> These override everything else.
- * <li><b>User properties</b> taken from files defined by {@code bootstrap.properties.user.file}. These often define the
- * environment for the running process, by setting the {@code bootstrap.environment} property.
+ * <li><b>User properties</b> taken from files defined by {@code bootstrap.properties.user.file}. These often define the environment for the
+ * running process, by setting the {@code bootstrap.environment} property.
  * <li><b>Machine properties</b> taken from files defined by {@code bootstrap.properties.machine.file}.
  * <li><b>Operating-system properties</b> taken from files defined by {@code bootstrap.properties.os.file}, defaulting to
- * {@code windows.properties} and {@code unix.properties}. For example, set templated paths to common shared file
- * locations, which will be used elsewhere. Consider {@code my.path.to.stuff=C:/foo} or
- * {@code my.path.to.stuff=/mnt/foo}, for example.
- * <li><b>IDE properties</b> taken from files defined by {@code bootstrap.properties.ide.file}. This might set properties to
- * turn on debug modes, or turn off features like emails that should not be sent while debugging.
- * <li><b>Environment properties</b> taken from files defined by {@code bootstrap.properties.env.file}. This defines the
- * environment, for example the production/development database URLs, paths to environment-specific files etc.
- * <li><b>Common properties</b> taken from files defined by {@code bootstrap.properties.common.file}. Define here those
- * properties that are common to all environments, or sensible defaults.
+ * {@code windows.properties} and {@code unix.properties}. For example, set templated paths to common shared file locations, which will be
+ * used elsewhere. Consider {@code my.path.to.stuff=C:/foo} or {@code my.path.to.stuff=/mnt/foo}, for example.
+ * <li><b>IDE properties</b> taken from files defined by {@code bootstrap.properties.ide.file}. This might set properties to turn on debug
+ * modes, or turn off features like emails that should not be sent while debugging.
+ * <li><b>Environment properties</b> taken from files defined by {@code bootstrap.properties.env.file}. This defines the environment, for
+ * example the production/development database URLs, paths to environment-specific files etc.
+ * <li><b>Common properties</b> taken from files defined by {@code bootstrap.properties.common.file}. Define here those properties that are
+ * common to all environments, or sensible defaults.
  * </ol>
- * Note that between all property sets, properties are resolved where values contain keys to other properties. The
- * syntax for this looks like the following.
+ * Note that between all property sets, properties are resolved where values contain keys to other properties. The syntax for this looks
+ * like the following.
+ * 
  * <pre>
  * some.property=some.value
- * my.template.property=abc.${some.property}</pre>
+ * my.template.property=abc.${some.property}
+ * </pre>
+ * 
  * Here, the value {@code my.template.property} will be resolved to {@code abc.some.value}.
  * <p>
- * Note, also, that these two lines can be defined in different places. The property resolution step happens very late
- * in order to catch this. As usual, higher priority properties take precedence when looking for the resolved values.
- * Nested properties are supported in the usual manner.
+ * Note, also, that these two lines can be defined in different places. The property resolution step happens very late in order to catch
+ * this. As usual, higher priority properties take precedence when looking for the resolved values. Nested properties are supported in the
+ * usual manner.
  * <p>
  * <h3>Usage</h3>
  * There are two usage patterns.
  * <ul>
- * <li /><h4>Calling into {@code BootstrapMain} to configure properties</h4>
- * Call {@link BootstrapMain#prepareProperties()} from your main method. This will configure all properties in the
- * environment, if bootstrapping is enabled by such a property. Note that since properties will not be configured before
- * this method is invoked, they will not be visible from static initialisers of the main class.
- * <li /><h4>{@code BootstrapMain} as a main class</h4>
- * Specify the application entry point class using the {@code bootstrap.main.class} property and the main method name
- * using the {@code bootstrap.main.method} property. These must be defined somewhere within the property hierarchy.
+ * <li />
+ * <h4>Calling into {@code BootstrapMain} to configure properties</h4>
+ * Call {@link BootstrapMain#prepareProperties()} from your main method. This will configure all properties in the environment, if
+ * bootstrapping is enabled by such a property. Note that since properties will not be configured before this method is invoked, they will
+ * not be visible from static initialisers of the main class.
+ * <li />
+ * <h4>{@code BootstrapMain} as a main class</h4>
+ * Specify the application entry point class using the {@code bootstrap.main.class} property and the main method name using the
+ * {@code bootstrap.main.method} property. These must be defined somewhere within the property hierarchy.
  * <p>
- * The application main thread will run within the scope of bootstrapper stack frames, and the main class will be this
- * class. Note that tools such as {@code jps} will report on this main class name, which may make it more difficult to
- * disambiguate running bootstrapped processes.
+ * The application main thread will run within the scope of bootstrapper stack frames, and the main class will be this class. Note that
+ * tools such as {@code jps} will report on this main class name, which may make it more difficult to disambiguate running bootstrapped
+ * processes.
  * </ul>
  * <h3>Summary of Understood Properties</h3>
  * 
  * <table border>
- * <tr><th>Property</th><th>Behaviour</th><th>Default value</th>
+ * <tr>
+ * <th>Property</th>
+ * <th>Behaviour</th>
+ * <th>Default value</th>
  * <tr valign=top>
- * <tr align=left><td>{@code bootstrap.enable}<td>{@code true} to enable bootstrapping behaviour. No changes will be
- * made to the application environment without this property set.</td> <td>{@code false}</td></tr> <tr align=left><td>
- * {@code bootstrap.logging.enable}<td>Turns on verbose logging of properties found and set.</td><td>{@code false}
- * </td></tr>
- * <tr align=left><td> {@code bootstrap.logging.jul}<td>Logs through {@code java.util.logging} instead of
- * {@code System.out}.</td><td>{@code false} (uses {@code System.out})</td></tr>
- * <tr align=left><td> {@code bootstrap.environment}<td>Specifies the name of the environment.</td><td>(none)</td></tr>
- * <tr align=left><td> {@code bootstrap.application.name}<td>Specifies the name of the
- * application.</td><td>(none)</td></tr>
- * <tr align=left><td> {@code bootstrap.main.class}<td>Specifies the name of the entry point class for the application.
- * This is used only by the {@link #launchApplication()} family of methods. If not set, then the bootstrapper will
- * attempt to set this property to the detected main class, by scanning the stack trace of the bootstrapping
- * thread.</td><td>(none)</td></tr>
- * <tr align=left><td> {@code bootstrap.main.method}<td>Specifies the name of the entry point method for the
- * application. This is used only by the {@link #launchApplication()} family of methods.</td><td>(none)</td></tr>
- * <tr align=left><td>{@code bootstrap.properties.root.dir}</td><td>Root directory in which to look for properties
- * files. This may only be specified in system properties.</td><td>{@code config}</td></tr>
- * <tr align=left><td>{@code bootstrap.properties.user.file}</td><td>Comma separated list of file names, relative to the
- * root directory specified by {@code bootstrap.properties.root.dir}, in which to look for user properties
- * files.</td><td>{@code <user_name>.properties,} {@code user.properties}</td></tr>
- * <tr align=left><td>{@code bootstrap.properties.machine.file}</td><td>File name, relative to the root directory
- * specified by {@code bootstrap.properties.root.dir}, in which to look for a machine-specific properties file.</td>
- * <td>{@code <hostname>.properties}, determined by {@code InetAddress.getLocalHost().getHostName()}</td></tr>
- * <tr align=left><td>{@code bootstrap.properties.os.file}</td><td>File name, relative to the root directory
- * specified by {@code bootstrap.properties.root.dir}, in which to look for a OS-specific properties file.</td>
- * <td>{@code windows.properties} or {@code unix.properties}, determined by parsing the system property {@code os.name}.
- * See {@link SystemUtils#getOperatingSystem()}</td></tr>
- * <tr align=left><td>{@code bootstrap.properties.ide.file}</td><td>File name, relative to the root directory specified
- * by {@code bootstrap.properties.root.dir}, in which to look for an IDE properties file. Note that if this file is
- * present, its properties will be loaded. So to prevent these properties from being loaded into your production
- * runtime, either set {@code bootstrap.properties.ide.file} to empty or add a build step to remove this file from
- * deployments.</td><td>{@code ide.properties}</td></tr>
- * <tr align=left><td>{@code bootstrap.properties.env.file}</td><td>File name, relative to the root directory
- * specified by {@code bootstrap.properties.root.dir}, in which to look for a environment-specific properties file.</td>
- * <td><tt> ${bootstrap.environment}.properties</tt></td></tr></tr>
- * <tr align=left><td>{@code bootstrap.properties.common.file}</td><td>File name, relative to the root directory
- * specified by {@code bootstrap.properties.root.dir}, in which to look for a common properties file.</td>
- * <td><tt> common.properties</tt></td></tr></tr>
+ * <tr align=left>
+ * <td>{@code bootstrap.enable}
+ * <td>{@code true} to enable bootstrapping behaviour. No changes will be made to the application environment without this property set.</td>
+ * <td>{@code false}</td>
+ * </tr>
+ * <tr align=left>
+ * <td>
+ * {@code bootstrap.logging.enable}
+ * <td>Turns on verbose logging of properties found and set.</td>
+ * <td>{@code false}</td>
+ * </tr>
+ * <tr align=left>
+ * <td> {@code bootstrap.logging.jul}
+ * <td>Logs through {@code java.util.logging} instead of {@code System.out}.</td>
+ * <td>{@code false} (uses {@code System.out})</td>
+ * </tr>
+ * <tr align=left>
+ * <td> {@code bootstrap.environment}
+ * <td>Specifies the name of the environment.</td>
+ * <td>(none)</td>
+ * </tr>
+ * <tr align=left>
+ * <td> {@code bootstrap.application.name}
+ * <td>Specifies the name of the application. This is not used within the bootstrapper itself, but may be a useful discriminator in
+ * resolving properties.</td>
+ * <td>(none)</td>
+ * </tr>
+ * <tr align=left>
+ * <td> {@code bootstrap.main.class}
+ * <td>Specifies the name of the entry point class for the application. This is used only by the {@link #launchApplication()} family of
+ * methods. If not set, then the bootstrapper will attempt to set this property to the detected main class, by scanning the stack trace of
+ * the bootstrapping thread.</td>
+ * <td>(none)</td>
+ * </tr>
+ * <tr align=left>
+ * <td> {@code bootstrap.main.method}
+ * <td>Specifies the name of the entry point method for the application. This is used only by the {@link #launchApplication()} family of
+ * methods.</td>
+ * <td>{@code main}</td>
+ * </tr>
+ * <tr align=left>
+ * <td>{@code bootstrap.properties.root.dir}</td>
+ * <td>Root directory in which to look for properties files. This may only be specified in system properties.</td>
+ * <td>{@code config}</td>
+ * </tr>
+ * <tr align=left>
+ * <td>{@code bootstrap.properties.user.file}</td>
+ * <td>Comma separated list of file names, relative to the root directory specified by {@code bootstrap.properties.root.dir}, in which to
+ * look for user properties files.</td>
+ * <td>{@code <user_name>.properties,} {@code user.properties}</td>
+ * </tr>
+ * <tr align=left>
+ * <td>{@code bootstrap.properties.machine.file}</td>
+ * <td>File name, relative to the root directory specified by {@code bootstrap.properties.root.dir}, in which to look for a machine-specific
+ * properties file.</td>
+ * <td>{@code <hostname>.properties}, determined by {@code InetAddress.getLocalHost().getHostName()}</td>
+ * </tr>
+ * <tr align=left>
+ * <td>{@code bootstrap.properties.os.file}</td>
+ * <td>File name, relative to the root directory specified by {@code bootstrap.properties.root.dir}, in which to look for a OS-specific
+ * properties file.</td>
+ * <td>{@code windows.properties} or {@code unix.properties}, determined by parsing the system property {@code os.name}. See
+ * {@link SystemUtils#getOperatingSystem()}</td>
+ * </tr>
+ * <tr align=left>
+ * <td>{@code bootstrap.properties.ide.file}</td>
+ * <td>File name, relative to the root directory specified by {@code bootstrap.properties.root.dir}, in which to look for an IDE properties
+ * file. Note that if this file is present, its properties will be loaded. So to prevent these properties from being loaded into your
+ * production runtime, either set {@code bootstrap.properties.ide.file} to empty or add a build step to remove this file from deployments.</td>
+ * <td>{@code ide.properties}</td>
+ * </tr>
+ * <tr align=left>
+ * <td>{@code bootstrap.properties.env.file}</td>
+ * <td>File name, relative to the root directory specified by {@code bootstrap.properties.root.dir}, in which to look for a
+ * environment-specific properties file.</td>
+ * <td><tt> ${bootstrap.environment}.properties</tt></td>
+ * </tr>
+ * </tr>
+ * <tr align=left>
+ * <td>{@code bootstrap.properties.common.file}</td>
+ * <td>File name, relative to the root directory specified by {@code bootstrap.properties.root.dir}, in which to look for a common
+ * properties file.</td>
+ * <td><tt> common.properties</tt></td>
+ * </tr>
+ * </tr>
  * </table>
  * <p>
  * 
@@ -187,7 +241,7 @@ public final class BootstrapMain {
 	private final BootstrapLogger logger = new BootstrapLogger(applicationProperties);
 	/** path to the root of all config, defaulting to {@link #PROPERTIES_FILE_ROOT_LOCATION_DEFAULT} */
 	private String rootPropertiesDirectory;
-	
+
 	BootstrapMain() {}
 
 	final void setMainClass(Class<?> mainClass) {
@@ -205,8 +259,8 @@ public final class BootstrapMain {
 
 	/**
 	 * Specifies a custom property supplier for the application bootstrapper. Only use this if you want to override the
-	 * default behaviour which reads from files determined by the current system property values. See the
-	 * {@link BootstrapMain} class-level documentation for details of these.
+	 * default behaviour which reads from files determined by the current system property values. See the {@link BootstrapMain} class-level
+	 * documentation for details of these.
 	 * 
 	 * @param propertySupplier the property supplier
 	 * @return the builder
@@ -226,7 +280,7 @@ public final class BootstrapMain {
 	/**
 	 * Sets an application name for this process, which will be subsequently accessible through the
 	 * {@link BootstrapMain#BOOTSTRAP_APPLICATION_NAME_KEY} system property. If a value is already set in any other
-	 * property, this value will not override it. 
+	 * property, this value will not override it.
 	 * 
 	 * @param appName application name to set
 	 * @return the builder
@@ -250,9 +304,8 @@ public final class BootstrapMain {
 	 * Finds property sources for this application, builds the application's runtime property set and publishes them to
 	 * the System property map.
 	 * <p>
-	 * This does all of the work of the bootstrapper except for actually launching the application, for which you should
-	 * consider using {@link BootstrapMain#launchApplication(Class)} or the builder API through
-	 * {@link BootstrapMain#withMainArgs(String...)}.
+	 * This does all of the work of the bootstrapper except for actually launching the application, for which you should consider using
+	 * {@link BootstrapMain#launchApplication(Class)} or the builder API through {@link BootstrapMain#withMainArgs(String...)}.
 	 * 
 	 * @return an object providing access to the state of the properties before and after bootstrapping
 	 */
@@ -271,8 +324,7 @@ public final class BootstrapMain {
 	/**
 	 * Launches the application with entry point defined in properties and no main arguments.
 	 * <p>
-	 * <strong>Note:</strong> this launch method is applicable only when properties have been set to determine entry
-	 * point method and class.
+	 * <strong>Note:</strong> this launch method is applicable only when properties have been set to determine entry point method and class.
 	 * 
 	 * @see BootstrapMain#BOOTSTRAP_MAIN_CLASS_KEY
 	 * @see BootstrapMain#BOOTSTRAP_MAIN_METHOD_KEY
@@ -354,8 +406,8 @@ public final class BootstrapMain {
 		 * application is to be run in a separate classloader, the provided type token is used only to extract the class
 		 * name.
 		 * <p>
-		 * <strong>Note:</strong> this launch method is applicable only when properties have been set to determine entry
-		 * point method and class.
+		 * <strong>Note:</strong> this launch method is applicable only when properties have been set to determine entry point method and
+		 * class.
 		 * 
 		 * @see BootstrapMain#BOOTSTRAP_MAIN_CLASS_KEY
 		 * @see BootstrapMain#BOOTSTRAP_MAIN_METHOD_KEY
@@ -399,8 +451,8 @@ public final class BootstrapMain {
 		}
 		/**
 		 * Specifies a custom property supplier for the application bootstrapper. Only use this if you want to override
-		 * the default behaviour which reads from files determined by the current system property values. See the
-		 * {@link BootstrapMain} class-level documentation for details of these.
+		 * the default behaviour which reads from files determined by the current system property values. See the {@link BootstrapMain}
+		 * class-level documentation for details of these.
 		 * 
 		 * @param propertySupplier the property supplier
 		 * @return this builder
@@ -412,7 +464,7 @@ public final class BootstrapMain {
 		/**
 		 * Sets an application name for this process, which will be subsequently accessible through the
 		 * {@link BootstrapMain#BOOTSTRAP_APPLICATION_NAME_KEY} system property. If a value is already set in any other
-		 * property, this value will not override it. 
+		 * property, this value will not override it.
 		 * 
 		 * @param appName application name to set
 		 * @return this builder
@@ -427,8 +479,9 @@ public final class BootstrapMain {
 	/**
 	 * Finds property sources for this application and builds the application's runtime property set.
 	 * <p>
-	 * This does all of the work of the bootstrapper except for actually launching the application, for which you should
-	 * consider using {@link #launchApplication(Class)} or the builder API through {@link #withMainArgs(String...)}.
+	 * This does all of the work of the bootstrapper except for actually launching the application, for which you should consider using
+	 * {@link #launchApplication(Class)} or the builder API through {@link #withMainArgs(String...)}.
+	 * 
 	 * @param publish TODO
 	 * 
 	 * @return an object providing access to the state of the properties before and after bootstrapping
@@ -438,7 +491,7 @@ public final class BootstrapMain {
 			logger.log("Bootstrapping has already been completed, and will not be re-run.");
 			return bootstrapResult;
 		}
-		
+
 		addComputedProperties();
 		findRootConfigDirectory();
 		generateProperties();
@@ -469,7 +522,7 @@ public final class BootstrapMain {
 		if (!processPropertySupplierGroup(propertySupplier.getCommonPropertiesSupplier())) {
 			return;
 		}
-		
+
 		if (applicationName != null) {
 			String alreadySetAppName = putIfAbsent(applicationProperties, BOOTSTRAP_APPLICATION_NAME_KEY,
 					applicationName);
@@ -490,7 +543,7 @@ public final class BootstrapMain {
 					+ MAP_JOINER.join(mapDifference.entriesDiffering()));
 		}
 
-		
+
 		if (!resolvedProperties.containsKey(BOOTSTRAP_MAIN_CLASS_KEY)) {
 			String mainClassName = detectMainClass();
 			if (mainClassName != null) {
@@ -498,7 +551,7 @@ public final class BootstrapMain {
 						BOOTSTRAP_MAIN_CLASS_KEY, mainClassName).build();
 			}
 		}
-		
+
 		applicationProperties = resolvedProperties;
 	}
 	private boolean processPropertySupplierGroup(Iterable<Supplier<Map<String, String>>> groupPropertiesSuppliers) {
@@ -532,7 +585,7 @@ public final class BootstrapMain {
 		}
 		return true;
 	}
-	
+
 	private boolean isBootstrappingDisabled() {
 		String prop = getApplicationProperty(BOOTSTRAP_ENABLE_KEY);
 		return prop != null && !"true".equalsIgnoreCase(prop);
@@ -546,16 +599,15 @@ public final class BootstrapMain {
 	// TODO and others?
 	static final Map<String, String> COMPUTED_PROPERTIES = ImmutableMap.of(SystemUtils.HOST_NAME_KEY, SystemUtils.getHostName());
 	private void addComputedProperties() {
-		Map<String, String> sysprops = PropertyUtils.getSystemPropertyStrings();
-		putAllIfAbsent(sysprops, COMPUTED_PROPERTIES);
+		putAllIfAbsent(applicationProperties, COMPUTED_PROPERTIES);
 	}
-	
+
 	private BootstrapResult bootstrapResult = null;
 	private BootstrapResult setSystemProperties(boolean publish) {
 		final Map<String, String> priorSystemProperties = ImmutableMap.copyOf(getSystemPropertyStrings());
 		if (isBootstrappingEnabled()) {
 			logger.log("Setting application system properties");
-			
+
 			final MapDifference<String, String> difference = Maps.difference(priorSystemProperties,
 					applicationProperties);
 			if (publish) {
@@ -563,7 +615,7 @@ public final class BootstrapMain {
 			}
 
 			logger.log("Application system properties set");
-			
+
 			logger.log("Properties changed by the bootstrapper:"
 					+ (difference.entriesDiffering().isEmpty() ? " (none)"
 							: ("\n    "
@@ -584,7 +636,7 @@ public final class BootstrapMain {
 					+ MAP_JOINER_INDENTED.join(ImmutableSortedMap.copyOf(transformValues(
 							(publish ? PropertyUtils.getSystemPropertyStrings() : applicationProperties),
 							StringUtils.UNESCAPE))) + "\n");
-			
+
 			return bootstrapResult = new BootstrapResult(priorSystemProperties, applicationProperties);
 		} else {
 			logger.log("Bootstrapping disabled, system properties will not be set for the application; "
