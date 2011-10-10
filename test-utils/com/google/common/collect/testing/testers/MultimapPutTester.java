@@ -16,19 +16,18 @@
 
 package com.google.common.collect.testing.testers;
 
-import static com.google.common.collect.testing.features.CollectionSize.*;
-import static com.google.common.collect.testing.features.MapFeature.*;
-import static com.google.common.collect.testing.features.MultimapFeature.*;
-
+import static com.google.common.collect.testing.features.CollectionSize.ZERO;
+import static com.google.common.collect.testing.features.MapFeature.ALLOWS_NULL_KEYS;
+import static com.google.common.collect.testing.features.MapFeature.ALLOWS_NULL_VALUES;
+import static com.google.common.collect.testing.features.MapFeature.SUPPORTS_PUT;
+import static com.google.common.collect.testing.features.MultimapFeature.ALLOWS_DUPLICATE_VALUES;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import com.google.common.collect.Multimap;
 import com.google.common.collect.ObjectArrays;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.features.MapFeature;
 import com.google.common.collect.testing.features.MultimapFeature;
-import com.google.common.collect.testing.features.MultimapFeature.Require;
 
 /**
  * A generic JUnit test which tests {@code put} operations on a multimap.
@@ -42,7 +41,7 @@ public class MultimapPutTester<K, V> extends AbstractMultimapTester<K, V, Multim
 	private Entry<K, V> presentKeyNullValueEntry;
 
 	@Override
-	protected void setUp() throws Exception {
+	public void setUp() throws Exception {
 		super.setUp();
 		nullKeyEntry = entry(null, samples.e3.getValue());
 		nullValueEntry = entry(samples.e3.getKey(), null);

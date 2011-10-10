@@ -1,6 +1,7 @@
 package com.google.common.collect.testing.testers;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -224,7 +225,7 @@ public class AbstractMultimapTester<K, V, M extends Multimap<K, V>> extends Abst
 
 	// This one-liner saves us from some ugly casts
 	protected Entry<K, V> entry(K key, V value) {
-		return Helpers.mapEntry(key, value);
+		return Collections.singletonMap(key, value).entrySet().iterator().next();
 	}
 
 	// removing map assertion which assumes unique keys across entries

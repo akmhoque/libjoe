@@ -43,7 +43,7 @@ public class MultimapPutAllTester<K, V> extends AbstractMultimapTester<K, V, Mul
 	private List<Entry<K, V>> containsNullValue;
 
 	@Override
-	protected void setUp() throws Exception {
+	public void setUp() throws Exception {
 		super.setUp();
 		containsNullKey = singletonList(entry(null, samples.e3.getValue()));
 		containsNullValue = singletonList(entry(samples.e3.getKey(), null));

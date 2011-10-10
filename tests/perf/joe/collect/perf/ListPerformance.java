@@ -1,32 +1,31 @@
 package joe.collect.perf;
 
-import static com.google.common.collect.Lists.*;
-
+import static com.google.common.collect.Lists.newArrayList;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Deque;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
-
 import joe.collect.CircularArrayList;
 import joe.collect.CircularArrayListTest;
+import org.junit.Test;
 
 /**
- * Class to exercise various {@link List} and {@link Deque} implementations. Taken from <a
- * href="http://www.artima.com/weblogs/viewpost.jsp?thread=122295">this page</a>.
- *
+ * Class to exercise various {@link List} and {@link Deque} implementations.
+ * Taken from <a
+ * href="http://www.artima.com/weblogs/viewpost.jsp?thread=122295">this
+ * page</a>.
+ * 
  * @author Bruce Eckel
  * @author adapted by Joe Kearney
  */
 public class ListPerformance {
-	static Random rand;
-	public static void reset() {
-		rand = new Random(System.nanoTime());
-	}
+	static Random rand = new Random(System.nanoTime());
 
 	static final int reps = 1000;
-	static final List<AbstractTest<List<Integer>>> tests = newArrayList();
-	static final List<AbstractTest<Deque<Integer>>> qTests = newArrayList();
+	static final List<AbstractTest<List<Integer>, Integer>> tests = newArrayList();
+	static final List<AbstractTest<Deque<Integer>, Integer>> qTests = newArrayList();
 	static {
 		tests.add(new ListAddTester("add"));
 		tests.add(new ListGetTester("get"));
@@ -45,7 +44,16 @@ public class ListPerformance {
 		qTests.add(new QueueRemoveLastTester("rmLast"));
 	}
 
-	private static final class QueueRemoveLastTester extends AbstractTest<Deque<Integer>> {
+	private static abstract class AbstractIntegerContainerTest<C extends Collection<Integer>>
+			extends AbstractTest<C, Integer> {
+
+		protected AbstractIntegerContainerTest(String name) {
+			super(name);
+		}
+	}
+	
+	private static final class QueueRemoveLastTester extends
+			AbstractIntegerContainerTest<Deque<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -66,8 +74,8 @@ public class ListPerformance {
 			return loops * size;
 		}
 	}
-
-	private static final class QueueRemoveFirstTester extends AbstractTest<Deque<Integer>> {
+	private static final class QueueRemoveFirstTester extends
+			AbstractIntegerContainerTest<Deque<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -88,8 +96,8 @@ public class ListPerformance {
 			return loops * size;
 		}
 	}
-
-	private static final class QueueAddLastTester extends AbstractTest<Deque<Integer>> {
+	private static final class QueueAddLastTester extends
+			AbstractIntegerContainerTest<Deque<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -109,8 +117,8 @@ public class ListPerformance {
 			return loops * size;
 		}
 	}
-
-	private static final class QueueAddFirstTester extends AbstractTest<Deque<Integer>> {
+	private static final class QueueAddFirstTester extends
+			AbstractIntegerContainerTest<Deque<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -130,8 +138,8 @@ public class ListPerformance {
 			return loops * size;
 		}
 	}
-
-	private static final class ListRemoveFirstTester extends AbstractTest<List<Integer>> {
+	private static final class ListRemoveFirstTester extends
+			AbstractIntegerContainerTest<List<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -153,8 +161,8 @@ public class ListPerformance {
 			return loops * size;
 		}
 	}
-
-	private static final class ListRemoveMidTester extends AbstractTest<List<Integer>> {
+	private static final class ListRemoveMidTester extends
+			AbstractIntegerContainerTest<List<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -177,9 +185,8 @@ public class ListPerformance {
 			return loops * size;
 		}
 	}
-
-	private static final class ListRemoveRandomTester extends AbstractTest<List<Integer>> {
-		private final Random RANDOM = new Random();
+	private static final class ListRemoveRandomTester extends
+			AbstractIntegerContainerTest<List<Integer>> {
 
 		/**
 		 * @param name
@@ -196,14 +203,14 @@ public class ListPerformance {
 				list.clear();
 				list.addAll(new CircularArrayListTest.CountingArrayList(size));
 				for (int j = list.size(); j > 0; j--) {
-					list.remove(RANDOM.nextInt(j));
+					list.remove(rand.nextInt(j));
 				}
 			}
 			return loops * size;
 		}
 	}
-
-	private static final class ListInsertTester extends AbstractTest<List<Integer>> {
+	private static final class ListInsertTester extends
+			AbstractIntegerContainerTest<List<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -219,8 +226,8 @@ public class ListPerformance {
 			return loops;
 		}
 	}
-
-	private static final class ListIterMidAddTester extends AbstractTest<List<Integer>> {
+	private static final class ListIterMidAddTester extends
+			AbstractIntegerContainerTest<List<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -238,8 +245,8 @@ public class ListPerformance {
 			return LOOPS;
 		}
 	}
-
-	private static final class ListIterThirdAddTester extends AbstractTest<List<Integer>> {
+	private static final class ListIterThirdAddTester extends
+			AbstractIntegerContainerTest<List<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -257,8 +264,8 @@ public class ListPerformance {
 			return LOOPS;
 		}
 	}
-
-	private static final class ListSetTester extends AbstractTest<List<Integer>> {
+	private static final class ListSetTester extends
+			AbstractIntegerContainerTest<List<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -275,8 +282,8 @@ public class ListPerformance {
 			return loops;
 		}
 	}
-
-	private static final class ListGetTester extends AbstractTest<List<Integer>> {
+	private static final class ListGetTester extends
+			AbstractIntegerContainerTest<List<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -286,15 +293,15 @@ public class ListPerformance {
 
 		@Override
 		int test(List<Integer> list, TestParam tp) {
-			int loops = tp.loops * reps;
+			int loops = tp.loops * tp.size;
 			int listSize = list.size();
 			for (int i = 0; i < loops; i++)
 				list.get(rand.nextInt(listSize));
 			return loops;
 		}
 	}
-
-	private static final class ListAddTester extends AbstractTest<List<Integer>> {
+	private static final class ListAddTester extends
+			AbstractIntegerContainerTest<List<Integer>> {
 		/**
 		 * @param name
 		 */
@@ -315,9 +322,11 @@ public class ListPerformance {
 		}
 	}
 
-	static class ListTester extends PerformanceTester<List<Integer>> {
-		public ListTester(List<Integer> container, List<AbstractTest<List<Integer>>> tests) {
-			super(container, tests);
+	static class ListTester extends PerformanceTester<List<Integer>, Integer> {
+		public ListTester(List<Integer> container,
+				List<? extends AbstractTest<List<Integer>, Integer>> tests) {
+			super(container, tests, TestParam.from(10, 750, 100, 500,
+					1000, 200, 10000, 20));
 		}
 
 		// Fill to the appropriate size before each test:
@@ -329,32 +338,13 @@ public class ListPerformance {
 		}
 
 		// Convenience method:
-		public static void run(List<Integer> list, List<AbstractTest<List<Integer>>> tests) {
+		public static void run(List<Integer> list,
+				List<? extends AbstractTest<List<Integer>, Integer>> tests) {
 			new ListTester(list, tests).timedTest();
 		}
 	}
 
 	public static void main(String[] args) {
-		System.out.println("All times in nanoseconds per rep");
-
-		System.out.println("Running test suite to warm up...");
-		doMain(args); // warm up
-		System.out.println("Completed warmup run");
-		System.out.println();
-
-		System.out.println("Running test suite for real...");
-		doMain(args);
-		System.out.println("Completed real run");
-	}
-
-	/**
-	 * @param args
-	 */
-	private static void doMain(String[] args) {
-		PerformanceTester.fieldWidth = 12;
-		// Tester.defaultParams = TestParam.array(10, 75000, 100, 50000, 1000, 20000, 10000, 2000);
-		PerformanceTester.defaultParams = TestParam.array(10, 750, 100, 500, 1000, 200, 10000, 20);
-
 		ListTester.run(new CircularArrayList<Integer>(), tests);
 		ListTester.run(new ArrayList<Integer>(), tests);
 	}

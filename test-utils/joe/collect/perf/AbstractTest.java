@@ -1,6 +1,8 @@
 package joe.collect.perf;
 
-public abstract class AbstractTest<C> {
+import com.google.common.collect.testing.AbstractContainerTester;
+
+public abstract class AbstractTest<C, E> {
 	String name;
 	public AbstractTest(String name) {
 		this.name = name;
