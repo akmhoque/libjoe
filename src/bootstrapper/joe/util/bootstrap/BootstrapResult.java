@@ -4,6 +4,9 @@ import java.util.Map;
 
 import javax.annotation.concurrent.Immutable;
 
+import joe.util.bootstrap.property.MapBackedPropertyProvider;
+import joe.util.bootstrap.property.PropertyProvider;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
@@ -56,5 +59,9 @@ public final class BootstrapResult {
 	 */
 	public MapDifference<String, String> getDifference() {
 		return difference;
+	}
+	
+	public PropertyProvider asPropertyProvider() {
+		return MapBackedPropertyProvider.createFromMap(publishedSystemProperties);
 	}
 }
