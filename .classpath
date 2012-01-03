@@ -3,7 +3,6 @@
 	<classpathentry kind="src" path="src/base"/>
 	<classpathentry kind="src" path="src/collect"/>
 	<classpathentry kind="src" path="src/bootstrapper"/>
-	<classpathentry kind="src" path="test-utils"/>
 	<classpathentry kind="src" path="tests/unit"/>
 	<classpathentry kind="src" path="tests/perf"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
