@@ -1,3 +1,0 @@
-<antlib>
-  <typedef name="bootstrap-properties" classname="joe.util.bootstrap.AntBootstrapper" />
-</antlib>
