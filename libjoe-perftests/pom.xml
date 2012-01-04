@@ -6,28 +6,22 @@
     <version>0.16-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
-  <artifactId>libjoe-base</artifactId>
+  <artifactId>libjoe-perftests</artifactId>
   <dependencies>
   	<dependency>
   		<groupId>com.google.guava</groupId>
   		<artifactId>guava</artifactId>
   		<version>11.0</version>
-  		<scope>runtime</scope>
+  	</dependency>
+  	<dependency>
+  		<groupId>joe</groupId>
+  		<artifactId>libjoe-collect</artifactId>
+  		<version>0.16-SNAPSHOT</version>
   	</dependency>
   	<dependency>
   		<groupId>junit</groupId>
   		<artifactId>junit</artifactId>
   		<version>4.10</version>
-  		<scope>test</scope>
-  	</dependency>
-  	<dependency>
-  		<groupId>org.hamcrest</groupId>
-  		<artifactId>hamcrest-library</artifactId>
-  		<version>1.2.1</version>
-  		<scope>test</scope>
   	</dependency>
   </dependencies>
-  
-  <sourceDirectory>src/main/java</sourceDirectory>
-  <testSourceDirectory>src/test/java</testSourceDirectory>
 </project>
