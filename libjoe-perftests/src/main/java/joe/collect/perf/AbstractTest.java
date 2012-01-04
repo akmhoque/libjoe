@@ -1,6 +1,5 @@
 package joe.collect.perf;
 
-import com.google.common.collect.testing.AbstractContainerTester;
 
 public abstract class AbstractTest<C, E> {
 	String name;

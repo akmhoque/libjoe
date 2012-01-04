@@ -1,15 +1,18 @@
 package joe.collect.perf;
 
+import static com.google.common.collect.DiscreteDomains.integers;
 import static com.google.common.collect.Lists.newArrayList;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Random;
+
 import joe.collect.CircularArrayList;
-import joe.collect.CircularArrayListTest;
-import org.junit.Test;
+
+import com.google.common.collect.Ranges;
 
 /**
  * Class to exercise various {@link List} and {@link Deque} implementations.
@@ -67,9 +70,10 @@ public class ListPerformance {
 			int size = tp.size;
 			for (int i = 0; i < loops; i++) {
 				list.clear();
-				list.addAll(new CircularArrayListTest.CountingArrayList(size));
-				while (list.size() > 0)
+				list.addAll(Ranges.closedOpen(0, size).asSet(integers()));
+				while (list.size() > 0) {
 					list.removeLast();
+				}
 			}
 			return loops * size;
 		}
@@ -89,9 +93,10 @@ public class ListPerformance {
 			int size = tp.size;
 			for (int i = 0; i < loops; i++) {
 				list.clear();
-				list.addAll(new CircularArrayListTest.CountingArrayList(size));
-				while (list.size() > 0)
+				list.addAll(Ranges.closedOpen(0, size).asSet(integers()));
+				while (list.size() > 0) {
 					list.removeFirst();
+				}
 			}
 			return loops * size;
 		}
@@ -111,8 +116,9 @@ public class ListPerformance {
 			int size = tp.size;
 			for (int i = 0; i < loops; i++) {
 				list.clear();
-				for (int j = 0; j < size; j++)
+				for (int j = 0; j < size; j++) {
 					list.addLast(47);
+				}
 			}
 			return loops * size;
 		}
@@ -132,8 +138,9 @@ public class ListPerformance {
 			int size = tp.size;
 			for (int i = 0; i < loops; i++) {
 				list.clear();
-				for (int j = 0; j < size; j++)
+				for (int j = 0; j < size; j++) {
 					list.addFirst(47);
+				}
 			}
 			return loops * size;
 		}
@@ -153,7 +160,7 @@ public class ListPerformance {
 			int size = tp.size;
 			for (int i = 0; i < loops; i++) {
 				list.clear();
-				list.addAll(new CircularArrayListTest.CountingArrayList(size));
+				list.addAll(Ranges.closedOpen(0, size).asSet(integers()));
 				for (int j = 0; j < size; ++j) {
 					list.remove(0);
 				}
@@ -176,7 +183,7 @@ public class ListPerformance {
 			int size = tp.size;
 			for (int i = 0; i < loops; i++) {
 				list.clear();
-				list.addAll(new CircularArrayListTest.CountingArrayList(size));
+				list.addAll(Ranges.closedOpen(0, size).asSet(integers()));
 				int s;
 				while ((s = list.size()) != 0) {
 					list.remove(s / 2); // Minimize random access cost
@@ -201,7 +208,7 @@ public class ListPerformance {
 			int size = tp.size;
 			for (int i = 0; i < loops; i++) {
 				list.clear();
-				list.addAll(new CircularArrayListTest.CountingArrayList(size));
+				list.addAll(Ranges.closedOpen(0, size).asSet(integers()));
 				for (int j = list.size(); j > 0; j--) {
 					list.remove(rand.nextInt(j));
 				}
@@ -222,7 +229,9 @@ public class ListPerformance {
 		int test(List<Integer> list, TestParam tp) {
 			int loops = tp.loops;
 			for (int i = 0; i < loops; i++)
+			 {
 				list.add(5, 47); // Minimize random access cost
+			}
 			return loops;
 		}
 	}
@@ -240,8 +249,9 @@ public class ListPerformance {
 			final int LOOPS = 1000000;
 			int half = list.size() / 2;
 			ListIterator<Integer> it = list.listIterator(half);
-			for (int i = 0; i < LOOPS; i++)
+			for (int i = 0; i < LOOPS; i++) {
 				it.add(47);
+			}
 			return LOOPS;
 		}
 	}
@@ -259,8 +269,9 @@ public class ListPerformance {
 			final int LOOPS = 1000000;
 			int third = list.size() / 3;
 			ListIterator<Integer> it = list.listIterator(third);
-			for (int i = 0; i < LOOPS; i++)
+			for (int i = 0; i < LOOPS; i++) {
 				it.add(47);
+			}
 			return LOOPS;
 		}
 	}
@@ -277,8 +288,9 @@ public class ListPerformance {
 		int test(List<Integer> list, TestParam tp) {
 			int loops = tp.loops * reps;
 			int listSize = list.size();
-			for (int i = 0; i < loops; i++)
+			for (int i = 0; i < loops; i++) {
 				list.set(rand.nextInt(listSize), 47);
+			}
 			return loops;
 		}
 	}
@@ -295,8 +307,9 @@ public class ListPerformance {
 		int test(List<Integer> list, TestParam tp) {
 			int loops = tp.loops * tp.size;
 			int listSize = list.size();
-			for (int i = 0; i < loops; i++)
+			for (int i = 0; i < loops; i++) {
 				list.get(rand.nextInt(listSize));
+			}
 			return loops;
 		}
 	}
@@ -315,8 +328,9 @@ public class ListPerformance {
 			int listSize = tp.size;
 			for (int i = 0; i < loops; i++) {
 				list.clear();
-				for (int j = 0; j < listSize; j++)
+				for (int j = 0; j < listSize; j++) {
 					list.add(j);
+				}
 			}
 			return loops * listSize;
 		}
@@ -333,7 +347,7 @@ public class ListPerformance {
 		@Override
 		protected List<Integer> initialize(int size) {
 			container.clear();
-			container.addAll(new CircularArrayListTest.CountingArrayList(size));
+			container.addAll(Ranges.closedOpen(0, size).asSet(integers()));
 			return container;
 		}
 
