@@ -8,7 +8,6 @@
   	<module>libjoe-base</module>
   	<module>libjoe-collect</module>
   	<module>libjoe-bootstrapper</module>
-  	<module>libjoe-collect-testutils</module>
   	<module>libjoe-perftests</module>
   </modules>
   
