@@ -27,7 +27,4 @@
   		<scope>test</scope>
   	</dependency>
   </dependencies>
-  
-  <sourceDirectory>src/main/java</sourceDirectory>
-  <testSourceDirectory>src/test/java</testSourceDirectory>
 </project>
