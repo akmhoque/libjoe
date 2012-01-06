@@ -11,8 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import joe.util.bootstrap.BootstrapMain.BootstrapBuilder;
-
 import org.junit.Test;
 
 import com.google.common.base.Supplier;
@@ -30,53 +28,46 @@ public class BootstrapPropertyPriorityOrderingTest {
 	static final String MACHINE_PROPERTY = "machine";
 	static final String OS_PROPERTY = "os";
 	static final String IDE_PROPERTY = "ide";
-	static final String PROD_PROPERTY = "prod";
+	static final String ADDITIONAL_PROPERTY = "additional";
+	static final String ENV_PROPERTY = "prod";
 	static final String COMMON_PROPERTY = "common";
-
-	private static final ImmutableSet<String> ENV_NAMES_IN_ORDER = ImmutableSet.of(COMMON_PROPERTY, PROD_PROPERTY,
+	
+	private static final ImmutableSet<String> ENV_NAMES_IN_ORDER = ImmutableSet.of(COMMON_PROPERTY, ENV_PROPERTY, ADDITIONAL_PROPERTY,
 			IDE_PROPERTY, OS_PROPERTY, MACHINE_PROPERTY, USER_PROPERTY, SYSTEM_PROPERTY);
 	private static final String PROPERTY_UNDER_TEST_KEY = "prop";
 	private static final Ordering<String> PROPERTY_SET_ORDERING = Ordering.explicit(ENV_NAMES_IN_ORDER.asList());
-	private static final Set<Set<String>> ENV_NAMES_POWER_SET = Sets.powerSet(ENV_NAMES_IN_ORDER);
-
+	private static final Set<List<String>> ENV_NAMES_POWER_SET = Sets.cartesianProduct(ENV_NAMES_IN_ORDER, ENV_NAMES_IN_ORDER);
+	
 	@Test
 	public void testPropertyPreparationOnly() throws Exception {
 		int testedCount = 0;
-		for (Set<String> set : ENV_NAMES_POWER_SET) {
-			Iterable<List<String>> combinations = new Permutator<String>(ImmutableList.copyOf(set));
-			
-			String expectedValue = set.isEmpty() ? null : PROPERTY_SET_ORDERING.max(set);
-			
-			for (List<String> combination : combinations) {
-				try {
-					BootstrapBuilder builder = BootstrapMain.withCustomPropertySupplier(new ExplicitPropertySupplier(
-							combination));
-					if (expectedValue != null) {
-						builder.withMainArgs(expectedValue);
-					}
-					PropertyProvider pp = builder.loadProperties().publishTo(newMap());
-					String actualValue = pp.getProperty(PROPERTY_UNDER_TEST_KEY);
-					assertThat(actualValue, is(expectedValue));
-				} catch (Throwable e) {
-					AssertionError assertionError = new AssertionError("Failed with combination " + combination);
-					assertionError.initCause(e);
-					throw assertionError;
-				}
-				++testedCount;
+		for (List<String> combination : ENV_NAMES_POWER_SET) {
+			String expectedValue = combination.isEmpty() ? null : PROPERTY_SET_ORDERING.max(combination);
+			try {
+				PropertyProvider pp = BootstrapMain.withCustomPropertySupplier(new ExplicitPropertySupplier(combination)).publishTo(
+						newMap());
+				
+				String actualValue = pp.getProperty(PROPERTY_UNDER_TEST_KEY);
+				assertThat(actualValue, is(expectedValue));
+			} catch (Throwable e) {
+				AssertionError assertionError = new AssertionError("Failed with combination " + combination);
+				assertionError.initCause(e);
+				throw assertionError;
 			}
+			++testedCount;
 		}
 		
 		System.out.println("Tested " + testedCount + " combinations of properties.");
 	}
-
+	
 	private static class ExplicitPropertySupplier implements PropertySupplier {
 		final Collection<String> envs;
 		static final Supplier<Map<String, String>> EMPTY_MAP_SUPPLIER = Suppliers.<Map<String, String>> ofInstance(ImmutableMap.<String, String> of());
-
+		
 		ExplicitPropertySupplier(Collection<String> envs) {
 			this.envs = envs;
 		}
-
+		
 		@Override
 		public Supplier<Map<String, String>> getSystemPropertiesSupplier() {
 			return Iterables.getOnlyElement(getEnvPropOrEmpty(SYSTEM_PROPERTY));
@@ -98,24 +89,28 @@ public class BootstrapPropertyPriorityOrderingTest {
 			return getEnvPropOrEmpty(IDE_PROPERTY);
 		}
 		@Override
+		public Iterable<Supplier<Map<String, String>>> getAdditionalPropertiesSupplier() {
+			return getEnvPropOrEmpty(ADDITIONAL_PROPERTY);
+		}
+		@Override
 		public Iterable<Supplier<Map<String, String>>> getEnvironmentPropertiesSupplier() {
-			return getEnvPropOrEmpty(PROD_PROPERTY);
+			return getEnvPropOrEmpty(ENV_PROPERTY);
 		}
 		@Override
 		public Iterable<Supplier<Map<String, String>>> getCommonPropertiesSupplier() {
 			return getEnvPropOrEmpty(COMMON_PROPERTY);
 		}
-
+		
 		private Iterable<Supplier<Map<String, String>>> getEnvPropOrEmpty(String env) {
 			if (envs.contains(env)) {
-				return ImmutableList.of(Suppliers.<Map<String, String>> ofInstance(ImmutableMap.of(
-						PROPERTY_UNDER_TEST_KEY, env, BootstrapMain.BOOTSTRAP_ENABLE_KEY, "true")));
+				return ImmutableList.of(Suppliers.<Map<String, String>> ofInstance(ImmutableMap.of(PROPERTY_UNDER_TEST_KEY, env,
+						BootstrapMain.BOOTSTRAP_ENABLE_KEY, "true")));
 			} else {
 				return ImmutableList.of(EMPTY_MAP_SUPPLIER);
 			}
 		}
 	}
-
+	
 	static final class MyClass {
 		public static void main(String ... args) {
 			String actualValue = System.getProperty(PROPERTY_UNDER_TEST_KEY);
@@ -123,14 +118,14 @@ public class BootstrapPropertyPriorityOrderingTest {
 			assertThat(actualValue, is(expectedValue));
 		}
 	}
-
+	
 	static class Permutator<E> implements Iterable<List<E>> {
 		private List<E> list;
-
+		
 		public Permutator(List<E> list) {
 			this.list = list;
 		}
-
+		
 		@Override
 		public Iterator<List<E>> iterator() {
 			return new Permutations<E>(list);
@@ -140,7 +135,7 @@ public class BootstrapPropertyPriorityOrderingTest {
 			private int n, m;
 			private int[] index;
 			private boolean hasMore = true;
-
+			
 			/**
 			 * Create a Permutation to iterate through all possible lineups
 			 * of the supplied array of Objects.
@@ -153,7 +148,7 @@ public class BootstrapPropertyPriorityOrderingTest {
 			public Permutations(List<E> inList) {
 				this(inList, inList.size());
 			}
-
+			
 			/**
 			 * Create a Permutation to iterate through all possible lineups
 			 * of the supplied array of Objects.
@@ -168,9 +163,9 @@ public class BootstrapPropertyPriorityOrderingTest {
 				this.inList = inList;
 				this.n = inList.size();
 				this.m = m;
-
+				
 				assert this.n >= m && m >= 0;
-
+				
 				/**
 				 * index is an array of ints that keep track of the next
 				 * permutation to return. For example, an index on a permutation
@@ -178,19 +173,19 @@ public class BootstrapPropertyPriorityOrderingTest {
 				 * by {2 0 1} and {2 1 0}.
 				 * Initially, the index is {0 ... n - 1}.
 				 */
-
+				
 				this.index = new int[this.n];
 				for (int i = 0; i < this.n; i++) {
 					this.index[i] = i;
 				}
-
+				
 				/**
 				 * The elements from m to n are always kept ascending right
 				 * to left. This keeps the dip in the interesting region.
 				 */
 				reverseAfter(m - 1);
 			}
-
+			
 			/**
 			 * @return true, unless we have already returned the last permutation.
 			 */
@@ -198,7 +193,7 @@ public class BootstrapPropertyPriorityOrderingTest {
 			public boolean hasNext() {
 				return this.hasMore;
 			}
-
+			
 			/**
 			 * Move the index forward a notch. The algorithm first finds the
 			 * rightmost index that is less than its neighbor to the right. This
@@ -207,10 +202,9 @@ public class BootstrapPropertyPriorityOrderingTest {
 			 * switched with the dip. Finally, the list of elements to the right
 			 * of the dip is reversed.
 			 * <p>
-			 * For example, in a permutation of 5 items, the index may be {1, 2, 4, 3, 0}. The dip is 2 the rightmost
-			 * element less than its neighbor on its right. The least element to the right of 2 that is greater than 2
-			 * is 3. These elements are swapped, yielding {1, 3, 4, 2, 0}, and the list right of the dip point is
-			 * reversed, yielding {1, 3, 0, 2, 4}.
+			 * For example, in a permutation of 5 items, the index may be {1, 2, 4, 3, 0}. The dip is 2 the rightmost element less than its
+			 * neighbor on its right. The least element to the right of 2 that is greater than 2 is 3. These elements are swapped, yielding
+			 * {1, 3, 4, 2, 0}, and the list right of the dip point is reversed, yielding {1, 3, 0, 2, 4}.
 			 * <p>
 			 * The algorithm is from Applied Combinatorics, by Alan Tucker.
 			 * 
@@ -222,7 +216,7 @@ public class BootstrapPropertyPriorityOrderingTest {
 					this.hasMore = false;
 					return;
 				}
-
+				
 				// find the least greater element to the right of the dip
 				int leastToRightIndex = i + 1;
 				for (int j = i + 2; j < this.n; j++) {
@@ -230,12 +224,12 @@ public class BootstrapPropertyPriorityOrderingTest {
 						leastToRightIndex = j;
 					}
 				}
-
+				
 				// switch dip element with least greater element to its right
 				int t = this.index[i];
 				this.index[i] = this.index[leastToRightIndex];
 				this.index[leastToRightIndex] = t;
-
+				
 				if (this.m - 1 > i) {
 					// reverse the elements to the right of the dip
 					reverseAfter(i);
@@ -243,13 +237,13 @@ public class BootstrapPropertyPriorityOrderingTest {
 					reverseAfter(this.m - 1);
 				}
 			}
-
+			
 			/**
 			 * @return java.lang.Object, the next permutation of the original Object array.
 			 *         <p>
-			 *         Actually, an array of Objects is returned. The declaration must say just Object, because the
-			 *         Permutations class implements Iterator, which declares that the next() returns a plain Object.
-			 *         Users must cast the returned object to (Object[]).
+			 *         Actually, an array of Objects is returned. The declaration must say just Object, because the Permutations class
+			 *         implements Iterator, which declares that the next() returns a plain Object. Users must cast the returned object to
+			 *         (Object[]).
 			 */
 			@Override
 			public List<E> next() {
@@ -265,7 +259,7 @@ public class BootstrapPropertyPriorityOrderingTest {
 				moveIndex();
 				return list;
 			}
-
+			
 			/**
 			 * Reverse the index elements to the right of the specified index.
 			 */
@@ -279,9 +273,9 @@ public class BootstrapPropertyPriorityOrderingTest {
 					start++;
 					end--;
 				}
-
+				
 			}
-
+			
 			/**
 			 * @return int the index of the first element from the right
 			 *         that is less than its neighbor on the right.
@@ -294,12 +288,12 @@ public class BootstrapPropertyPriorityOrderingTest {
 				}
 				return -1;
 			}
-
+			
 			@Override
 			public void remove() {
 				throw new UnsupportedOperationException();
 			}
-
+			
 		}
 	}
 }

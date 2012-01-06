@@ -6,17 +6,10 @@ import com.google.common.base.Supplier;
 
 /**
  * Abstraction over property generators. Properties belong to a property group, and property groups have a priority
- * ordering. In descending priority, these are:
- * 
- * <ol>
- * <li>System properties
- * <li>User properties
- * <li>Machine-local properties
- * <li>IDE properties
- * <li>Environment properties (dev, prod, ...)
- * </ol>
+ * ordering. See class documentation in {@link BootstrapMain} for details.
  * 
  * @author Joe Kearney
+ * @see BootstrapMain
  */
 public interface PropertySupplier {
 	Supplier<Map<String, String>> getSystemPropertiesSupplier();
@@ -24,6 +17,7 @@ public interface PropertySupplier {
 	Iterable<Supplier<Map<String, String>>> getMachinePropertiesSupplier();
 	Iterable<Supplier<Map<String, String>>> getOsPropertiesSupplier();
 	Iterable<Supplier<Map<String, String>>> getIdePropertiesSupplier();
+	Iterable<Supplier<Map<String, String>>> getAdditionalPropertiesSupplier();
 	Iterable<Supplier<Map<String, String>>> getEnvironmentPropertiesSupplier();
 	Iterable<Supplier<Map<String, String>>> getCommonPropertiesSupplier();
 }

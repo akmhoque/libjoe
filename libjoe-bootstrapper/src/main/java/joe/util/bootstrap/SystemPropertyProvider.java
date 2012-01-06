@@ -1,8 +1,6 @@
 package joe.util.bootstrap;
 
-
 import java.util.Map;
-
 
 /**
  * {@link PropertyProvider} backed by the system properties. This provider uses System properties directly,
@@ -20,6 +18,9 @@ public final class SystemPropertyProvider extends AbstractPropertyProvider imple
 
 	private SystemPropertyProvider() {}
 	
+	/**
+	 * Gets the {@link SystemPropertyProvider}.
+	 */
 	public static SystemPropertyProvider instance() {
 		return INSTANCE;
 	}

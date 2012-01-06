@@ -8,6 +8,7 @@ import static java.lang.reflect.Modifier.isPublic;
 import static java.lang.reflect.Modifier.isStatic;
 import static joe.util.PropertyUtils.getSystemPropertyStrings;
 import static joe.util.StringUtils.UNESCAPE;
+import static joe.util.bootstrap.PropertyProviderFactories.systemProperties;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -21,9 +22,11 @@ import joe.util.StringUtils;
 import joe.util.SystemUtils;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Joiner.MapJoiner;
 import com.google.common.base.Supplier;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSortedMap;
@@ -58,25 +61,39 @@ import com.google.common.collect.Maps;
  * used elsewhere. Consider {@code my.path.to.stuff=C:/foo} or {@code my.path.to.stuff=/mnt/foo}, for example.
  * <li><b>IDE properties</b> taken from files defined by {@code bootstrap.properties.ide.file}. This might set properties to turn on debug
  * modes, or turn off features like emails that should not be sent while debugging.
+ * <li><b>Additional property groups</b> taken from files defined by {@code bootstrap.properties.<group-name>.file}. This defines the extra
+ * properties that may vary within a single environment, for example you might want a {@code gui} group or a {@code web} group, if these
+ * applications need different configuration to other server-side processes. <b>Note</b> that this allows name collisions and thus overriding
+ * of default environment sets, should you really want to do that.
  * <li><b>Environment properties</b> taken from files defined by {@code bootstrap.properties.env.file}. This defines the environment, for
  * example the production/development database URLs, paths to environment-specific files etc.
  * <li><b>Common properties</b> taken from files defined by {@code bootstrap.properties.common.file}. Define here those properties that are
  * common to all environments, or sensible defaults.
  * </ol>
- * Note that between all property sets, properties are resolved where values contain keys to other properties. The syntax for this looks
+ * 
+ * <h3>Property Resolution</h3>
+ * Between all property sets, properties are resolved where values contain keys to other properties. The syntax for this looks
  * like the following.
  * 
  * <pre>
  * some.property=some.value
- * my.template.property=abc.${some.property}
- * </pre>
+ * my.template.property=abc.${some.property}</pre>
  * 
  * Here, the value {@code my.template.property} will be resolved to {@code abc.some.value}.
  * <p>
- * Note, also, that these two lines can be defined in different places. The property resolution step happens very late in order to catch
+ * Note that these two lines can be defined in different places. The property resolution step happens very late in order to catch
  * this. As usual, higher priority properties take precedence when looking for the resolved values. Nested properties are supported in the
  * usual manner.
+ * 
+ * <h3>Property Loading</h3>
+ * Property sets are loaded in descending priority order, and then properties are resolved between them. This leads to some natural constraints
+ * on the source of some properties. In general, if a property {@code P} determine where to find another property set {@code S}, then {@code P}
+ * must be present in a property set this has a higher priority than {@code S}.
  * <p>
+ * What does this mean in practice? In order to load environment properties from a file whose name depends on the environment, the
+ * {@code bootstrap.environment} property must be present in a property set with higher priority. It is normal to set the environment as a
+ * system property in from a runscript, for example.
+ * 
  * <h3>Usage</h3>
  * There are two usage patterns.
  * <ul>
@@ -177,14 +194,20 @@ import com.google.common.collect.Maps;
  * <td>{@code bootstrap.properties.env.file}</td>
  * <td>File name, relative to the root directory specified by {@code bootstrap.properties.root.dir}, in which to look for a
  * environment-specific properties file.</td>
- * <td><tt> ${bootstrap.environment}.properties</tt></td>
- * </tr>
+ * <td><tt>${bootstrap.environment}.properties</tt></td>
  * </tr>
  * <tr align=left>
  * <td>{@code bootstrap.properties.common.file}</td>
  * <td>File name, relative to the root directory specified by {@code bootstrap.properties.root.dir}, in which to look for a common
  * properties file.</td>
  * <td><tt> common.properties</tt></td>
+ * </tr>
+ * <tr align=left>
+ * <td>{@code bootstrap.properties.additional.group}</td>
+ * <td>Name of an additional properties group to use. The bootstrapper will look for a property {@code bootstrap.properties.<name>.file}
+ * which should hold a list of files relative to the config root. This property will likely be set by one of the higher priority property
+ * groups, for example in a system property set in a runscript rather than in the {@code env.properties} file.</td>
+ * <td>(none)</td>
  * </tr>
  * </tr>
  * </table>
@@ -202,35 +225,71 @@ public final class BootstrapMain {
 	 * * machine.properties
 	 * * os.properties
 	 * * ide.properties
+	 * * additional properties
 	 * * <environment>.properties
 	 * * common.properties
 	 */
 
+	/** set the value of this to {@code true} to enable bootstrapping */
 	public static final String BOOTSTRAP_ENABLE_KEY = "bootstrap.enable";
+	/** set the value of this to {@code true} to enable logging while bootstrapping */
 	public static final String BOOTSTRAP_ENABLE_LOGGING_KEY = "bootstrap.logging.enable";
+	/** set the value of this to {@code true} to enable logging through {@code java.util.logging} */
 	public static final String BOOTSTRAP_ENABLE_JAVA_UTIL_LOGGING_KEY = "bootstrap.logging.jul";
+	/** set the value of this to specify the bootstrap environment */
 	public static final String BOOTSTRAP_ENVIRONMENT_KEY = "bootstrap.environment";
+	/** set the value of this to specify the name of the application */
 	public static final String BOOTSTRAP_APPLICATION_NAME_KEY = "bootstrap.application.name";
+	/** set the value of this to specify the name of the main method for the application, used when using the bootstrapper to launch another class */
 	public static final String BOOTSTRAP_MAIN_METHOD_KEY = "bootstrap.main.method";
+	/** set the value of this to specify the name of the entry point class for the application */
 	public static final String BOOTSTRAP_MAIN_CLASS_KEY = "bootstrap.main.class";
+	/** property key whose value will be the program's main arguments, separated by "{@code , }" */
 	public static final String BOOTSTRAP_MAIN_ARGS_STRING_KEY = "bootstrap.main.args.string";
 
+	/** property key specifying the root directory of property files */
 	public static final String PROPERTIES_FILE_ROOT_LOCATIONS_KEY = "bootstrap.properties.root.dir";
+	/** property key specifying the file path of the user properties file, relative to the config root directory {@code bootstrap.properties.root.dir} */
 	public static final String USER_PROPERTIES_FILE_LOCATIONS_OVERRIDE_KEY = "bootstrap.properties.user.file";
+	/** property key specifying the file path of the machine properties file, relative to the config root directory {@code bootstrap.properties.root.dir} */
 	public static final String MACHINE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.machine.file";
+	/** property key specifying the file path of the OS properties file, relative to the config root directory {@code bootstrap.properties.root.dir} */
 	public static final String OS_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.os.file";
+	/** property key specifying the file path of the IDE properties file, relative to the config root directory {@code bootstrap.properties.root.dir} */
 	public static final String IDE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.ide.file";
+	/**
+	 * property key specifying the names of additional property groups to import, where for each named group, the property
+	 * {@code bootstrap.properties.<group-name>.file} defines a list of files relative to the config directory root
+	 */
+	public static final String ADDITIONAL_PROPERTIES_GROUP_KEY = "bootstrap.properties.additional.group";
+	/** property key specifying the file path of the environment properties file, relative to the config root directory {@code bootstrap.properties.root.dir} */
 	public static final String ENVIRONMENT_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.env.file";
+	/** property key specifying the file path of the common properties file, relative to the config root directory {@code bootstrap.properties.root.dir} */
 	public static final String COMMON_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.common.file";
 
+	/** default value for {@link #PROPERTIES_FILE_ROOT_LOCATIONS_KEY} */
 	static final String PROPERTIES_FILE_ROOT_LOCATION_DEFAULT = "config";
+	/** default value for {@link #USER_PROPERTIES_FILE_LOCATIONS_OVERRIDE_KEY} */
 	static final String USER_PROPERTIES_FILES_DEFAULT = SystemUtils.getUserName() + ".properties, user.properties";
+	/** default value for {@link #MACHINE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY} */
 	static final String MACHINE_PROPERTIES_FILE_DEFAULT = SystemUtils.getHostName() + ".properties";
+	/** default value for {@link #OS_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY} */
 	// windows.properties or unix.properties
 	static final String OS_PROPERTIES_FILE_DEFAULT = SystemUtils.getOperatingSystem().toString().toLowerCase()
 			+ ".properties";
+	/** default value for {@link #IDE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY} */
 	static final String IDE_PROPERTIES_FILE_DEFAULT = "ide.properties";
+	/** default value for {@link #COMMON_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY} */
 	static final String COMMON_PROPERTIES_FILE_DEFAULT = "common.properties";
+	/**
+	 * Function mapping from an additional property group name to the key determining its file set.
+	 */
+	static final Function<String, String> ADDITIONAL_GROUP_NAME_TO_FILE_PROP_KEY = new Function<String, String>() {
+		@Override
+		public String apply(String input) {
+			return "bootstrap.properties." + input + ".file";
+		}
+	};
 
 	private Class<?> mainClass; // no default
 	private String[] mainArgs = new String[0]; // default to no args
@@ -243,20 +302,35 @@ public final class BootstrapMain {
 	private final BootstrapLogger logger = new BootstrapLogger(applicationProperties);
 	/** path to the root of all config, defaulting to {@link #PROPERTIES_FILE_ROOT_LOCATION_DEFAULT} */
 	private String rootPropertiesDirectory;
+	private Map<String, String> propertyOverrides = ImmutableMap.of();
 
+	/** Internal entry point, visible only for testing. */
+	@VisibleForTesting
 	BootstrapMain() {}
 
-	final void setMainClass(Class<?> mainClass) {
+	private final void setMainClass(Class<?> mainClass) {
 		this.mainClass = mainClass;
 	}
-	final void setMainArgs(String ... mainArgs) {
+	private final void setMainArgs(String ... mainArgs) {
 		this.mainArgs = mainArgs;
 	}
+	/**
+	 * Sets the custom property supplier for this bootstrapper.
+	 * 
+	 * @param propertySupplier
+	 */
+	@VisibleForTesting
 	final void setPropertySupplier(PropertySupplier propertySupplier) {
 		this.propertySupplier = propertySupplier;
 	}
-	final void setApplicationName(String applicationName) {
+	private final void setApplicationName(String applicationName) {
 		this.applicationName = applicationName;
+	}
+	private final void setAdditionalPropertyGroups(Iterable<String> groups) {
+		applicationProperties.put(ADDITIONAL_PROPERTIES_GROUP_KEY, Joiner.on(',').join(groups));
+	}
+	private void setPropertOverrides(Map<String, String> properties) {
+		this.propertyOverrides = properties;
 	}
 
 	/**
@@ -293,6 +367,26 @@ public final class BootstrapMain {
 	public static BootstrapBuilder withApplicationName(String appName) {
 		return newBuilder().withApplicationName(appName);
 	}
+	/**
+	 * Sets additional property groups for the application.
+	 * 
+	 * @param additionalPropertyGroups additional property groups
+	 * @return this builder
+	 * @see BootstrapMain#ADDITIONAL_PROPERTIES_GROUP_KEY
+	 */
+	public static BootstrapBuilder withAdditionalPropertyGroups(String ... additionalPropertyGroups) {
+		return newBuilder().withAdditionalPropertyGroups(additionalPropertyGroups);
+	}
+	/**
+	 * Specifies some properties to take precedence over everything else, even system properties. This should be used with great care,
+	 * as it prevents runtime overrides. It is likely only useful for testing.
+	 * 
+	 * @param properties override properties
+	 * @return this builder
+	 */
+	public static BootstrapBuilder withPropertyOverrides(Map<String, String> properties) {
+		return newBuilder().withPropertyOverrides(properties);
+	}
 
 	/**
 	 * Finds property sources for this application in the specified environment and builds the application's
@@ -327,9 +421,21 @@ public final class BootstrapMain {
 	 * {@link BootstrapMain#launchApplication(Class)} or the builder API through {@link BootstrapMain#withMainArgs(String...)}.
 	 * 
 	 * @return an object providing access to the state of the properties before and after bootstrapping
+	 * @deprecated Prefer publishing directly: {@code publishTo(systemProperties())}
 	 */
+	@Deprecated
 	public static BootstrapResult prepareProperties() {
 		return newBuilder().prepareProperties();
+	}
+	/**
+	 * Loads properties and publishes them to a {@link PropertyProvider}.
+	 * 
+	 * @param propertyProviderFactory factory to publish the results, probably from {@link PropertyProviderFactories}
+	 * @return the property provider
+	 * @see PropertyProviderFactories
+	 */
+	public static <T extends PropertyProvider> T publishTo(PropertyProviderFactory<T> propertyProviderFactory) {
+		return newBuilder().publishTo(propertyProviderFactory);
 	}
 	/**
 	 * Launches the application with the given entry point and no main arguments.
@@ -393,6 +499,7 @@ public final class BootstrapMain {
 	 * 
 	 * @return the new {@code BootstrapBuilder}
 	 */
+	@SuppressWarnings("synthetic-access")
 	public static BootstrapBuilder newBuilder() {
 		return new BootstrapBuilder();
 	}
@@ -402,10 +509,20 @@ public final class BootstrapMain {
 	 * 
 	 * @author Joe Kearney
 	 */
+	@SuppressWarnings("synthetic-access")
 	public static final class BootstrapBuilder {
 		private final BootstrapMain bootstrapMain = new BootstrapMain();
 
 		private BootstrapBuilder() {}
+		
+		/**
+		 * An internal means of getting access to the underlying bootstrapper.
+		 * 
+		 * @return the bootstrapper
+		 */
+		BootstrapMain getBootstrapper() {
+			return bootstrapMain;
+		}
 		
 		/**
 		 * Prepares and launches the application by invoking the entry point method on the provided class. If the
@@ -428,7 +545,7 @@ public final class BootstrapMain {
 		public void launchApplication(Class<?> mainClass) {
 			checkNotNull(mainClass, "Entry point class type token may not be null");
 			bootstrapMain.setMainClass(mainClass);
-			bootstrapMain.preparePropertiesInternal(true);
+			publishTo(systemProperties());
 			bootstrapMain.launch();
 		}
 		/**
@@ -443,7 +560,7 @@ public final class BootstrapMain {
 		 * @see BootstrapMain#BOOTSTRAP_MAIN_METHOD_KEY
 		 */
 		public void launchApplication() {
-			bootstrapMain.preparePropertiesInternal(true);
+			publishTo(systemProperties());
 			bootstrapMain.launch();
 		}
 		/**
@@ -452,9 +569,14 @@ public final class BootstrapMain {
 		 * This does all of the work of the bootstrapper except for actually launching the application, for which you
 		 * should consider using {@link BootstrapMain#launchApplication(Class)} or the builder API through
 		 * {@link BootstrapMain#withMainArgs(String...)}.
+		 * 
+		 * @deprecated Prefer publishing directly: {@code publishTo(systemProperties())}
 		 */
+		@Deprecated
 		public BootstrapResult prepareProperties() {
-			return bootstrapMain.preparePropertiesInternal(true);
+			BootstrapResult result = loadProperties();
+			result.publishTo(systemProperties());
+			return result;
 		}
 		/**
 		 * Finds property sources for this application in the specified environment and builds the application's
@@ -466,7 +588,7 @@ public final class BootstrapMain {
 		public BootstrapResult loadPropertiesForEnvironment(String bootstrapEnvironment) {
 			bootstrapMain.applicationProperties.put(BOOTSTRAP_ENVIRONMENT_KEY, bootstrapEnvironment);
 			bootstrapMain.logger.log("Loading properties for environment [" + bootstrapEnvironment + "]");
-			return bootstrapMain.preparePropertiesInternal(false);
+			return bootstrapMain.prepareBootstrapResult();
 		}
 		/**
 		 * Finds property sources for this application and builds the application's runtime property set, but does not
@@ -481,7 +603,17 @@ public final class BootstrapMain {
 		 * @see #prepareProperties()
 		 */
 		public BootstrapResult loadProperties() {
-			return bootstrapMain.preparePropertiesInternal(false);
+			return bootstrapMain.prepareBootstrapResult();
+		}
+		/**
+		 * Loads properties and publishes them to a {@link PropertyProvider}.
+		 * 
+		 * @param propertyProviderFactory factory to publish the results, probably from {@link PropertyProviderFactories}
+		 * @return the property provider
+		 * @see PropertyProviderFactories
+		 */
+		public <T extends PropertyProvider> T publishTo(PropertyProviderFactory<T> propertyProviderFactory) {
+			return propertyProviderFactory.providerFor(loadProperties());
 		}
 
 		/**
@@ -521,6 +653,30 @@ public final class BootstrapMain {
 			bootstrapMain.setApplicationName(checkNotNull(appName, "Application name may not be null"));
 			return this;
 		}
+		/**
+		 * Sets additional property groups for the application.
+		 * 
+		 * @param additionalPropertyGroups additional property groups
+		 * @return this builder
+		 * @see BootstrapMain#ADDITIONAL_PROPERTIES_GROUP_KEY
+		 */
+		public BootstrapBuilder withAdditionalPropertyGroups(String ... additionalPropertyGroups) {
+			bootstrapMain.setAdditionalPropertyGroups(ImmutableList.copyOf(checkNotNull(additionalPropertyGroups,
+					"Additional property groups may not be given as null")));
+			return this;
+		}
+		/**
+		 * Specifies some properties to take precedence over everything else, even system properties. This should be used with great care,
+		 * as it prevents runtime overrides. It is likely only useful for testing.
+		 * 
+		 * @param properties override properties
+		 * @return this builder
+		 */
+		public BootstrapBuilder withPropertyOverrides(Map<String, String> properties) {
+			checkNotNull(properties, "Custom property set may not be null");
+			bootstrapMain.setPropertOverrides(properties);
+			return this;
+		}
 	}
 
 	/**
@@ -529,11 +685,9 @@ public final class BootstrapMain {
 	 * This does all of the work of the bootstrapper except for actually launching the application, for which you should consider using
 	 * {@link #launchApplication(Class)} or the builder API through {@link #withMainArgs(String...)}.
 	 * 
-	 * @param publish TODO
-	 * 
 	 * @return an object providing access to the state of the properties before and after bootstrapping
 	 */
-	final BootstrapResult preparePropertiesInternal(boolean publish) {
+	final BootstrapResult prepareBootstrapResult() {
 		if (bootstrapResult != null) {
 			logger.log("Bootstrapping has already been completed, and will not be re-run.");
 			return bootstrapResult;
@@ -542,12 +696,17 @@ public final class BootstrapMain {
 		addComputedProperties();
 		findRootConfigDirectory();
 		generateProperties();
-		return setSystemProperties(publish);
+		return getBootstrapResult();
 	}
 
+
 	private static final MapJoiner MAP_JOINER = Joiner.on("\n  ").withKeyValueSeparator(" => ");
-	private static final MapJoiner MAP_JOINER_INDENTED = Joiner.on("\n    ").withKeyValueSeparator(" => ");
 	private void generateProperties() {
+		if (!propertyOverrides.isEmpty()) {
+			logger.log("Applying property overrides: " + MAP_JOINER.join(propertyOverrides));
+			applicationProperties.putAll(propertyOverrides);
+		}
+		
 		if (!processPropertySupplier(propertySupplier.getSystemPropertiesSupplier())) {
 			return;
 		}
@@ -561,6 +720,9 @@ public final class BootstrapMain {
 			return;
 		}
 		if (!processPropertySupplierGroup(propertySupplier.getIdePropertiesSupplier())) {
+			return;
+		}
+		if (!processPropertySupplierGroup(propertySupplier.getAdditionalPropertiesSupplier())) {
 			return;
 		}
 		if (!processPropertySupplierGroup(propertySupplier.getEnvironmentPropertiesSupplier())) {
@@ -655,47 +817,17 @@ public final class BootstrapMain {
 	}
 
 	private BootstrapResult bootstrapResult = null;
-	private BootstrapResult setSystemProperties(boolean publish) {
+	private BootstrapResult getBootstrapResult() {
 		final Map<String, String> priorSystemProperties = ImmutableMap.copyOf(getSystemPropertyStrings());
+		final BootstrapResult bootstrapResult;
 		if (isBootstrappingEnabled()) {
 			bootstrapResult = new BootstrapResult(priorSystemProperties, applicationProperties, logger);
-
-			logger.log("Setting application system properties");
-			final MapDifference<String, String> difference = Maps.difference(priorSystemProperties,
-					applicationProperties);
-			if (publish) {
-				System.getProperties().putAll(applicationProperties);
-			}
-
-			logger.log("Application system properties set");
-
-			logger.log("Properties changed by the bootstrapper:"
-					+ (difference.entriesDiffering().isEmpty() ? " (none)"
-							: ("\n    "
-									+ MAP_JOINER.join(ImmutableSortedMap.copyOf(difference.entriesDiffering())) + "\n")));
-			logger.log("Properties added by the bootstrapper (not including system properties set by the launcher):"
-					+ (difference.entriesOnlyOnRight().isEmpty() ? " (none)"
-							: ("\n    "
-									+ MAP_JOINER.join(ImmutableSortedMap.copyOf(difference.entriesOnlyOnRight())) + "\n")));
-
-			logger.log("Running application with\n" //
-					+ "  main class        ["
-					+ (mainClass == null ? "not specified" : mainClass.getName())
-					+ "]\n"
-					+ "  main args         ["
-					+ Joiner.on(", ").join(mainArgs)
-					+ "]\n"
-					+ "  system properties\n    "
-					+ MAP_JOINER_INDENTED.join(ImmutableSortedMap.copyOf(transformValues(
-							(publish ? PropertyUtils.getSystemPropertyStrings() : applicationProperties),
-							StringUtils.UNESCAPE))) + "\n");
-
-			return bootstrapResult;
 		} else {
 			logger.log("Bootstrapping disabled, system properties will not be set for the application; "
 					+ "it will be launched with no changes to its environment.");
-			return bootstrapResult = new BootstrapResult(priorSystemProperties, priorSystemProperties, new BootstrapLogger(priorSystemProperties));
+			bootstrapResult = new BootstrapResult(priorSystemProperties, priorSystemProperties, new BootstrapLogger(priorSystemProperties));
 		}
+		return this.bootstrapResult = bootstrapResult;
 	}
 
 	/**
@@ -709,6 +841,12 @@ public final class BootstrapMain {
 		}
 	}
 
+	/**
+	 * Gets a path for the file defined by the parameter and the config directory root.
+	 * 
+	 * @param fileName path to the file, relative to the config directory root
+	 * @return path to the file, absolute or relative to the working directory
+	 */
 	final String createPropertyFileRelativePath(String fileName) {
 		return rootPropertiesDirectory + SystemUtils.getFileSeparator() + fileName;
 	}

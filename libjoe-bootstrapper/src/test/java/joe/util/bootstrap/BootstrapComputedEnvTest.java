@@ -1,10 +1,15 @@
 package joe.util.bootstrap;
 
-import static joe.util.bootstrap.BootstrapMain.*;
+import static joe.util.bootstrap.BootstrapMain.BOOTSTRAP_ENABLE_KEY;
+import static joe.util.bootstrap.BootstrapMain.BOOTSTRAP_ENABLE_LOGGING_KEY;
+import static joe.util.bootstrap.BootstrapMain.BOOTSTRAP_ENVIRONMENT_KEY;
+import static joe.util.bootstrap.PropertyProviderFactories.newMap;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.util.Map;
+
+import joe.util.bootstrap.BootstrapMain.BootstrapBuilder;
 
 import org.junit.Test;
 
@@ -17,8 +22,8 @@ public class BootstrapComputedEnvTest {
 	private static final class EnvironmentPropertySupplier extends AbstractPropertySupplier {
 		private final BootstrapMain bootstrap;
 
-		EnvironmentPropertySupplier(BootstrapMain bootstrap) {
-			this.bootstrap = bootstrap;
+		EnvironmentPropertySupplier(BootstrapBuilder bootstrap) {
+			this.bootstrap = bootstrap.getBootstrapper();
 		}
 
 		@Override
@@ -50,38 +55,21 @@ public class BootstrapComputedEnvTest {
 
 	@Test
 	public void testComputedEnvFound() throws Exception {
-		try {
-			BootstrapMain bootstrap = new BootstrapMain();
+			BootstrapBuilder bootstrap = BootstrapMain.newBuilder();
 			PropertySupplier propertySupplier = new EnvironmentPropertySupplier(bootstrap);
-			bootstrap.setPropertySupplier(propertySupplier);
-			bootstrap.preparePropertiesInternal(true);
-			assertThat(System.getProperty(BOOTSTRAP_ENVIRONMENT_KEY), is(ENVIRONMENT));
-			assertThat(System.getProperty(KEY), is(VALUE));
-		} finally {
-			System.clearProperty(KEY);
-			System.clearProperty(ENVIRONMENT);
-			System.clearProperty(BOOTSTRAP_ENABLE_KEY);
-			for (String key : BootstrapMain.COMPUTED_PROPERTIES.keySet()) {
-				System.clearProperty(key);
-			}
-		}
+			bootstrap.withCustomPropertySupplier(propertySupplier);
+			PropertyProvider pp = bootstrap.publishTo(newMap());
+			
+			assertThat(pp.getProperty(BOOTSTRAP_ENVIRONMENT_KEY), is(ENVIRONMENT));
+			assertThat(pp.getProperty(KEY), is(VALUE));
 	}
 	
 	@Test
 	public void testPropertiesResolvedFromComputedEnv() throws Exception {
-		try {
-			BootstrapMain bootstrap = new BootstrapMain();
+			BootstrapBuilder bootstrap = BootstrapMain.newBuilder();
 			PropertySupplier propertySupplier = new EnvironmentPropertySupplier(bootstrap);
-			bootstrap.setPropertySupplier(propertySupplier);
-			bootstrap.preparePropertiesInternal(true);
-			assertThat(System.getProperty(KEY_TO_RESOLVE), is(RESOLVED_VALUE));
-		} finally {
-			System.clearProperty(KEY);
-			System.clearProperty(ENVIRONMENT);
-			System.clearProperty(BOOTSTRAP_ENABLE_KEY);
-			for (String key : BootstrapMain.COMPUTED_PROPERTIES.keySet()) {
-				System.clearProperty(key);
-			}
-		}
+			bootstrap.withCustomPropertySupplier(propertySupplier);
+			PropertyProvider pp = bootstrap.publishTo(newMap());
+			assertThat(pp.getProperty(KEY_TO_RESOLVE), is(RESOLVED_VALUE));
 	}
 }

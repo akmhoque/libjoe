@@ -9,6 +9,13 @@ import java.util.Map;
  * @author Joe Kearney
  */
 public final class MapBackedPropertyProvider extends AbstractPropertyProvider {
+	/**
+	 * Creates a new {@link MapBackedPropertyProvider} backed by the specified map. The returned provider is a live view
+	 * over the map, which will reflect updates as they are made.
+	 * 
+	 * @param propertyMap the backing map
+	 * @return property provider backed by the map
+	 */
 	public static MapBackedPropertyProvider forMap(Map<String, String> propertyMap) {
 		return new MapBackedPropertyProvider(propertyMap);
 	}
@@ -36,12 +43,16 @@ public final class MapBackedPropertyProvider extends AbstractPropertyProvider {
 		return Collections.unmodifiableMap(propertyMap);
 	}
 
+	private static final PropertyProviderFactory<MapBackedPropertyProvider> FACTORY = new PropertyProviderFactory<MapBackedPropertyProvider>() {
+		@Override
+		public MapBackedPropertyProvider providerFor(BootstrapResult bootstrapResult) {
+			return MapBackedPropertyProvider.forMap(bootstrapResult.getPublishedSystemProperties());
+		}
+	};
+	/**
+	 * Gets a {@link PropertyProviderFactory} to create {@link MapBackedPropertyProvider}s.
+	 */
 	public static PropertyProviderFactory<MapBackedPropertyProvider> factory() {
-		return new PropertyProviderFactory<MapBackedPropertyProvider>() {
-			@Override
-			public MapBackedPropertyProvider providerFor(BootstrapResult bootstrapResult) {
-				return MapBackedPropertyProvider.forMap(bootstrapResult.getPublishedSystemProperties());
-			}
-		};
+		return FACTORY;
 	}
 }

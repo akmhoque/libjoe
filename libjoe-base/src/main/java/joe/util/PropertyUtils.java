@@ -3,7 +3,9 @@ package joe.util;
 
 import static com.google.common.base.Predicates.instanceOf;
 import static com.google.common.base.Throwables.propagate;
-import static com.google.common.collect.Maps.*;
+import static com.google.common.collect.Maps.filterKeys;
+import static com.google.common.collect.Maps.filterValues;
+import static com.google.common.collect.Maps.transformValues;
 import static java.util.regex.Pattern.quote;
 import static joe.util.StringUtils.UNESCAPE;
 
@@ -159,7 +161,16 @@ public class PropertyUtils {
 	 *             be parsed
 	 */
 	public static Map<String, String> loadPropertiesFileIfExists(String fileName) throws IOException {
-		return loadPropertiesFileIfExists(fileName == null ? null : new File(fileName));
+		InputStream stream = fileName == null ? null : Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
+		if (stream == null) {
+			return ImmutableMap.of();
+		} else {
+			try {
+				return loadPropertiesStream(stream);
+			} finally {
+				stream.close();
+			}
+		}
 	}
 	/**
 	 * Loads a properties file into a map if, returning a immutable view, if the

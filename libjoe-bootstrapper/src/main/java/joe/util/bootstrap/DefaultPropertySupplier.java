@@ -2,7 +2,18 @@ package joe.util.bootstrap;
 
 import static com.google.common.base.Throwables.propagate;
 import static joe.util.PropertyUtils.loadPropertiesFileIfExists;
-import static joe.util.bootstrap.BootstrapMain.*;
+import static joe.util.bootstrap.BootstrapMain.ADDITIONAL_GROUP_NAME_TO_FILE_PROP_KEY;
+import static joe.util.bootstrap.BootstrapMain.ADDITIONAL_PROPERTIES_GROUP_KEY;
+import static joe.util.bootstrap.BootstrapMain.COMMON_PROPERTIES_FILE_DEFAULT;
+import static joe.util.bootstrap.BootstrapMain.COMMON_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY;
+import static joe.util.bootstrap.BootstrapMain.IDE_PROPERTIES_FILE_DEFAULT;
+import static joe.util.bootstrap.BootstrapMain.IDE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY;
+import static joe.util.bootstrap.BootstrapMain.MACHINE_PROPERTIES_FILE_DEFAULT;
+import static joe.util.bootstrap.BootstrapMain.MACHINE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY;
+import static joe.util.bootstrap.BootstrapMain.OS_PROPERTIES_FILE_DEFAULT;
+import static joe.util.bootstrap.BootstrapMain.OS_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY;
+import static joe.util.bootstrap.BootstrapMain.USER_PROPERTIES_FILES_DEFAULT;
+import static joe.util.bootstrap.BootstrapMain.USER_PROPERTIES_FILE_LOCATIONS_OVERRIDE_KEY;
 
 import java.io.IOException;
 import java.util.Map;
@@ -11,6 +22,7 @@ import joe.util.PropertyUtils;
 
 import com.google.common.base.Function;
 import com.google.common.base.Splitter;
+import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
@@ -20,6 +32,20 @@ class DefaultPropertySupplier implements PropertySupplier {
 
 	DefaultPropertySupplier(BootstrapMain bootstrapMain) {
 		bootstrapper = bootstrapMain;
+	}
+
+	@Override
+	public Supplier<Map<String, String>> getSystemPropertiesSupplier() {
+		return new Supplier<Map<String, String>>() {
+			@Override
+			public Map<String, String> get() {
+				return PropertyUtils.getSystemPropertyStrings();
+			}
+			@Override
+			public String toString() {
+				return "SystemProperties supplier";
+			}
+		};
 	}
 
 	@Override
@@ -41,6 +67,37 @@ class DefaultPropertySupplier implements PropertySupplier {
 	public Iterable<Supplier<Map<String, String>>> getIdePropertiesSupplier() {
 		return fileBasedPropertyCollection("IDE properties supplier: %s", IDE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY,
 				IDE_PROPERTIES_FILE_DEFAULT);
+	}
+	@Override
+	public Iterable<Supplier<Map<String, String>>> getAdditionalPropertiesSupplier() {
+		final String additionalPropertyGroups = bootstrapper.getApplicationProperty(ADDITIONAL_PROPERTIES_GROUP_KEY);
+		if (Strings.isNullOrEmpty(additionalPropertyGroups)) {
+			return ImmutableList.of();
+		} else {
+			Iterable<String> groupNames = Splitter.on(',').trimResults().omitEmptyStrings().split(additionalPropertyGroups);
+			Iterable<String> fileLocationKeys = Iterables.transform(groupNames, ADDITIONAL_GROUP_NAME_TO_FILE_PROP_KEY);
+			
+			return ImmutableList.copyOf(Iterables.transform(fileLocationKeys,
+					new Function<String, Supplier<Map<String, String>>>() {
+						@Override
+						public Supplier<Map<String, String>> apply(final String fileNameKey) {
+							return new Supplier<Map<String, String>>() {
+								@Override
+								public Map<String, String> get() {
+									try {
+										return loadPropertiesFileIfExists(bootstrapper.createPropertyFileRelativePath(bootstrapper.getApplicationProperty(fileNameKey)));
+									} catch (IOException e) {
+										throw propagate(e);
+									}
+								}
+								@Override
+								public String toString() {
+									return String.format("Additional properties supplier: %s", fileNameKey);
+								}
+							};
+						}
+					}));
+		}
 	}
 	@Override
 	public Iterable<Supplier<Map<String, String>>> getEnvironmentPropertiesSupplier() {
@@ -84,20 +141,6 @@ class DefaultPropertySupplier implements PropertySupplier {
 						};
 					}
 				}));
-	}
-
-	@Override
-	public Supplier<Map<String, String>> getSystemPropertiesSupplier() {
-		return new Supplier<Map<String, String>>() {
-			@Override
-			public Map<String, String> get() {
-				return PropertyUtils.getSystemPropertyStrings();
-			}
-			@Override
-			public String toString() {
-				return "SystemProperties supplier";
-			}
-		};
 	}
 
 	/**

@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>joe</groupId>
 	<artifactId>libjoe-parent</artifactId>
-	<version>0.16-SNAPSHOT</version>
+	<version>0.16</version>
 	<packaging>pom</packaging>
 	<modules>
 		<module>libjoe-base</module>
@@ -45,17 +45,19 @@
 				</configuration>
 			</plugin>
 			<plugin>
+				<!-- Each module adds its own jars to the zip file through this inherited plugin. Assumes that the zip is clean at the start. -->
 				<artifactId>maven-antrun-plugin</artifactId>
 				<version>1.7</version>
 				<executions>
 					<execution>
 						<phase>install</phase>
 						<configuration>
-							<tasks>
-								<zip destfile="${project.build.directory}/libjoe-${project.version}.zip">
+							<target>
+								<zip update="true" whenempty="create" destfile="${project.build.directory}/libjoe-${project.version}.zip">
 									<mappedresources>
 										<zipfileset dir="${basedir}" prefix="lib">
 											<include name="**/libjoe*-${project.version}.jar" />
+											<exclude name="**/*tests-${project.version}.jar" />
 										</zipfileset>
 										<chainedmapper>
 											<flattenmapper />
@@ -65,6 +67,7 @@
 									<mappedresources>
 										<zipfileset dir="${basedir}" prefix="src">
 											<include name="**/libjoe*-${project.version}-sources.jar" />
+											<exclude name="**/*tests-${project.version}-sources.jar" />
 										</zipfileset>
 										<chainedmapper>
 											<flattenmapper />
@@ -72,7 +75,7 @@
 										</chainedmapper>
 									</mappedresources>
 								</zip>
-							</tasks>
+							</target>
 						</configuration>
 						<goals>
 							<goal>run</goal>

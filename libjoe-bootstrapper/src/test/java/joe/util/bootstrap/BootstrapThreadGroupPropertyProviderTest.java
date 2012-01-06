@@ -11,15 +11,14 @@ import java.util.concurrent.ThreadFactory;
 
 import org.junit.Test;
 
-
-public class ThreadGroupPropertyProviderTest {
+public class BootstrapThreadGroupPropertyProviderTest {
 	@Test
 	public void testSimple() throws Exception {
 		final Thread currentThread = Thread.currentThread();
 		final ThreadGroup parentGroup = currentThread.getThreadGroup();
 		
 		BootstrapMain.withApplicationName("parent").withCustomPropertySupplier(new TestPropertySupplier()).loadPropertiesForEnvironment("env")
-				.publishTo(ThreadGroupPropertyProvider.forThreadGroup(parentGroup));
+				.publishTo(threadGroup(parentGroup));
 
 		PropertyProvider propertyProvider = ThreadGroupPropertyProvider.instance();
 		assertAppNameCorrect(propertyProvider, "parent");
