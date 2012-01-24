@@ -1,13 +1,11 @@
 package joe.util;
 
-
 import static com.google.common.base.Predicates.instanceOf;
 import static com.google.common.base.Throwables.propagate;
 import static com.google.common.collect.Maps.filterKeys;
 import static com.google.common.collect.Maps.filterValues;
 import static com.google.common.collect.Maps.transformValues;
 import static java.util.regex.Pattern.quote;
-import static joe.util.StringUtils.UNESCAPE;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,12 +19,16 @@ import java.util.regex.Pattern;
 
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
-import com.google.common.base.Joiner;
-import com.google.common.base.Joiner.MapJoiner;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Maps;
 
+/**
+ * Utilities for handling {@link Properties}, in particular system properties. The general idea is that it's easier to do this with a map
+ * taking {@code String} keys and values than a {@code Properties}; see {@link #getSystemPropertyStrings()} and {@link #getStringEntries(Map)}.
+ * 
+ * @author Joe Kearney
+ */
 public class PropertyUtils {
 	private PropertyUtils() {}
 
@@ -88,7 +90,9 @@ public class PropertyUtils {
 		
 		return resolvedCopy;
 	}
-	
+	/**
+	 * Returns a map view backed by the parameter map, where unresolved values in the backing map are resolved internally.
+	 */
 	public static Map<String, String> resolvingPropertiesInternallyView(final Map<String, String> unresolvedProperties) {
 		return Maps.transformValues(unresolvedProperties, propertyResolverFromMap(unresolvedProperties));
 	}
@@ -218,14 +222,23 @@ public class PropertyUtils {
 		return ImmutableMap.of();
 	}
 
+	/** start marker for a property placeholder */
 	static final String PROPERTY_KEY_START_MARKER = "${";
+	/** end marker for a property placeholder */
 	static final String PROPERTY_KEY_END_MARKER = "}";
+	/** pattern for a property placeholder that has no other placeholders nested inside */
 	static final Pattern PROPERTY_KEY_PATTERN = Pattern.compile(quote(PROPERTY_KEY_START_MARKER) + "([^"
 			+ quote(PROPERTY_KEY_START_MARKER) + quote(PROPERTY_KEY_END_MARKER) + "]*)"
 			+ quote(PROPERTY_KEY_END_MARKER));
+	/**
+	 * Returns a function resolving keys in the map to values computed within the map.
+	 */
 	public static Function<String, String> propertyResolverFromMap(final Map<String, String> properties) {
 		return propertyResolverFromFunction(Functions.forMap(properties, null));
 	}
+	/**
+	 * Returns a function resolving keys to values computed from other keys understood by the function.
+	 */
 	public static Function<String, String> propertyResolverFromFunction(final Function<String, String> properties) {
 		return new PropertyResolverFromMap(properties);
 	}
@@ -277,13 +290,5 @@ public class PropertyUtils {
 	
 			return changed;
 		}
-	}
-	private static final MapJoiner PRINT_FRIENDLY_MAP_JOINER = Joiner.on("\n  ").withKeyValueSeparator(" => ").useForNull(
-			"(null)");
-	public static final String toLogFriendlyString(Map<String, String> properties) {
-		return PRINT_FRIENDLY_MAP_JOINER.join(Maps.transformValues(properties, UNESCAPE));
-	}
-	public static final StringBuilder toLogFriendlyString(StringBuilder sb, Map<String, String> properties) {
-		return PRINT_FRIENDLY_MAP_JOINER.appendTo(sb, Maps.transformValues(properties, UNESCAPE));
 	}
 }
