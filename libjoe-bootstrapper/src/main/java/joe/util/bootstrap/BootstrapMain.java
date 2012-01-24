@@ -22,7 +22,6 @@ import static joe.util.bootstrap.PropertyProviderFactories.systemProperties;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -281,19 +280,6 @@ public final class BootstrapMain {
 	public static final String ENVIRONMENT_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.env.file";
 	/** property key specifying the file path of the common properties file, relative to the config root directory {@code bootstrap.properties.root.dir} */
 	public static final String COMMON_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.common.file";
-	/** Property location override keys by priority */
-	private static final Map<PropertyGroupPriority, String> PROPERTY_FILE_LOCATION_OVERRIDE_KEYS;
-	static {
-		Map<PropertyGroupPriority, String> map = Maps.newEnumMap(PropertyGroupPriority.class);
-		map.put(USER, USER_PROPERTIES_FILE_LOCATIONS_OVERRIDE_KEY);
-		map.put(MACHINE, MACHINE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY);
-		map.put(OS, OS_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY);
-		map.put(IDE, IDE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY);
-		map.put(ENVIRONMENT, ENVIRONMENT_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY);
-		map.put(COMMON, COMMON_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY);
-		
-		PROPERTY_FILE_LOCATION_OVERRIDE_KEYS = Collections.unmodifiableMap(map);
-	}
 
 	/** default value for {@link #PROPERTIES_FILE_ROOT_LOCATIONS_KEY} */
 	static final String PROPERTIES_FILE_ROOT_LOCATION_DEFAULT = "config";
@@ -871,7 +857,7 @@ public final class BootstrapMain {
 			logger.log("Bootstrapping disabled, system properties will not be set for the application; "
 					+ "it will be launched with no changes to its environment.");
 			bootstrapResult = new BootstrapResult(priorSystemProperties, priorSystemProperties, new BootstrapLogger(
-					Functions.forMap(priorSystemProperties)));
+					Functions.forMap(priorSystemProperties, null)));
 		}
 		return this.bootstrapResult = bootstrapResult;
 	}
@@ -900,11 +886,6 @@ public final class BootstrapMain {
 	/*
 	 * map utilities
 	 */
-	private static <K, V> void putAllIfAbsent(Map<? super K, ? super V> destination, Map<? extends K, ? extends V> source) {
-		for (Entry<? extends K, ? extends V> entry : source.entrySet()) {
-			putIfAbsent(destination, entry.getKey(), entry.getValue());
-		}
-	}
 	private void putAllIfAbsent(PropertyGroupPriority group, Map<String, String> source) {
 		for (Entry<String, String> entry : source.entrySet()) {
 			putIfAbsent(group, entry.getKey(), entry.getValue());
@@ -926,21 +907,6 @@ public final class BootstrapMain {
 			builder.put(entry.getKey(), highestPriorityValue);
 		}
 		return builder.build();
-	}
-	/**
-	 * Adds the key-value pair to the map if there is currently no mapping for that key.
-	 * 
-	 * @param destination the map
-	 * @param key
-	 * @param value
-	 * @return the old value if there was one, or {@code null} if the new mapping was added to the map
-	 */
-	private static <K, V> V putIfAbsent(Map<K, V> destination, K key, V value) {
-		V oldValue = destination.get(key);
-		if (oldValue == null) {
-			destination.put(key, value);
-		}
-		return oldValue;
 	}
 	/**
 	 * Gets a "system property" from the set of properties already set for the application.
