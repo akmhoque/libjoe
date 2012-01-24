@@ -174,7 +174,18 @@ public class PropertyUtils {
 	 *             be parsed
 	 */
 	public static Map<String, String> loadPropertiesFileIfExists(String fileName) throws IOException {
-		InputStream stream = fileName == null ? null : Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
+		InputStream stream = null;
+		
+		File file = new File(fileName);
+		if (file.isFile()) {
+			stream = new FileInputStream(file);
+		} else {
+			InputStream inputStreamFromContextClassLoader = Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
+			if (inputStreamFromContextClassLoader != null) {
+				stream = inputStreamFromContextClassLoader;
+			}
+		}
+		
 		if (stream == null) {
 			return ImmutableMap.of();
 		} else {
