@@ -2,17 +2,27 @@ package joe.util.bootstrap;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.Maps.newTreeMap;
 import static com.google.common.collect.Maps.transformValues;
 import static java.lang.reflect.Modifier.isPublic;
 import static java.lang.reflect.Modifier.isStatic;
 import static joe.util.PropertyUtils.getSystemPropertyStrings;
 import static joe.util.StringUtils.UNESCAPE;
+import static joe.util.bootstrap.PropertyGroupPriority.ADDITIONAL;
+import static joe.util.bootstrap.PropertyGroupPriority.CODE;
+import static joe.util.bootstrap.PropertyGroupPriority.COMMON;
+import static joe.util.bootstrap.PropertyGroupPriority.ENVIRONMENT;
+import static joe.util.bootstrap.PropertyGroupPriority.IDE;
+import static joe.util.bootstrap.PropertyGroupPriority.MACHINE;
+import static joe.util.bootstrap.PropertyGroupPriority.OS;
+import static joe.util.bootstrap.PropertyGroupPriority.OVERRIDEABLE_CODE;
+import static joe.util.bootstrap.PropertyGroupPriority.SYSTEM;
+import static joe.util.bootstrap.PropertyGroupPriority.USER;
 import static joe.util.bootstrap.PropertyProviderFactories.systemProperties;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,6 +33,7 @@ import joe.util.SystemUtils;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
+import com.google.common.base.Functions;
 import com.google.common.base.Joiner;
 import com.google.common.base.Joiner.MapJoiner;
 import com.google.common.base.Supplier;
@@ -30,8 +41,12 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.common.collect.ImmutableSortedMap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Ordering;
+import com.google.common.collect.RowSortedTable;
+import com.google.common.collect.TreeBasedTable;
 
 /**
  * A general application entry point that loads and merges properties from different files, based on username and other
@@ -266,6 +281,19 @@ public final class BootstrapMain {
 	public static final String ENVIRONMENT_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.env.file";
 	/** property key specifying the file path of the common properties file, relative to the config root directory {@code bootstrap.properties.root.dir} */
 	public static final String COMMON_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY = "bootstrap.properties.common.file";
+	/** Property location override keys by priority */
+	private static final Map<PropertyGroupPriority, String> PROPERTY_FILE_LOCATION_OVERRIDE_KEYS;
+	static {
+		Map<PropertyGroupPriority, String> map = Maps.newEnumMap(PropertyGroupPriority.class);
+		map.put(USER, USER_PROPERTIES_FILE_LOCATIONS_OVERRIDE_KEY);
+		map.put(MACHINE, MACHINE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY);
+		map.put(OS, OS_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY);
+		map.put(IDE, IDE_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY);
+		map.put(ENVIRONMENT, ENVIRONMENT_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY);
+		map.put(COMMON, COMMON_PROPERTIES_FILE_LOCATION_OVERRIDE_KEY);
+		
+		PROPERTY_FILE_LOCATION_OVERRIDE_KEYS = Collections.unmodifiableMap(map);
+	}
 
 	/** default value for {@link #PROPERTIES_FILE_ROOT_LOCATIONS_KEY} */
 	static final String PROPERTIES_FILE_ROOT_LOCATION_DEFAULT = "config";
@@ -296,10 +324,19 @@ public final class BootstrapMain {
 	private String applicationName; // no default
 	private PropertySupplier propertySupplier = new DefaultPropertySupplier(this);
 
-	/** the system properties to be provided to the application */
-	private Map<String, String> applicationProperties = newTreeMap();
+	/** the properties loaded with their source group */
+	private RowSortedTable<String, PropertyGroupPriority, String> applicationPropertiesTable = TreeBasedTable.create();
+	/**
+	 * Functional version of {@link #getApplicationProperty(String)}
+	 */
+	final Function<String, String> getApplicationPropertyFunction = new Function<String, String>() {
+		@Override
+		public String apply(String input) {
+			return getApplicationProperty(input);
+		}
+	};
 	/** logging support */
-	private final BootstrapLogger logger = new BootstrapLogger(applicationProperties);
+	private final BootstrapLogger logger = new BootstrapLogger(getApplicationPropertyFunction);
 	/** path to the root of all config, defaulting to {@link #PROPERTIES_FILE_ROOT_LOCATION_DEFAULT} */
 	private String rootPropertiesDirectory;
 	private Map<String, String> propertyOverrides = ImmutableMap.of();
@@ -327,7 +364,8 @@ public final class BootstrapMain {
 		this.applicationName = applicationName;
 	}
 	private final void setAdditionalPropertyGroups(Iterable<String> groups) {
-		applicationProperties.put(ADDITIONAL_PROPERTIES_GROUP_KEY, Joiner.on(',').join(groups));
+		String groupsString = Joiner.on(',').join(groups);
+		applicationPropertiesTable.put(ADDITIONAL_PROPERTIES_GROUP_KEY, SYSTEM, groupsString);
 	}
 	private void setPropertOverrides(Map<String, String> properties) {
 		this.propertyOverrides = properties;
@@ -409,7 +447,9 @@ public final class BootstrapMain {
 	 * 
 	 * @return an object providing access to the state of the properties before and after bootstrapping
 	 * @see #prepareProperties()
+	 * @deprecated use {@link #publishTo(PropertyProviderFactory) publishTo} directly
 	 */
+	@Deprecated
 	public static BootstrapResult loadProperties() {
 		return newBuilder().loadProperties();
 	}
@@ -564,7 +604,7 @@ public final class BootstrapMain {
 			bootstrapMain.launch();
 		}
 		/**
-		 * Finds property sources for this application and builds the application's runtime property set.
+		 * Finds property sources for this application and builds the application's runtime property set, writing into System properties.
 		 * <p>
 		 * This does all of the work of the bootstrapper except for actually launching the application, for which you
 		 * should consider using {@link BootstrapMain#launchApplication(Class)} or the builder API through
@@ -574,7 +614,7 @@ public final class BootstrapMain {
 		 */
 		@Deprecated
 		public BootstrapResult prepareProperties() {
-			BootstrapResult result = loadProperties();
+			BootstrapResult result = bootstrapMain.prepareBootstrapResult();
 			result.publishTo(systemProperties());
 			return result;
 		}
@@ -586,7 +626,7 @@ public final class BootstrapMain {
 		 * @see #prepareProperties()
 		 */
 		public BootstrapResult loadPropertiesForEnvironment(String bootstrapEnvironment) {
-			bootstrapMain.applicationProperties.put(BOOTSTRAP_ENVIRONMENT_KEY, bootstrapEnvironment);
+			bootstrapMain.applicationPropertiesTable.put(BOOTSTRAP_ENVIRONMENT_KEY, SYSTEM, bootstrapEnvironment);
 			bootstrapMain.logger.log("Loading properties for environment [" + bootstrapEnvironment + "]");
 			return bootstrapMain.prepareBootstrapResult();
 		}
@@ -600,8 +640,10 @@ public final class BootstrapMain {
 		 * </pre>
 		 * 
 		 * @return an object providing access to the state of the properties before and after bootstrapping
-		 * @see #prepareProperties()
+		 * @see #publishTo
+		 * @deprecated use {@link #publishTo(PropertyProviderFactory) publishTo} directly
 		 */
+		@Deprecated
 		public BootstrapResult loadProperties() {
 			return bootstrapMain.prepareBootstrapResult();
 		}
@@ -613,7 +655,7 @@ public final class BootstrapMain {
 		 * @see PropertyProviderFactories
 		 */
 		public <T extends PropertyProvider> T publishTo(PropertyProviderFactory<T> propertyProviderFactory) {
-			return propertyProviderFactory.providerFor(loadProperties());
+			return propertyProviderFactory.providerFor(bootstrapMain.prepareBootstrapResult());
 		}
 
 		/**
@@ -695,92 +737,95 @@ public final class BootstrapMain {
 
 		addComputedProperties();
 		findRootConfigDirectory();
-		generateProperties();
-		return getBootstrapResult();
+		Map<String, String> generatedProperties = generateProperties();
+		return getBootstrapResult(generatedProperties);
 	}
 
 
 	private static final MapJoiner MAP_JOINER = Joiner.on("\n  ").withKeyValueSeparator(" => ");
-	private void generateProperties() {
+	private Map<String, String> generateProperties() {
 		if (!propertyOverrides.isEmpty()) {
 			logger.log("Applying property overrides: " + MAP_JOINER.join(propertyOverrides));
-			applicationProperties.putAll(propertyOverrides);
+			putAllIfAbsent(CODE, propertyOverrides);
 		}
 		
-		if (!processPropertySupplier(propertySupplier.getSystemPropertiesSupplier())) {
-			return;
-		}
-		if (!processPropertySupplierGroup(propertySupplier.getUserPropertiesSuppliers())) {
-			return;
-		}
-		if (!processPropertySupplierGroup(propertySupplier.getMachinePropertiesSupplier())) {
-			return;
-		}
-		if (!processPropertySupplierGroup(propertySupplier.getOsPropertiesSupplier())) {
-			return;
-		}
-		if (!processPropertySupplierGroup(propertySupplier.getIdePropertiesSupplier())) {
-			return;
-		}
-		if (!processPropertySupplierGroup(propertySupplier.getAdditionalPropertiesSupplier())) {
-			return;
-		}
-		if (!processPropertySupplierGroup(propertySupplier.getEnvironmentPropertiesSupplier())) {
-			return;
-		}
-		if (!processPropertySupplierGroup(propertySupplier.getCommonPropertiesSupplier())) {
-			return;
-		}
-
+		/*
+		 * ApplicationName is set last so that app names from properties take precedence over app names from code.
+		 */
 		if (applicationName != null) {
-			String alreadySetAppName = putIfAbsent(applicationProperties, BOOTSTRAP_APPLICATION_NAME_KEY,
-					applicationName);
-			if (alreadySetAppName != null) {
-				logger.log(String.format(
-						"Application name [%s] set programmatically was overridden from some property as [%s]",
-						applicationName, alreadySetAppName));
-			}
+			putIfAbsent(OVERRIDEABLE_CODE, BOOTSTRAP_APPLICATION_NAME_KEY, applicationName);
 		}
-
-		Map<String, String> resolvedProperties = PropertyUtils.resolvePropertiesInternally(applicationProperties);
-		MapDifference<String, String> mapDifference = Maps.difference(transformValues(applicationProperties, UNESCAPE),
-				transformValues(resolvedProperties, UNESCAPE));
-		if (mapDifference.areEqual()) {
+		
+		if (!processPropertySupplier(SYSTEM, propertySupplier.getSystemPropertiesSupplier())) {
+			return null;
+		}
+		if (!processPropertySupplierGroup(USER, propertySupplier.getUserPropertiesSuppliers())) {
+			return null;
+		}
+		if (!processPropertySupplierGroup(MACHINE, propertySupplier.getMachinePropertiesSupplier())) {
+			return null;
+		}
+		if (!processPropertySupplierGroup(OS, propertySupplier.getOsPropertiesSupplier())) {
+			return null;
+		}
+		if (!processPropertySupplierGroup(IDE, propertySupplier.getIdePropertiesSupplier())) {
+			return null;
+		}
+		// ADDITIONAL properties are here in priority ordering
+		if (!processPropertySupplierGroup(ENVIRONMENT, propertySupplier.getEnvironmentPropertiesSupplier())) {
+			return null;
+		}
+		if (!processPropertySupplierGroup(COMMON, propertySupplier.getCommonPropertiesSupplier())) {
+			return null;
+		}
+		
+		/*
+		 * Process ADDITIONAL properties out of order. This means that additional properties can't override property source locations, but
+		 * that additional property *locations* may be defined in common.properties.
+		 */
+		if (!processPropertySupplierGroup(ADDITIONAL, propertySupplier.getAdditionalPropertiesSupplier())) {
+			return null;
+		}
+		
+		final Map<String, String> applicationPropertiesSnapshot = getApplicationPropertiesSnapshot(); // this is the last use of the table
+		final Map<String, String> resolvedSuppliedProperties = PropertyUtils.resolvePropertiesInternally(applicationPropertiesSnapshot);
+		final MapDifference<String, String> resolutionDifference = Maps.difference(transformValues(applicationPropertiesSnapshot, UNESCAPE),
+				transformValues(resolvedSuppliedProperties, UNESCAPE));
+		if (resolutionDifference.areEqual()) {
 			logger.log("No properties found to resolve between property groups");
 		} else {
 			logger.log("Resolved property values between property groups as follows:\n  "
-					+ MAP_JOINER.join(mapDifference.entriesDiffering()));
+					+ MAP_JOINER.join(resolutionDifference.entriesDiffering()));
 		}
 
-
-		Builder<String, String> resolvedPropertiesBuilder = ImmutableMap.<String, String> builder().putAll(resolvedProperties);
-		if (!resolvedProperties.containsKey(BOOTSTRAP_MAIN_CLASS_KEY)) {
+		Builder<String, String> resolvedPropertiesBuilder = ImmutableMap.<String, String> builder().putAll(resolvedSuppliedProperties);
+		if (!resolvedSuppliedProperties.containsKey(BOOTSTRAP_MAIN_CLASS_KEY)) {
 			String mainClassName = detectMainClass();
 			if (mainClassName != null) {
-				resolvedProperties = resolvedPropertiesBuilder.put(BOOTSTRAP_MAIN_CLASS_KEY, mainClassName).build();
+				resolvedPropertiesBuilder.put(BOOTSTRAP_MAIN_CLASS_KEY, mainClassName).build();
 			}
 		}
-		if (!resolvedProperties.containsKey(BOOTSTRAP_MAIN_ARGS_STRING_KEY)) {
+		if (!resolvedSuppliedProperties.containsKey(BOOTSTRAP_MAIN_ARGS_STRING_KEY)) {
 			// TODO complain about two sources for this?
 			String mainArgsString = Joiner.on(", ").join(mainArgs);
-			resolvedProperties = resolvedPropertiesBuilder.put(BOOTSTRAP_MAIN_ARGS_STRING_KEY, mainArgsString).build();
+			resolvedPropertiesBuilder.put(BOOTSTRAP_MAIN_ARGS_STRING_KEY, mainArgsString).build();
 		}
 
-		applicationProperties = resolvedProperties;
+		return resolvedPropertiesBuilder.build();
 	}
-	private boolean processPropertySupplierGroup(Iterable<Supplier<Map<String, String>>> groupPropertiesSuppliers) {
+	private boolean processPropertySupplierGroup(PropertyGroupPriority group, Iterable<Supplier<Map<String, String>>> groupPropertiesSuppliers) {
 		Iterator<Supplier<Map<String, String>>> propSuppliersIterator = groupPropertiesSuppliers.iterator();
 		boolean allowContinue = true;
 		while (allowContinue && propSuppliersIterator.hasNext()) {
-			allowContinue &= processPropertySupplier(propSuppliersIterator.next());
+			allowContinue &= processPropertySupplier(group, propSuppliersIterator.next());
 		}
 		return allowContinue;
 	}
-	private boolean processPropertySupplier(Supplier<Map<String, String>> propertySupplier) {
+	private boolean processPropertySupplier(PropertyGroupPriority group, Supplier<Map<String, String>> propertySupplier) {
 		logger.log("Loading properties from [" + propertySupplier.toString() + "]");
 		Map<String, String> componentProperties = propertySupplier.get();
 
-		putAllIfAbsent(applicationProperties, componentProperties);
+		putAllIfAbsent(group, componentProperties);
 		if (!componentProperties.isEmpty()) {
 			logger.log("Loaded (non-overriding) properties from ["
 					+ propertySupplier.toString()
@@ -813,19 +858,20 @@ public final class BootstrapMain {
 	// TODO and others?
 	static final Map<String, String> COMPUTED_PROPERTIES = ImmutableMap.of(SystemUtils.HOST_NAME_KEY, SystemUtils.getHostName());
 	private void addComputedProperties() {
-		putAllIfAbsent(applicationProperties, COMPUTED_PROPERTIES);
+		putAllIfAbsent(CODE, COMPUTED_PROPERTIES);
 	}
 
 	private BootstrapResult bootstrapResult = null;
-	private BootstrapResult getBootstrapResult() {
+	private BootstrapResult getBootstrapResult(Map<String, String> generatedProperties) {
 		final Map<String, String> priorSystemProperties = ImmutableMap.copyOf(getSystemPropertyStrings());
 		final BootstrapResult bootstrapResult;
-		if (isBootstrappingEnabled()) {
-			bootstrapResult = new BootstrapResult(priorSystemProperties, applicationProperties, logger);
+		if (generatedProperties != null && isBootstrappingEnabled()) {
+			bootstrapResult = new BootstrapResult(priorSystemProperties, generatedProperties, logger);
 		} else {
 			logger.log("Bootstrapping disabled, system properties will not be set for the application; "
 					+ "it will be launched with no changes to its environment.");
-			bootstrapResult = new BootstrapResult(priorSystemProperties, priorSystemProperties, new BootstrapLogger(priorSystemProperties));
+			bootstrapResult = new BootstrapResult(priorSystemProperties, priorSystemProperties, new BootstrapLogger(
+					Functions.forMap(priorSystemProperties)));
 		}
 		return this.bootstrapResult = bootstrapResult;
 	}
@@ -859,6 +905,28 @@ public final class BootstrapMain {
 			putIfAbsent(destination, entry.getKey(), entry.getValue());
 		}
 	}
+	private void putAllIfAbsent(PropertyGroupPriority group, Map<String, String> source) {
+		for (Entry<String, String> entry : source.entrySet()) {
+			putIfAbsent(group, entry.getKey(), entry.getValue());
+		}
+	}
+	private void putIfAbsent(PropertyGroupPriority group, String key, String value) {
+		if (!applicationPropertiesTable.contains(key, group)) {
+			applicationPropertiesTable.put(key, group, value);
+		}
+	}
+	/**
+	 * Gets a snapshot of the current highest priority application properties.
+	 */
+	private Map<String, String> getApplicationPropertiesSnapshot() {
+		final ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+		for (Entry<String, Map<PropertyGroupPriority, String>> entry : applicationPropertiesTable.rowMap().entrySet()) {
+			Map<PropertyGroupPriority, String> valuesByPriority = entry.getValue();
+			String highestPriorityValue = Iterables.get(valuesByPriority.values(), 0);
+			builder.put(entry.getKey(), highestPriorityValue);
+		}
+		return builder.build();
+	}
 	/**
 	 * Adds the key-value pair to the map if there is currently no mapping for that key.
 	 * 
@@ -878,7 +946,13 @@ public final class BootstrapMain {
 	 * Gets a "system property" from the set of properties already set for the application.
 	 */
 	final String getApplicationProperty(String key) {
-		return applicationProperties.get(key);
+		Map<PropertyGroupPriority, String> map = applicationPropertiesTable.rowMap().get(key);
+		if (map == null || map.isEmpty()) {
+			return null;
+		} else {
+			assert Ordering.natural().isStrictlyOrdered(map.keySet());
+			return Iterables.get(map.values(), 0);
+		}
 	}
 	/**
 	 * Gets a "system property" from the set of properties already set for the application, or the default if no such

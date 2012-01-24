@@ -20,6 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Function;
+import com.google.common.base.Functions;
 import com.google.common.base.Joiner;
 import com.google.common.base.Joiner.MapJoiner;
 import com.google.common.collect.ImmutableMap;
@@ -87,6 +88,11 @@ public class PropertyUtils {
 		
 		return resolvedCopy;
 	}
+	
+	public static Map<String, String> resolvingPropertiesInternallyView(final Map<String, String> unresolvedProperties) {
+		return Maps.transformValues(unresolvedProperties, propertyResolverFromMap(unresolvedProperties));
+	}
+	
 	/**
 	 * Gets a live view over the entries in the current system properties map
 	 * that map a {@link String} key to a {@code String} value. This will
@@ -218,12 +224,15 @@ public class PropertyUtils {
 			+ quote(PROPERTY_KEY_START_MARKER) + quote(PROPERTY_KEY_END_MARKER) + "]*)"
 			+ quote(PROPERTY_KEY_END_MARKER));
 	public static Function<String, String> propertyResolverFromMap(final Map<String, String> properties) {
+		return propertyResolverFromFunction(Functions.forMap(properties));
+	}
+	public static Function<String, String> propertyResolverFromFunction(final Function<String, String> properties) {
 		return new PropertyResolverFromMap(properties);
 	}
 	
 	private static final class PropertyResolverFromMap implements Function<String, String> {
-		private final Map<String, String> properties;
-		private PropertyResolverFromMap(Map<String, String> properties) {
+		private final Function<String, String> properties;
+		PropertyResolverFromMap(Function<String, String> properties) {
 			this.properties = properties;
 		}
 		@Override
@@ -242,7 +251,7 @@ public class PropertyUtils {
 		}
 		private boolean resolvePropertyName(String input, boolean isKey, StringBuffer sb) {
 			if (isKey) {
-				String value = properties.get(input);
+				String value = properties.apply(input);
 				if (value != null) {
 					sb.append(value);
 					return true;

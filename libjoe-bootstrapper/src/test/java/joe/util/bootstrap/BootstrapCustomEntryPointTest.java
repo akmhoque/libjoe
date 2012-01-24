@@ -41,7 +41,7 @@ public class BootstrapCustomEntryPointTest {
 				BootstrapMain.BOOTSTRAP_ENABLE_LOGGING_KEY, "true", BootstrapMain.BOOTSTRAP_MAIN_METHOD_KEY,
 				"myEntryPointMethod");
 		PropertySupplier propertySupplier = new TestPropertySupplier(props);
-		PropertyProvider pp = BootstrapMain.withCustomPropertySupplier(propertySupplier).loadProperties().publishTo(PropertyProviderFactories.newMap());
+		PropertyProvider pp = BootstrapMain.withCustomPropertySupplier(propertySupplier).publishTo(PropertyProviderFactories.newMap());
 
 		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
 		assertThat(pp.getProperty(BOOTSTRAP_MAIN_CLASS_KEY),

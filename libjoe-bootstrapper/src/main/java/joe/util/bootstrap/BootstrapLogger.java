@@ -3,10 +3,11 @@ package joe.util.bootstrap;
 import static com.google.common.collect.Lists.newLinkedList;
 
 import java.util.Date;
-import java.util.Map;
 import java.util.Queue;
 import java.util.logging.LogManager;
 import java.util.logging.Logger;
+
+import com.google.common.base.Function;
 
 /**
  * Handles logging from {@link BootstrapMain}.
@@ -14,9 +15,9 @@ import java.util.logging.Logger;
  */
 final class BootstrapLogger {
 	private final Queue<String> logQueue = newLinkedList();
-	private final Map<String, String> applicationProperties;
+	private final Function<String, String> applicationProperties;
 
-	BootstrapLogger(Map<String, String> applicationProperties) {
+	BootstrapLogger(Function<String, String> applicationProperties) {
 		this.applicationProperties = applicationProperties;
 	}
 
@@ -83,7 +84,7 @@ final class BootstrapLogger {
 	 *         {@code false}
 	 */
 	boolean isLoggingDisabled() {
-		return "false".equalsIgnoreCase(applicationProperties.get(BootstrapMain.BOOTSTRAP_ENABLE_LOGGING_KEY));
+		return "false".equalsIgnoreCase(applicationProperties.apply(BootstrapMain.BOOTSTRAP_ENABLE_LOGGING_KEY));
 	}
 
 	/**
@@ -93,7 +94,7 @@ final class BootstrapLogger {
 	 *         {@code true}
 	 */
 	boolean isLoggingEnabled() {
-		return "true".equalsIgnoreCase(applicationProperties.get(BootstrapMain.BOOTSTRAP_ENABLE_LOGGING_KEY));
+		return "true".equalsIgnoreCase(applicationProperties.apply(BootstrapMain.BOOTSTRAP_ENABLE_LOGGING_KEY));
 	}
 	/**
 	 * Should logging be done through {@code java.util.logging}, rather than {@code System.out}?
@@ -102,7 +103,7 @@ final class BootstrapLogger {
 	 *         to {@code true}
 	 */
 	boolean isJulLoggingEnabled() {
-		return "true".equalsIgnoreCase(applicationProperties.get(BootstrapMain.BOOTSTRAP_ENABLE_JAVA_UTIL_LOGGING_KEY));
+		return "true".equalsIgnoreCase(applicationProperties.apply(BootstrapMain.BOOTSTRAP_ENABLE_JAVA_UTIL_LOGGING_KEY));
 	}
 	
 	/**
