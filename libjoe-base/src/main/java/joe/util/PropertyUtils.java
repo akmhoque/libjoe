@@ -224,7 +224,7 @@ public class PropertyUtils {
 			+ quote(PROPERTY_KEY_START_MARKER) + quote(PROPERTY_KEY_END_MARKER) + "]*)"
 			+ quote(PROPERTY_KEY_END_MARKER));
 	public static Function<String, String> propertyResolverFromMap(final Map<String, String> properties) {
-		return propertyResolverFromFunction(Functions.forMap(properties));
+		return propertyResolverFromFunction(Functions.forMap(properties, null));
 	}
 	public static Function<String, String> propertyResolverFromFunction(final Function<String, String> properties) {
 		return new PropertyResolverFromMap(properties);
