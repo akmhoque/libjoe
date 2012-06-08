@@ -165,6 +165,8 @@ public abstract class AbstractPropertyProvider implements PropertyProvider {
 				+ "  main class        [" + (mainClass == null ? "not specified" : mainClass) + "]\n"
 				+ "  main args         [" + mainArgsString + "]\n"
 				+ "  system properties\n    "
-				+ MAP_JOINER_INDENTED.join(ImmutableSortedMap.copyOf(transformValues(propertiesToPublish, UNESCAPE))) + "\n");
+				+ MAP_JOINER_INDENTED.join(ImmutableSortedMap.copyOf(transformValues(propertiesToPublish, UNESCAPE)))
+				+ "\n\n"
+				+ BootstrapMain.BOOTSTRAP_ENVIRONMENT_KEY + " => " + propertiesToPublish.get(BootstrapMain.BOOTSTRAP_ENVIRONMENT_KEY) + "\n");
 	}
 }

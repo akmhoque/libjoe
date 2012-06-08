@@ -1,6 +1,8 @@
 package joe.util.bootstrap;
 
 import static com.google.common.base.Throwables.propagate;
+import static com.google.common.collect.Iterables.concat;
+import static com.google.common.collect.Iterables.transform;
 import static joe.util.PropertyUtils.loadPropertiesFileIfExists;
 import static joe.util.bootstrap.BootstrapMain.ADDITIONAL_GROUP_NAME_TO_FILE_PROP_KEY;
 import static joe.util.bootstrap.BootstrapMain.ADDITIONAL_PROPERTIES_GROUP_KEY;
@@ -24,6 +26,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.base.Supplier;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Iterables;
 
@@ -75,28 +78,34 @@ class DefaultPropertySupplier implements PropertySupplier {
 			return ImmutableList.of();
 		} else {
 			Iterable<String> groupNames = Splitter.on(',').trimResults().omitEmptyStrings().split(additionalPropertyGroups);
-			Iterable<String> fileLocationKeys = Iterables.transform(groupNames, ADDITIONAL_GROUP_NAME_TO_FILE_PROP_KEY);
+			Iterable<String> fileLocationKeys = transform(groupNames, ADDITIONAL_GROUP_NAME_TO_FILE_PROP_KEY);
 			
-			return ImmutableList.copyOf(Iterables.transform(fileLocationKeys,
-					new Function<String, Supplier<Map<String, String>>>() {
+			return ImmutableList.copyOf(Iterables.concat(transform(fileLocationKeys,
+					new Function<String, Iterable<Supplier<Map<String, String>>>>() {
 						@Override
-						public Supplier<Map<String, String>> apply(final String fileNameKey) {
-							return new Supplier<Map<String, String>>() {
+						public Iterable<Supplier<Map<String, String>>> apply(final String fileNameKey) {
+							final Iterable<String> fileRelativePaths = bootstrapper.createPropertyFileRelativePath(bootstrapper.getApplicationProperty(fileNameKey));
+							return FluentIterable.from(fileRelativePaths).transform(new Function<String, Supplier<Map<String, String>>>() {
 								@Override
-								public Map<String, String> get() {
-									try {
-										return loadPropertiesFileIfExists(bootstrapper.createPropertyFileRelativePath(bootstrapper.getApplicationProperty(fileNameKey)));
-									} catch (IOException e) {
-										throw propagate(e);
-									}
+								public Supplier<Map<String, String>> apply(final String fileRelativePath) {
+									return new Supplier<Map<String, String>>() {
+										@Override
+										public Map<String, String> get() {
+											try {
+												return loadPropertiesFileIfExists(fileRelativePath);
+											} catch (IOException e) {
+												throw propagate(e);
+											}
+										}
+										@Override
+										public String toString() {
+											return String.format("Additional properties supplier: %s", fileNameKey);
+										}
+									};
 								}
-								@Override
-								public String toString() {
-									return String.format("Additional properties supplier: %s", fileNameKey);
-								}
-							};
+							}).toImmutableList();
 						}
-					}));
+					})));
 		}
 	}
 	@Override
@@ -121,26 +130,36 @@ class DefaultPropertySupplier implements PropertySupplier {
 
 		final Iterable<String> userPropertyLocations = Splitter.on(',').trimResults().omitEmptyStrings().split(
 				locationsString);
-		return ImmutableList.copyOf(Iterables.transform(userPropertyLocations,
-				new Function<String, Supplier<Map<String, String>>>() {
+		return ImmutableList.copyOf(concat(transform(userPropertyLocations, fileNameToProperties(supplierName))));
+	}
+
+	private Function<String, Iterable<Supplier<Map<String, String>>>> fileNameToProperties(final String supplierName) {
+		return new Function<String, Iterable<Supplier<Map<String, String>>>>() {
+			@Override
+			public Iterable<Supplier<Map<String, String>>> apply(String fileName) {
+				final Iterable<String> fileRelativePaths = bootstrapper.createPropertyFileRelativePath(fileName);
+				
+				return FluentIterable.from(fileRelativePaths).transform(new Function<String, Supplier<Map<String, String>>>() {
 					@Override
-					public Supplier<Map<String, String>> apply(final String fileName) {
+					public Supplier<Map<String, String>> apply(final String fileRelativePath) {
 						return new Supplier<Map<String, String>>() {
 							@Override
 							public Map<String, String> get() {
 								try {
-									return loadPropertiesFileIfExists(bootstrapper.createPropertyFileRelativePath(fileName));
+									return loadPropertiesFileIfExists(fileRelativePath);
 								} catch (IOException e) {
 									throw propagate(e);
 								}
 							}
 							@Override
 							public String toString() {
-								return String.format(supplierName, fileName);
+								return String.format(supplierName, fileRelativePath);
 							}
 						};
 					}
-				}));
+				}).toImmutableList();
+			}
+		};
 	}
 
 	/**

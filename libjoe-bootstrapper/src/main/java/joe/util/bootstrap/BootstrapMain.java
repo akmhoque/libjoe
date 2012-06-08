@@ -35,7 +35,9 @@ import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.base.Joiner;
 import com.google.common.base.Joiner.MapJoiner;
+import com.google.common.base.Splitter;
 import com.google.common.base.Supplier;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
@@ -77,8 +79,7 @@ import com.google.common.collect.TreeBasedTable;
  * modes, or turn off features like emails that should not be sent while debugging.
  * <li><b>Additional property groups</b> taken from files defined by {@code bootstrap.properties.<group-name>.file}. This defines the extra
  * properties that may vary within a single environment, for example you might want a {@code gui} group or a {@code web} group, if these
- * applications need different configuration to other server-side processes. <b>Note</b> that this allows name collisions and thus overriding
- * of default environment sets, should you really want to do that.
+ * applications need different configuration to other server-side processes.
  * <li><b>Environment properties</b> taken from files defined by {@code bootstrap.properties.env.file}. This defines the environment, for
  * example the production/development database URLs, paths to environment-specific files etc.
  * <li><b>Common properties</b> taken from files defined by {@code bootstrap.properties.common.file}. Define here those properties that are
@@ -324,7 +325,7 @@ public final class BootstrapMain {
 	/** logging support */
 	private final BootstrapLogger logger = new BootstrapLogger(getApplicationPropertyFunction);
 	/** path to the root of all config, defaulting to {@link #PROPERTIES_FILE_ROOT_LOCATION_DEFAULT} */
-	private String rootPropertiesDirectory;
+	private Iterable<String> rootPropertiesDirectories;
 	private Map<String, String> propertyOverrides = ImmutableMap.of();
 
 	/** Internal entry point, visible only for testing. */
@@ -353,7 +354,7 @@ public final class BootstrapMain {
 		String groupsString = Joiner.on(',').join(groups);
 		applicationPropertiesTable.put(ADDITIONAL_PROPERTIES_GROUP_KEY, SYSTEM, groupsString);
 	}
-	private void setPropertOverrides(Map<String, String> properties) {
+	private void setPropertyOverrides(Map<String, String> properties) {
 		this.propertyOverrides = properties;
 	}
 
@@ -702,7 +703,7 @@ public final class BootstrapMain {
 		 */
 		public BootstrapBuilder withPropertyOverrides(Map<String, String> properties) {
 			checkNotNull(properties, "Custom property set may not be null");
-			bootstrapMain.setPropertOverrides(properties);
+			bootstrapMain.setPropertyOverrides(properties);
 			return this;
 		}
 	}
@@ -722,7 +723,7 @@ public final class BootstrapMain {
 		}
 
 		addComputedProperties();
-		findRootConfigDirectory();
+		findRootConfigDirectories();
 		Map<String, String> generatedProperties = generateProperties();
 		return getBootstrapResult(generatedProperties);
 	}
@@ -865,11 +866,10 @@ public final class BootstrapMain {
 	/**
 	 * Looks up the root properties directory from the real system properties.
 	 */
-	private void findRootConfigDirectory() {
-		String rootPropertiesDirectory = System.getProperty(PROPERTIES_FILE_ROOT_LOCATIONS_KEY,
-				PROPERTIES_FILE_ROOT_LOCATION_DEFAULT);
+	private void findRootConfigDirectories() {
+		String rootPropertiesDirectory = System.getProperty(PROPERTIES_FILE_ROOT_LOCATIONS_KEY, PROPERTIES_FILE_ROOT_LOCATION_DEFAULT);
 		if (rootPropertiesDirectory != null) {
-			this.rootPropertiesDirectory = rootPropertiesDirectory;
+			this.rootPropertiesDirectories = Splitter.on(',').omitEmptyStrings().trimResults().split(rootPropertiesDirectory);
 		}
 	}
 
@@ -879,8 +879,14 @@ public final class BootstrapMain {
 	 * @param fileName path to the file, relative to the config directory root
 	 * @return path to the file, absolute or relative to the working directory
 	 */
-	final String createPropertyFileRelativePath(String fileName) {
-		return rootPropertiesDirectory + SystemUtils.getFileSeparator() + fileName;
+	final Iterable<String> createPropertyFileRelativePath(String fileName) {
+		final String suffix = SystemUtils.getFileSeparator() + fileName;
+		return FluentIterable.from(rootPropertiesDirectories).transform(new Function<Object, String>() {
+			@Override
+			public String apply(Object input) {
+				return String.valueOf(input) + suffix;
+			}
+		}).toImmutableList();
 	}
 
 	/*

@@ -180,9 +180,16 @@ public class PropertyUtils {
 		if (file.isFile()) {
 			stream = new FileInputStream(file);
 		} else {
-			InputStream inputStreamFromContextClassLoader = Thread.currentThread().getContextClassLoader().getResourceAsStream(fileName);
-			if (inputStreamFromContextClassLoader != null) {
-				stream = inputStreamFromContextClassLoader;
+			ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+			if (contextClassLoader == null) {
+				contextClassLoader = ClassLoader.getSystemClassLoader();
+			}
+		
+			if (contextClassLoader != null) {
+				InputStream inputStreamFromContextClassLoader = contextClassLoader.getResourceAsStream(fileName);
+				if (inputStreamFromContextClassLoader != null) {
+					stream = inputStreamFromContextClassLoader;
+				}
 			}
 		}
 		
